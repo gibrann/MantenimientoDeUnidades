@@ -3,7 +3,7 @@
  */
 
 import React, {Component} from 'react';
-import {View} from 'react-native'
+import {View, TouchableOpacity} from 'react-native'
 import {
     Container,
     Header,
@@ -21,11 +21,19 @@ import {
     Left,
     Body,
     Title,
-    Right
+    Right,
+    SwipeRow,
+    Separator
 } from 'native-base';
-
+import Modal from 'react-native-modal'
+import styles from '../estilos/estilos'
 
 export class dashboardView extends Component {
+
+    state = {
+        visibleModal: false,
+    };
+
     render() {
         return (
             <Container>
@@ -35,7 +43,7 @@ export class dashboardView extends Component {
                             <Header>
                                 <Left>
                                     <Button transparent>
-                                        <Icon name='arrow-back' />
+                                        <Icon name='arrow-back'/>
                                     </Button>
                                 </Left>
                                 <Body>
@@ -43,13 +51,22 @@ export class dashboardView extends Component {
                                 </Body>
                                 <Right>
                                     <Button transparent>
-                                        <Icon name='menu' />
+                                        <Icon name='menu'/>
                                     </Button>
                                 </Right>
                             </Header>
+                            <Separator bordered>
+                                <Text>MIDFIELD</Text>
+
+                                <Right>
+                                    <Button transparent>
+                                        <Icon name='menu'/>
+                                    </Button>
+                                </Right>
+                            </Separator>
                             <Header>
                                 <Body>
-                                <Title>UNIDADES</Title>
+                                <Title>Datos de la Unidad</Title>
                                 </Body>
                             </Header>
                             <Item floatingLabel>
@@ -86,7 +103,7 @@ export class dashboardView extends Component {
                             </Item>
                             <Header>
                                 <Body>
-                                <Title>OPERADOR</Title>
+                                <Title>Datos del Operador</Title>
                                 </Body>
                             </Header>
                             <Item disabled>
@@ -101,6 +118,35 @@ export class dashboardView extends Component {
                                 <Label>#Empleado</Label>
                                 <Input disabled/>
                             </Item>
+                            <Header>
+                                <Body>
+                                <Title>Material - Refacciones</Title>
+                                </Body>
+                                <Right>
+                                    <Button transparent onPress={() => this.setState({visibleModal: true})}>
+                                        <Icon active name="add"/>
+                                    </Button>
+                                </Right>
+                            </Header>
+                            <SwipeRow
+                                leftOpenValue={75}
+                                rightOpenValue={-75}
+                                left={
+                                    <Button success onPress={() => alert('Add')}>
+                                        <Icon active name="add"/>
+                                    </Button>
+                                }
+                                body={
+                                    <View>
+                                        <Text>SwipeRow Body Text</Text>
+                                    </View>
+                                }
+                                right={
+                                    <Button danger onPress={() => alert('Trash')}>
+                                        <Icon active name="trash"/>
+                                    </Button>
+                                }
+                            />
                         </Form>
                     </View>
                 </Content>
@@ -120,7 +166,17 @@ export class dashboardView extends Component {
                         </Button>
                     </FooterTab>
                 </Footer>
+                <Modal
+                    isVisible={this.state.visibleModal}
+                    animationIn={'slideInLeft'}
+                    animationOut={'slideOutRight'}
+                >
+                    <View style={styles.modalContent}>
+                        <Text>Hello!</Text>
+                    </View>
+                </Modal>
             </Container>
+
         );
     }
 }
