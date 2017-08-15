@@ -3,6 +3,7 @@ const Login = require('../vistas/loginView');
 const Dashboard = require('../vistas/dashboardView');
 const Catalogos = require('../vistas/catalogosView');
 const SinOrdenes = require('../vistas/sincOrdenesView');
+const Ordenes = require('../vistas/ordenesView');
 
 const Rutas =  {
     Login: {screen: Login, navigationOptions:{title:'Acceso'}},

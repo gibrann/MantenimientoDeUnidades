@@ -10,6 +10,6 @@ import {
     Text,
     View
 } from 'react-native';
-//import Example from './app/vistas/ModalView';
+//import Example from './app/vistas/sideMenu'
 import principalNavigator from './app/navegacion/principalNavigator';
 AppRegistry.registerComponent('MantenimientoDeUnidades', () => principalNavigator);

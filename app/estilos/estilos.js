@@ -85,7 +85,13 @@ const styles = StyleSheet.create({
         borderColor:'gray'
     },
     button: {
-        marginRight: 10
+        backgroundColor: 'lightblue',
+        padding: 12,
+        margin: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4,
+        borderColor: 'rgba(0, 0, 0, 0.1)'
     },modalContent: {
         backgroundColor: 'white',
         padding: 22,
@@ -97,6 +103,9 @@ const styles = StyleSheet.create({
     bottomModal: {
         justifyContent: 'flex-end',
         margin: 0,
+    },
+    container: {
+        backgroundColor : 'white'
     }
 
 });
