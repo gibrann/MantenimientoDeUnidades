@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 
 const window = Dimensions.get('window');
-const uri = 'https://pickaface.net/gallery/avatar/Opi51c74d0125fd4.png';
 
 const styles = StyleSheet.create({
     menu: {
@@ -48,7 +47,7 @@ export default function Menu({ onItemSelected }) {
             <View style={styles.avatarContainer}>
                 <Image
                     style={styles.avatar}
-                    source={{ uri }}
+                    source={require'.'}
                 />
                 <Text style={styles.name}>Your name</Text>
             </View>
