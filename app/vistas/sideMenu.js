@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import SideMenu from 'react-native-side-menu';
-import Menu from './Menu';
+import Menu from './menuView';
 
 const image = require('../imagenes/menu.png');
 
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     },
 });
 
-export default class Basic extends Component {
+export default class MenuUsuario extends Component {
     constructor(props) {
         super(props);
 
@@ -69,7 +69,7 @@ export default class Basic extends Component {
         });
 
     render() {
-        const menu = <Menu onItemSelected={this.onMenuItemSelected} />;
+
 
         return (
             <SideMenu
@@ -105,4 +105,4 @@ export default class Basic extends Component {
         );
     }
 }
- module.exports = Basic;
+ module.exports = MenuUsuario;

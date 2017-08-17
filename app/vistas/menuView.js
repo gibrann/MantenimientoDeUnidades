@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         flex: 2,
         width: window.width,
         height: window.height,
-        backgroundColor: 'gray',
+        backgroundColor: 'white',
         padding: 20,
     },
     avatarContainer: {
@@ -30,24 +30,28 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     name: {
-        position: 'absolute',
+        position: 'relative',
         left: 70,
-        top: 20,
+        top: 15,
     },
     item: {
         fontSize: 14,
         fontWeight: '300',
         paddingTop: 5,
     },
+    banner: {
+        width: 210,
+        height: 50
+    },
 });
 
-export default function Menu({ onItemSelected }) {
+export default function Menu({onItemSelected}) {
     return (
         <ScrollView scrollsToTop={false} style={styles.menu}>
             <View style={styles.avatarContainer}>
                 <Image
-                    style={styles.avatar}
-                    source={require'.'}
+                    style={styles.banner}
+                    source={require('../imagenes/final.png')}
                 />
                 <Text style={styles.name}>Your name</Text>
             </View>
@@ -56,14 +60,14 @@ export default function Menu({ onItemSelected }) {
                 onPress={() => onItemSelected('About')}
                 style={styles.item}
             >
-                About
+                Registro Ordenes
             </Text>
 
             <Text
                 onPress={() => onItemSelected('Contacts')}
                 style={styles.item}
             >
-                Contacts
+                Bandeja Ordenes
             </Text>
         </ScrollView>
     );
