@@ -118,22 +118,22 @@ export class ObtenerCatalogosView extends Component {
             (isConnected) => {
                 console.log("Estado de conexion " + isConnected);
                 this.setState({isConnected: isConnected});
+                if (isConnected) {
+                    this.fetchCatalogos();
+                } else {
+                    Alert.alert(
+                        'Error de conexion!!!',
+                        'Verifique su conexion a internet e intente nuevamente',
+                        [
+                            {
+                                text: 'Aceptar',
+                                onPress: (this.onBack.bind(this)),
+                            }
+                        ]
+                    )
+                }
             }
         );
-        if (this.state.isConnected) {
-            this.fetchCatalogos();
-        } else {
-            Alert.alert(
-                'Error de conexion!!!',
-                'Verifique su conexion a internet e intente nuevamente',
-                [
-                    {
-                        text: 'Aceptar',
-                        onPress: (this.onBack.bind(this)),
-                    }
-                ]
-            )
-        }
     };
 
     renderLoadingView() {
