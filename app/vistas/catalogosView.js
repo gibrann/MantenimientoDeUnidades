@@ -8,8 +8,9 @@ import {
     TextInput
 } from 'react-native';
 import styles from '../estilos/estilos';
-
+import { NavigationActions } from 'react-navigation';
 export class catalogosView extends Component {
+
     render() {
         return (
             <Image style={styles.contenedorPrincipal} source={require('../imagenes/mantocor2.jpg')}>
@@ -23,6 +24,9 @@ export class catalogosView extends Component {
                         <TouchableHighlight onPress={this.onSync.bind(this)} style={styles.boton}>
                             <Text style={styles.textoBoton}>Sincronizar</Text>
                         </TouchableHighlight>
+                        <TouchableHighlight onPress={this.onSyncOrd.bind(this)} style={styles.botonAlt}>
+                            <Text style={styles.textoBoton}>Syncronizar Ordenes</Text>
+                        </TouchableHighlight>
                         <TouchableHighlight onPress={this.onBack.bind(this)} style={styles.botonRed}>
                             <Text style={styles.textoBoton}>Regresar</Text>
                         </TouchableHighlight>
@@ -30,7 +34,7 @@ export class catalogosView extends Component {
                 </View>
             </Image>
         );
-    }
+    };
 
     onSync() {
         Alert.alert(
@@ -48,12 +52,23 @@ export class catalogosView extends Component {
             ]
         )
     };
-    onBack(){
+
+    onSyncOrd() {
+        this.props.navigation.navigate('SincOrdenes');
+    };
+
+    onBack() {
         this.props.navigation.navigate('Login');
     };
 
     aceptar() {
-
+        const resetAction = NavigationActions.reset({
+            index: 0,
+            actions: [
+                NavigationActions.navigate({ routeName: 'ObtenerCatalogos'})
+            ]
+        });
+        this.props.navigation.dispatch(resetAction);
     };
 
     cancelar() {

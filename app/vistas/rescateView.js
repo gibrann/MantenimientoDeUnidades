@@ -25,6 +25,19 @@ import Modal from 'react-native-modal'
 import styles from '../estilos/estilos'
 
 export class RescateView extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            visibleModal: false,
+        };
+    };
+
+    openModal() {
+        this.setState({
+            visibleModal: true,
+        })
+    };
+
     render() {
         return (
             <Form>
@@ -87,7 +100,7 @@ export class RescateView extends Component {
                     <Title>Material - Refacciones</Title>
                     </Body>
                     <Right>
-                        <Button transparent onPress={() => this.setState({visibleModal: true})}>
+                        <Button transparent onPress={() => {this.setState({visibleModal: true})}}>
                             <Icon active name="add"/>
                         </Button>
                     </Right>
@@ -111,6 +124,53 @@ export class RescateView extends Component {
                         </Button>
                     }
                 />
+                <Modal
+                    isVisible={this.state.visibleModal}
+                    animationIn={'zoomInDown'}
+                    animationOut={'zoomOutUp'}
+                    animationInTiming={1000}
+                    animationOutTiming={1000}
+                    backdropTransitionInTiming={1000}
+                    backdropTransitionOutTiming={1000}
+                >
+                    <View style={styles.modalContent}>
+                        <ScrollView>
+                            <Item floatingLabel>
+                                <Label># Placa</Label>
+                                <Input/>
+                            </Item>
+                            <Item floatingLabel>
+                                <Label>#Economico</Label>
+                                <Input/>
+                            </Item>
+                            <Item floatingLabel>
+                                <Label>Kilometraje</Label>
+                                <Input/>
+                            </Item>
+                            <Item disabled>
+                                <Label>SAG</Label>
+                                <Input disabled/>
+                            </Item>
+                            <Item disabled>
+                                <Label>Tipo</Label>
+                                <Input disabled/>
+                            </Item>
+                            <Item disabled>
+                                <Label>Marca</Label>
+                                <Input disabled/>
+                            </Item>
+                            <Item floatingLabel>
+                                <Label>Ruta</Label>
+                                <Input/>
+                            </Item>
+                            <TouchableOpacity onPress={() => {this.setState({visibleModal: false})}}>
+                                <View style={styles.button}>
+                                    <Text>Agregar</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                </Modal>
             </Form>
         );
     };

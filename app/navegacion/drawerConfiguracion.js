@@ -3,7 +3,7 @@ import { ScrollView } from 'react-native';
 import { DrawerItems } from 'react-navigation';
 
 const Login = require('../vistas/loginView');
-const Dashboard = require('../vistas/dashboardView');
+const Dashboard = require('../vistas/masterView');
 
 const configuracionDrawer = {
     drawerWidth: 200,

@@ -44,9 +44,9 @@ CREATE TABLE IF NOT EXISTS am_usuario
   username   char(30) PRIMARY KEY,
   password   char(100) NOT NULL,
   enabled    char(1)   NOT NULL,
-  nombres    char(30)  NOT NULL,
-  apellidos  char(30)  NOT NULL,
-  correo     char(50)  NOT NULL,
+  nombres    char(30),
+  apellidos  char(30),
+  correo     char(50),
   id_empresa INTEGER   NOT NULL,
   imagen     BLOB
 );

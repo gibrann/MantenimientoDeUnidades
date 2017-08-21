@@ -106,8 +106,19 @@ const styles = StyleSheet.create({
     },
     container: {
         backgroundColor: 'white'
-    }
-
+    },
+    modalScroll: {
+        backgroundColor: 'white',
+        width: 900,
+    },
+    textoInfoBox: {
+        textAlign: 'center',
+        color: 'white',
+        fontSize: 10,
+        fontWeight: 'bold',
+        fontFamily: 'Lato, sans-serif',
+        marginBottom: 20
+    },
 });
 
 export default styles;

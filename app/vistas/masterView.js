@@ -25,7 +25,6 @@ import {
     SwipeRow,
     Separator
 } from 'native-base';
-import Modal from 'react-native-modal'
 import styles from '../estilos/estilos'
 import SideMenu from 'react-native-side-menu';
 import Menu from './menuView';
@@ -34,7 +33,7 @@ import Correctivo from './correctivoView';
 import Rescate from './rescateView';
 
 
-export class dashboardView extends Component {
+export class masterView extends Component {
     constructor(props) {
         super(props);
 
@@ -42,9 +41,8 @@ export class dashboardView extends Component {
 
         this.state = {
             isOpen: false,
-            selectedTab: 'preventivo',
+            selectedTab: 'correctivo',
             selectedItem: 'About',
-            visibleModal: false,
         };
     };
 
@@ -64,17 +62,14 @@ export class dashboardView extends Component {
             selectedItem: item,
         });
 
+
+
     renderSelectedTab() {
         switch (this.state.selectedTab) {
             case 'preventivo':
                 return (
                     <View>
                         <Header>
-                            <Left>
-                                <Button transparent>
-                                    <Icon name='arrow-back'/>
-                                </Button>
-                            </Left>
                             <Body>
                             <Title>MANTENIMIENTO PREVENTIVO</Title>
                             </Body>
@@ -93,11 +88,6 @@ export class dashboardView extends Component {
                 return (
                     <View>
                         <Header>
-                            <Left>
-                                <Button transparent>
-                                    <Icon name='arrow-back'/>
-                                </Button>
-                            </Left>
                             <Body>
                             <Title>MANTENIMIENTO CORRECTIVO</Title>
                             </Body>
@@ -116,11 +106,6 @@ export class dashboardView extends Component {
                 return (
                     <View>
                         <Header>
-                            <Left>
-                                <Button transparent>
-                                    <Icon name='arrow-back'/>
-                                </Button>
-                            </Left>
                             <Body>
                             <Title>MANTENIMIENTO DE RESCATE</Title>
                             </Body>
@@ -171,62 +156,10 @@ export class dashboardView extends Component {
                             </Button>
                         </FooterTab>
                     </Footer>
-                    <Modal
-                        isVisible={this.state.visibleModal}
-                        animationIn={'zoomInDown'}
-                        animationOut={'zoomOutUp'}
-                        animationInTiming={1000}
-                        animationOutTiming={1000}
-                        backdropTransitionInTiming={1000}
-                        backdropTransitionOutTiming={1000}
-                    >
-                        <View style={styles.modalContent}>
-                            <ScrollView>
-                                <Text>Hello!</Text>
-
-                                <Item floatingLabel>
-                                    <Label># Placa</Label>
-                                    <Input/>
-                                </Item>
-                                <Item floatingLabel>
-                                    <Label>#Economico</Label>
-                                    <Input/>
-                                </Item>
-                                <Item floatingLabel>
-                                    <Label>Kilometraje</Label>
-                                    <Input/>
-                                </Item>
-                                <Item disabled>
-                                    <Label>SAG</Label>
-                                    <Input disabled/>
-                                </Item>
-                                <Item disabled>
-                                    <Label>Tipo</Label>
-                                    <Input disabled/>
-                                </Item>
-                                <Item disabled>
-                                    <Label>Marca</Label>
-                                    <Input disabled/>
-                                </Item>
-                                <Item floatingLabel>
-                                    <Label>Ruta</Label>
-                                    <Input/>
-                                </Item>
-
-                                <TouchableOpacity onPress={() => {
-                                    this.setState({visibleModal: false})
-                                }}>
-                                    <View style={styles.button}>
-                                        <Text>Agregar</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </ScrollView>
-                        </View>
-                    </Modal>
                 </Container>
             </SideMenu>
         );
     }
 }
 
-module.exports = dashboardView;
+module.exports = masterView;
