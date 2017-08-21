@@ -11,15 +11,18 @@ import {
     TouchableHighlight,
     Alert,
     Image,
+    NetInfo
 } from 'react-native'
 import {NavigationActions} from 'react-navigation';
 import {limpiaCatalogos, cargarCatalogos} from '../repositorios/generalRepository'
 import styles from '../estilos/estilos';
+
 export class ObtenerCatalogosView extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
+            isConnected: false,
             loaded: false,
         }
     };
@@ -53,7 +56,6 @@ export class ObtenerCatalogosView extends Component {
     };
 
 
-
     onSyncOrd() {
         const resetAction = NavigationActions.reset({
             index: 0,
@@ -75,6 +77,7 @@ export class ObtenerCatalogosView extends Component {
     };
 
     fetchCatalogos() {
+
         fetch(
             "http://93.188.165.133:8080/manttoUnidades/SAFRest/services/getCatalogos", {
                 method: 'POST',
@@ -107,10 +110,30 @@ export class ObtenerCatalogosView extends Component {
             }).catch((error) => {
             console.error(error);
         });
+
     };
 
     componentDidMount() {
-        this.fetchCatalogos();
+        NetInfo.isConnected.fetch().done(
+            (isConnected) => {
+                console.log("Estado de conexion " + isConnected);
+                this.setState({isConnected: isConnected});
+            }
+        );
+        if (this.state.isConnected) {
+            this.fetchCatalogos();
+        } else {
+            Alert.alert(
+                'Error de conexion!!!',
+                'Verifique su conexion a internet e intente nuevamente',
+                [
+                    {
+                        text: 'Aceptar',
+                        onPress: (this.onBack.bind(this)),
+                    }
+                ]
+            )
+        }
     };
 
     renderLoadingView() {
@@ -124,11 +147,11 @@ export class ObtenerCatalogosView extends Component {
     };
 
     renderCatalogos(catalogo) {
-        catalogo = catalogo.replace("CAT_","");
+        catalogo = catalogo.replace("CAT_", "");
         return (
-                <View>
-                    <Text style={styles.textoInfoBox}>{catalogo}</Text>
-                </View>
+            <View>
+                <Text style={styles.textoInfoBox}>{catalogo}</Text>
+            </View>
         );
     };
 };
