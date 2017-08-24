@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS ar_unidades
 (
   num_placa                 char(20),
   num_economico             char(20),
-  id_subagencia             char(20) NOT NULL,
+  id_subagencia             char(20),
   equipo                    INTEGER,
   clase_vehiculo            char(20),
   estatus_servicio          char(20),
@@ -44,9 +44,6 @@ CREATE TABLE IF NOT EXISTS am_usuario
   username   char(30) PRIMARY KEY,
   password   char(100) NOT NULL,
   enabled    char(1)   NOT NULL,
-  nombres    char(30),
-  apellidos  char(30),
-  correo     char(50),
   id_empresa INTEGER   NOT NULL,
   imagen     BLOB
 );
@@ -112,7 +109,7 @@ CREATE TABLE IF NOT EXISTS ar_orden_trabajo
 
 CREATE TABLE IF NOT EXISTS ar_servicio_refacciones
 (
-  id_orden_trabajo  INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_orden_trabajo  INTEGER PRIMARY KEY,
   descripcion       char(100),
   total_mano_obra   DECIMAL(8, 2) NOT NULL,
   total_refacciones DECIMAL(8, 2) NOT NULL,
@@ -153,7 +150,7 @@ CREATE TABLE IF NOT EXISTS ar_paquete_familia
 
 CREATE TABLE IF NOT EXISTS ar_material_serv_refaccion
 (
-  id_material_serv_refaccion INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_material_serv_refaccion INTEGER PRIMARY KEY,
   id_material_servicio       INTEGER       NOT NULL,
   descripcion                char(100)     NOT NULL,
   marca_material             char(50)      NOT NULL,

@@ -3,7 +3,8 @@ import {
     View,
     TouchableOpacity,
     ScrollView,
-    Image
+    Image,
+    TouchableHighlight
 } from 'react-native'
 import {
     Container,
@@ -175,6 +176,16 @@ export class PreventivoView extends Component {
                     {this.state.images ? this.state.images.map(i => <View style={{paddingRight: 50}}
                                                                           key={i.uri}>{this.renderAsset(i)}</View>) : null}
                 </ScrollView>
+                <Separator bordered/>
+                <Header>
+                    <Body>
+                    <Title>Observaciones</Title>
+                    </Body>
+                </Header>
+                <Separator bordered/>
+                <TouchableHighlight  style={styles.botonAlt}>
+                    <Text style={styles.textoBoton}>Registrar Ordenes</Text>
+                </TouchableHighlight>
                 <Modal
                     isVisible={this.state.visibleModal}
                     animationIn={'zoomInDown'}

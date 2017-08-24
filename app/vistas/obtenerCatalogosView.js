@@ -26,7 +26,8 @@ export class ObtenerCatalogosView extends Component {
             loaded: false,
         }
     };
-
+//Empresa1
+//Empresa2
 
     render() {
         if (!this.state.loaded) {

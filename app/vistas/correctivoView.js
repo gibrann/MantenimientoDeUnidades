@@ -1,5 +1,11 @@
 import React, {Component} from 'react';
-import {View, TouchableOpacity, ScrollView} from 'react-native'
+import {
+    View,
+    TouchableOpacity,
+    ScrollView,
+    Image,
+    TouchableHighlight
+} from 'react-native'
 import {
     Container,
     Header,
@@ -19,10 +25,11 @@ import {
     Title,
     Right,
     SwipeRow,
-    Separator
+    Separator,
 } from 'native-base';
 import Modal from 'react-native-modal'
 import styles from '../estilos/estilos'
+import ImagePicker from 'react-native-image-crop-picker';
 
 export class CorrectivoView extends Component {
     constructor(props) {
@@ -32,6 +39,29 @@ export class CorrectivoView extends Component {
         };
     };
 
+    pickMultiple() {
+        ImagePicker.openPicker({
+            multiple: true,
+            waitAnimationEnd: false,
+            maxFiles: 2,
+        }).then(images => {
+            this.setState({
+                image: null,
+                images: images.map(i => {
+                    console.log('received image', i);
+                    return {uri: i.path, width: i.width, height: i.height, mime: i.mime};
+                })
+            });
+        }).catch(e => alert(e));
+    };
+
+    renderAsset(image) {
+        return this.renderImage(image);
+    };
+
+    renderImage(image) {
+        return <Image style={{width: 300, height: 300, resizeMode: 'contain'}} source={image}/>
+    };
     openModal() {
         this.setState({
             visibleModal: true,
@@ -102,7 +132,9 @@ export class CorrectivoView extends Component {
                     <Title>Material - Refacciones</Title>
                     </Body>
                     <Right>
-                        <Button transparent onPress={() => {this.setState({visibleModal: true})}}>
+                        <Button transparent onPress={() => {
+                            this.setState({visibleModal: true})
+                        }}>
                             <Icon active name="add"/>
                         </Button>
                     </Right>
@@ -126,6 +158,31 @@ export class CorrectivoView extends Component {
                         </Button>
                     }
                 />
+                <Separator bordered/>
+                <Header>
+                    <Body>
+                    <Title>Imagenes</Title>
+                    </Body>
+                    <Right>
+                        <Button transparent onPress={this.pickMultiple.bind(this)}>
+                            <Icon active name="add"/>
+                        </Button>
+                    </Right>
+                </Header>
+                <ScrollView horizontal={true}>
+                    {this.state.images ? this.state.images.map(i => <View style={{paddingRight: 50}}
+                                                                          key={i.uri}>{this.renderAsset(i)}</View>) : null}
+                </ScrollView>
+                <Separator bordered/>
+                <Header>
+                    <Body>
+                    <Title>Observaciones</Title>
+                    </Body>
+                </Header>
+                <Separator bordered/>
+                <TouchableHighlight  style={styles.botonAlt}>
+                    <Text style={styles.textoBoton}>Registrar Ordenes</Text>
+                </TouchableHighlight>
                 <Modal
                     isVisible={this.state.visibleModal}
                     animationIn={'zoomInDown'}
@@ -136,7 +193,7 @@ export class CorrectivoView extends Component {
                     backdropTransitionOutTiming={1000}
                 >
                     <View style={styles.modalContent}>
-                        <ScrollView style={styles.modalScroll}>
+                        <ScrollView>
                             <Item floatingLabel>
                                 <Label># Placa</Label>
                                 <Input/>
@@ -165,7 +222,9 @@ export class CorrectivoView extends Component {
                                 <Label>Ruta</Label>
                                 <Input/>
                             </Item>
-                            <TouchableOpacity onPress={() => {this.setState({visibleModal: false})}}>
+                            <TouchableOpacity onPress={() => {
+                                this.setState({visibleModal: false})
+                            }}>
                                 <View style={styles.button}>
                                     <Text>Agregar</Text>
                                 </View>

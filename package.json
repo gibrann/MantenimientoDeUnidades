@@ -11,6 +11,7 @@
     "native-base": "^2.3.1",
     "react": "16.0.0-alpha.12",
     "react-native": "0.46.4",
+    "react-native-autocomplete-input": "github:l-urence/react-native-autocomplete-input",
     "react-native-bcrypt": "^2.4.0",
     "react-native-card-view": "0.0.3",
     "react-native-image-crop-picker": "^0.15.1",

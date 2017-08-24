@@ -7,9 +7,9 @@ import {
     Image,
     TextInput
 } from 'react-native';
-import { NavigationActions } from 'react-navigation'
+import {NavigationActions} from 'react-navigation'
 import styles from '../estilos/estilos';
-import {validarAcceso} from '../repositorios/generalRepository'
+import {validarAcceso} from '../repositorios/generalRepository';
 
 export class loginView extends Component {
     constructor(props) {
@@ -22,16 +22,7 @@ export class loginView extends Component {
     };
 
     onLogin() {
-        let resultado = validarAcceso(this.state.username, this.state.password);
-        if (resultado !== null && resultado !== undefined && resultado.exito) {
-            const resetAction = NavigationActions.reset({
-                index: 0,
-                actions: [
-                    NavigationActions.navigate({ routeName: 'Master'})
-                ]
-            });
-            this.props.navigation.dispatch(resetAction);
-        } else {
+        if (this.state.username === null || this.state.password === null) {
             Alert.alert(
                 'Acceso',
                 'Los datos ingresados son invalidos verifiquelos una vez más.',
@@ -41,6 +32,29 @@ export class loginView extends Component {
                     }
                 ]
             );
+        } else {
+            console.log(this.state.username + ' ' + this.state.password);
+            let resultado = validarAcceso(this.state.username, this.state.password);
+            console.log("resultado: "+ resultado)
+            if (resultado !== null && resultado !== undefined && resultado.exito) {
+                const resetAction = NavigationActions.reset({
+                    index: 0,
+                    actions: [
+                        NavigationActions.navigate({routeName: 'Master'})
+                    ]
+                });
+                this.props.navigation.dispatch(resetAction);
+            } else {
+                Alert.alert(
+                    'Acceso',
+                    'Los datos ingresados son invalidos verifiquelos una vez más.',
+                    [
+                        {
+                            text: 'Aceptar',
+                        }
+                    ]
+                );
+            }
         }
     };
 
