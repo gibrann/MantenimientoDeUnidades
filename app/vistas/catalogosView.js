@@ -5,11 +5,21 @@ import {
     View,
     Alert,
     Image,
-    TextInput
+    TextInput,
+    Picker,
+    Item
 } from 'react-native';
 import styles from '../estilos/estilos';
-import { NavigationActions } from 'react-navigation';
+import {NavigationActions} from 'react-navigation';
+
 export class catalogosView extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            selected: "1",
+            options: {"1": "Empresa 1", "2": "Empresa 2"},
+        }
+    }
 
     render() {
         return (
@@ -18,7 +28,22 @@ export class catalogosView extends Component {
                     <View style={styles.cajaLogin}>
                         <Image source={require('../imagenes/final.png')} style={styles.banner}/>
                         <Text style={styles.tituloLogin}>SINCRONINZACION DE CATALOGOS</Text>
-                        <TextInput style={styles.input} placeholder='Empresa...' underlineColorAndroid='transparent'/>
+                        <Picker
+                            style={styles.input}
+                            mode="dropdown"
+                            selectedValue={this.state.selected}
+                            onValueChange={(itemValue, itemIndex) => {
+                                console.log("empresa: " + itemValue);
+                                console.log("index: " + itemIndex);
+                                this.setState({selected: itemValue});
+                            }}>
+                            {Object.keys(this.state.options).map((key) => {
+                                return (
+                                    <Picker.Item label={this.state.options[key]} value={key} key={key}/>
+                                )
+                            })}
+                        </Picker>
+
                         <TextInput style={styles.input} placeholder='Clave...' underlineColorAndroid='transparent'
                                    secureTextEntry={true}/>
                         <TouchableHighlight onPress={this.onSync.bind(this)} style={styles.boton}>
@@ -65,7 +90,7 @@ export class catalogosView extends Component {
         const resetAction = NavigationActions.reset({
             index: 0,
             actions: [
-                NavigationActions.navigate({ routeName: 'ObtenerCatalogos'})
+                NavigationActions.navigate({routeName: 'ObtenerCatalogos', params: {empresa:this.state.selected}})
             ]
         });
         this.props.navigation.dispatch(resetAction);

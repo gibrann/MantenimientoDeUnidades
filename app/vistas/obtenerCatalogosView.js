@@ -21,13 +21,13 @@ export class ObtenerCatalogosView extends Component {
 
     constructor(props) {
         super(props)
+        console.log("Empresa  "+this.props.navigation.state.params.empresa);
         this.state = {
+            empresa: this.props.navigation.state.params.empresa,
             isConnected: false,
             loaded: false,
         }
     };
-//Empresa1
-//Empresa2
 
     render() {
         if (!this.state.loaded) {
@@ -83,7 +83,7 @@ export class ObtenerCatalogosView extends Component {
             "http://93.188.165.133:8080/manttoUnidades/SAFRest/services/getCatalogos", {
                 method: 'POST',
                 headers: {'Accept': 'application/json', 'Content-Type': 'application/json',},
-                body: JSON.stringify({"idEmpresa": 1})
+                body: JSON.stringify({"idEmpresa": this.state.empresa})
             })
             .then((response) => response.json())
             .then((responseJson) => {
@@ -96,8 +96,11 @@ export class ObtenerCatalogosView extends Component {
                     dataSource: ds.cloneWithRows(keys),
                     loaded: true,
                 }, function () {
-                    limpiaCatalogos();
-                    cargarCatalogos(responseJson);
+                    //limpiaCatalogos();
+                    //setTimeout(function () {
+                      //  console.log("JSON "+responseJson);
+                        cargarCatalogos(responseJson);
+                    //},5000)
                     Alert.alert(
                         'Exito!!!',
                         'La base de datos ha sido actualizada.',
@@ -117,7 +120,7 @@ export class ObtenerCatalogosView extends Component {
     componentDidMount() {
         NetInfo.isConnected.fetch().done(
             (isConnected) => {
-                console.log("Estado de conexion " + isConnected);
+                console.log("Estado de conexion a internet " + isConnected);
                 this.setState({isConnected: isConnected});
                 if (isConnected) {
                     this.fetchCatalogos();
