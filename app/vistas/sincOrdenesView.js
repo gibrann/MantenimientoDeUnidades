@@ -13,10 +13,9 @@ import {obtenerUnidades} from '../repositorios/generalRepository';
 class AutocompleteExample extends Component {
     static renderUnidad(unidad) {
         const { num_placa,num_economico,clase_vehiculo } = unidad;
-
         return (
             <View>
-                <Text style={styles.titleText}>{num_placa}. {title}</Text>
+                <Text style={styles.titleText}>{num_placa}</Text>
                 <Text style={styles.titleText}>({num_economico})</Text>
                 <Text style={styles.openingText}>{clase_vehiculo}</Text>
             </View>
@@ -32,13 +31,13 @@ class AutocompleteExample extends Component {
     }
 
     componentDidMount() {
-        var _unidades = [];
+        let _unidades = [];
         _unidades = obtenerUnidades('');
-        _that=this;
+        var _this = this;
         setTimeout(function () {
-            _that.setState({ unidades: _unidades });
+            _this.setState({unidades:_unidades});
             console.log("Se asgnaron unidades");
-            console.log("Unidades: "+_unidades)
+            console.log("Unidades: "+_unidades);
         },5000);
 
     }
@@ -69,9 +68,9 @@ class AutocompleteExample extends Component {
                     onChangeText={text => this.setState({ query: text })}
                     placeholder="Ingrese su numero de placa"
                     renderItem={({ num_placa, num_economico }) => (
-                        <TouchableOpacity onPress={() => this.setState({ query: title })}>
+                        <TouchableOpacity onPress={() => this.setState({ query: num_placa })}>
                             <Text style={styles.itemText}>
-                                {title} ({release_date.split('-')[0]})
+                                {num_placa} ({num_economico})
                             </Text>
                         </TouchableOpacity>
                     )}
@@ -94,7 +93,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#F5FCFF',
         flex: 1,
-        paddingTop: 25
+        paddingTop: 15
     },
     autocompleteContainer: {
         marginLeft: 10,
@@ -108,7 +107,7 @@ const styles = StyleSheet.create({
         // `backgroundColor` needs to be set otherwise the
         // autocomplete input will disappear on text input.
         backgroundColor: '#F5FCFF',
-        marginTop: 8
+        marginTop: 5
     },
     infoText: {
         textAlign: 'center'
@@ -123,7 +122,6 @@ const styles = StyleSheet.create({
     directorText: {
         color: 'grey',
         fontSize: 12,
-        marginBottom: 10,
         textAlign: 'center'
     },
     openingText: {

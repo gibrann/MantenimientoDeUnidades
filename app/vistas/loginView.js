@@ -36,7 +36,7 @@ export class loginView extends Component {
             console.log(this.state.username + ' ' + this.state.password);
             let Respuesta = {data: null, mensaje: '', exito: false};
             Respuesta = validarAcceso(this.state.username, this.state.password);
-            var  _this = this;
+            var _this = this;
             setTimeout(function () {
                 console.log("resultado: " + Respuesta.exito)
                 if (Respuesta.exito) {
