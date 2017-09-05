@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     },
 });
 
-export default function Menu({onItemSelected}) {
+export default function Menu({onItemSelected,username}) {
     return (
         <ScrollView scrollsToTop={false} style={styles.menu}>
             <View style={styles.avatarContainer}>
@@ -53,18 +53,18 @@ export default function Menu({onItemSelected}) {
                     style={styles.banner}
                     source={require('../imagenes/final.png')}
                 />
-                <Text style={styles.name}>Your name</Text>
+                <Text style={styles.name}>Usuario: {username}</Text>
             </View>
 
             <Text
-                onPress={() => onItemSelected('About')}
+                onPress={() => onItemSelected('Registro')}
                 style={styles.item}
             >
                 Registro Ordenes
             </Text>
 
             <Text
-                onPress={() => onItemSelected('Contacts')}
+                onPress={() => onItemSelected('Bandeja')}
                 style={styles.item}
             >
                 Bandeja Ordenes
@@ -75,4 +75,5 @@ export default function Menu({onItemSelected}) {
 
 Menu.propTypes = {
     onItemSelected: PropTypes.func.isRequired,
+    username: PropTypes.string.isRequired,
 };

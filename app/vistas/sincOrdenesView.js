@@ -6,21 +6,19 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-
-const API = 'https://swapi.co/api';
-const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 import Autocomplete from 'react-native-autocomplete-input';
 
+import {obtenerUnidades} from '../repositorios/generalRepository';
+
 class AutocompleteExample extends Component {
-    static renderFilm(film) {
-        const { title, director, opening_crawl, episode_id } = film;
-        const roman = episode_id < ROMAN.length ? ROMAN[episode_id] : episode_id;
+    static renderUnidad(unidad) {
+        const { num_placa,num_economico,clase_vehiculo } = unidad;
 
         return (
             <View>
-                <Text style={styles.titleText}>{roman}. {title}</Text>
-                <Text style={styles.directorText}>({director})</Text>
-                <Text style={styles.openingText}>{opening_crawl}</Text>
+                <Text style={styles.titleText}>{num_placa}. {title}</Text>
+                <Text style={styles.titleText}>({num_economico})</Text>
+                <Text style={styles.openingText}>{clase_vehiculo}</Text>
             </View>
         );
     }
@@ -28,31 +26,36 @@ class AutocompleteExample extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            films: [],
+            unidades: [],
             query: ''
         };
     }
 
     componentDidMount() {
-        fetch(`${API}/films/`).then(res => res.json()).then((json) => {
-            const { results: films } = json;
-            this.setState({ films });
-        });
+        var _unidades = [];
+        _unidades = obtenerUnidades('');
+        _that=this;
+        setTimeout(function () {
+            _that.setState({ unidades: _unidades });
+            console.log("Se asgnaron unidades");
+            console.log("Unidades: "+_unidades)
+        },5000);
+
     }
 
-    findFilm(query) {
+    findUnidad(query) {
         if (query === '') {
             return [];
         }
-
-        const { films } = this.state;
+        console.log("Aplicando regex");
+        const { unidades } = this.state;
         const regex = new RegExp(`${query.trim()}`, 'i');
-        return films.filter(film => film.title.search(regex) >= 0);
+        return unidades.filter(unidad => unidad.num_placa.search(regex) >= 0);
     }
 
     render() {
         const { query } = this.state;
-        const films = this.findFilm(query);
+        const unidades = this.findUnidad(query);
         const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
 
         return (
@@ -61,11 +64,11 @@ class AutocompleteExample extends Component {
                     autoCapitalize="none"
                     autoCorrect={false}
                     containerStyle={styles.autocompleteContainer}
-                    data={films.length === 1 && comp(query, films[0].title) ? [] : films}
+                    data={unidades.length === 1 && comp(query, unidades[0].num_placa) ? [] : unidades}
                     defaultValue={query}
                     onChangeText={text => this.setState({ query: text })}
-                    placeholder="Enter Star Wars film title"
-                    renderItem={({ title, release_date }) => (
+                    placeholder="Ingrese su numero de placa"
+                    renderItem={({ num_placa, num_economico }) => (
                         <TouchableOpacity onPress={() => this.setState({ query: title })}>
                             <Text style={styles.itemText}>
                                 {title} ({release_date.split('-')[0]})
@@ -74,11 +77,11 @@ class AutocompleteExample extends Component {
                     )}
                 />
                 <View style={styles.descriptionContainer}>
-                    {films.length > 0 ? (
-                        AutocompleteExample.renderFilm(films[0])
+                    {unidades.length > 0 ? (
+                        AutocompleteExample.renderUnidad(unidades[0])
                     ) : (
                         <Text style={styles.infoText}>
-                            Enter Title of a Star Wars movie
+                            Ingrese numero de Placa
                         </Text>
                     )}
                 </View>

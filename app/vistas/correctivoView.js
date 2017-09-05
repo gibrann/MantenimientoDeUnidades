@@ -30,12 +30,14 @@ import {
 import Modal from 'react-native-modal'
 import styles from '../estilos/estilos'
 import ImagePicker from 'react-native-image-crop-picker';
+import SignatureCapture from 'react-native-signature-capture';
 
 export class CorrectivoView extends Component {
     constructor(props) {
         super(props);
         this.state = {
             visibleModal: false,
+            visibleSgnature: false,
         };
     };
 
@@ -62,11 +64,31 @@ export class CorrectivoView extends Component {
     renderImage(image) {
         return <Image style={{width: 300, height: 300, resizeMode: 'contain'}} source={image}/>
     };
+
     openModal() {
         this.setState({
             visibleModal: true,
         })
     };
+
+    saveSign() {
+        this.refs["sign"].saveImage();
+    }
+
+    resetSign() {
+        this.refs["sign"].resetImage();
+    }
+
+    _onSaveEvent(result) {
+        //result.encoded - for the base64 encoded png
+        //result.pathName - for the file path name
+        console.log(result.encoded);
+    }
+
+    _onDragEvent() {
+        // This callback will be called when the user enters signature
+        console.log("dragged");
+    }
 
     render() {
         return (
@@ -180,9 +202,12 @@ export class CorrectivoView extends Component {
                     </Body>
                 </Header>
                 <Separator bordered/>
-                <TouchableHighlight  style={styles.botonAlt}>
+                <TouchableHighlight onPress={() => {
+                    this.setState({visibleSgnature: true})
+                }} style={styles.buttonEnd}>
                     <Text style={styles.textoBoton}>Registrar Ordenes</Text>
                 </TouchableHighlight>
+                <Separator bordered/>
                 <Modal
                     isVisible={this.state.visibleModal}
                     animationIn={'zoomInDown'}
@@ -193,7 +218,7 @@ export class CorrectivoView extends Component {
                     backdropTransitionOutTiming={1000}
                 >
                     <View style={styles.modalContent}>
-                        <ScrollView>
+                        <ScrollView style={styles.modalScroll}>
                             <Item floatingLabel>
                                 <Label># Placa</Label>
                                 <Input/>
@@ -230,6 +255,46 @@ export class CorrectivoView extends Component {
                                 </View>
                             </TouchableOpacity>
                         </ScrollView>
+                    </View>
+                </Modal>
+                <Modal
+                    isVisible={this.state.visibleSgnature}
+                    animationIn={'zoomInDown'}
+                    animationOut={'zoomOutUp'}
+                    animationInTiming={1000}
+                    animationOutTiming={1000}
+                    backdropTransitionInTiming={1000}
+                    backdropTransitionOutTiming={1000}
+                >
+                    <View style={styles.modalSignature}>
+                        <View style={styles.viewSignature}>
+                            <Text style={{alignItems: "center", justifyContent: "center"}}>Capture su firma</Text>
+                            <SignatureCapture
+                                style={[{flex: 1}, styles.signature]}
+                                ref="sign"
+                                onSaveEvent={this._onSaveEvent}
+                                onDragEvent={this._onDragEvent}
+                                saveImageFileInExtStorage={false}
+                                showNativeButtons={false}
+                                showTitleLabel={false}
+                                viewMode={"landscape"}/>
+                        </View>
+                        <View style={{flex: 1, flexDirection: "row"}}>
+                            <TouchableHighlight style={styles.buttonStyle}
+                                                onPress={() => {
+                                                    this.saveSign();
+                                                    this.setState({visibleSgnature: false});
+                                                }}>
+                                <Text>Terminar</Text>
+                            </TouchableHighlight>
+
+                            <TouchableHighlight style={styles.buttonStyle}
+                                                onPress={() => {
+                                                    this.resetSign()
+                                                }}>
+                                <Text>Reset</Text>
+                            </TouchableHighlight>
+                        </View>
                     </View>
                 </Modal>
             </Form>

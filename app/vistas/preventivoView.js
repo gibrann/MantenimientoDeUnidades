@@ -196,7 +196,7 @@ export class PreventivoView extends Component {
                     backdropTransitionOutTiming={1000}
                 >
                     <View style={styles.modalContent}>
-                        <ScrollView>
+                        <ScrollView style={styles.modalScroll}>
                             <Item floatingLabel>
                                 <Label># Placa</Label>
                                 <Input/>

@@ -93,12 +93,22 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         borderColor: 'rgba(0, 0, 0, 0.1)'
     }, modalContent: {
+        flex: 1,
         backgroundColor: 'white',
-        padding: 22,
+        padding: 10,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 4,
         borderColor: 'rgba(0, 0, 0, 0.1)',
+        height: 600
+    }, modalSignature: {
+        flex: 1,
+        backgroundColor: 'white',
+        height: 800
+    },
+    viewSignature: {
+        flex: 1,
+        flexDirection: "column",
     },
     bottomModal: {
         justifyContent: 'flex-end',
@@ -137,6 +147,27 @@ const styles = StyleSheet.create({
     },
     wrapper: {
         flex: 1
+    },
+    signature: {
+        flex: 1,
+        borderColor: '#000033',
+        borderWidth: 1,
+    },
+    buttonStyle: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        height: 50,
+        backgroundColor: "#eeeeee",
+        margin: 10
+    },
+    buttonEnd: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        height: 50,
+        backgroundColor: "red",
+        margin: 10,
     }
 });
 

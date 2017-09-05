@@ -17,6 +17,8 @@
     "react-native-image-crop-picker": "^0.15.1",
     "react-native-modal": "^2.5.0",
     "react-native-side-menu": "^1.0.2",
+    "react-native-signature-capture": "^0.4.6",
+    "react-native-signature-pad": "0.0.8",
     "react-native-sqlite-storage": "^3.3.3",
     "react-navigation": "^1.0.0-beta.11"
   },

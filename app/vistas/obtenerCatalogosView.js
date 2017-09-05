@@ -21,7 +21,7 @@ export class ObtenerCatalogosView extends Component {
 
     constructor(props) {
         super(props)
-        console.log("Empresa  "+this.props.navigation.state.params.empresa);
+        console.log("Empresa  " + this.props.navigation.state.params.empresa);
         this.state = {
             empresa: this.props.navigation.state.params.empresa,
             isConnected: false,
@@ -96,11 +96,8 @@ export class ObtenerCatalogosView extends Component {
                     dataSource: ds.cloneWithRows(keys),
                     loaded: true,
                 }, function () {
-                    //limpiaCatalogos();
-                    //setTimeout(function () {
-                      //  console.log("JSON "+responseJson);
-                        cargarCatalogos(responseJson);
-                    //},5000)
+                    limpiaCatalogos();
+                    cargarCatalogos(responseJson);
                     Alert.alert(
                         'Exito!!!',
                         'La base de datos ha sido actualizada.',

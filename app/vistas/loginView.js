@@ -34,27 +34,31 @@ export class loginView extends Component {
             );
         } else {
             console.log(this.state.username + ' ' + this.state.password);
-            let resultado = validarAcceso(this.state.username, this.state.password);
-            console.log("resultado: "+ resultado)
-            if (resultado !== null && resultado !== undefined && resultado.exito) {
-                const resetAction = NavigationActions.reset({
-                    index: 0,
-                    actions: [
-                        NavigationActions.navigate({routeName: 'Master'})
-                    ]
-                });
-                this.props.navigation.dispatch(resetAction);
-            } else {
-                Alert.alert(
-                    'Acceso',
-                    'Los datos ingresados son invalidos verifiquelos una vez más.',
-                    [
-                        {
-                            text: 'Aceptar',
-                        }
-                    ]
-                );
-            }
+            let Respuesta = {data: null, mensaje: '', exito: false};
+            Respuesta = validarAcceso(this.state.username, this.state.password);
+            var  _this = this;
+            setTimeout(function () {
+                console.log("resultado: " + Respuesta.exito)
+                if (Respuesta.exito) {
+                    const resetAction = NavigationActions.reset({
+                        index: 0,
+                        actions: [
+                            NavigationActions.navigate({routeName: 'Master', params: {username:_this.state.username}})
+                        ]
+                    });
+                    _this.props.navigation.dispatch(resetAction);
+                } else {
+                    Alert.alert(
+                        'Acceso',
+                        'Los datos ingresados son invalidos verifiquelos una vez más.',
+                        [
+                            {
+                                text: 'Aceptar',
+                            }
+                        ]
+                    );
+                }
+            },800);
         }
     };
 
