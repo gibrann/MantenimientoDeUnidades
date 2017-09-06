@@ -207,7 +207,7 @@ export function validarAcceso(usuario, password) {
 
 export function obtenerUnidades(cadena) {
     db.transaction((tx) => {
-        tx.executeSql('SELECT num_placa,num_economico,clase_vehiculo FROM ar_unidades WHERE num_placa LIKE ?', ['%' + cadena + '%'], (tx, results) => {
+        tx.executeSql('SELECT num_placa,num_economico, ifnull(cast(kilometraje as text),"") as kilometraje, denominacion_tipo, fabricante FROM ar_unidades WHERE num_placa LIKE ?', ['%' + cadena + '%'], (tx, results) => {
             var len = results.rows.length;
             if (len > 0) {
                 console.log("Se encontraron "+len+" registros.");
@@ -215,17 +215,14 @@ export function obtenerUnidades(cadena) {
                     var unidad = results.rows.item(i);
                     unidades.push(unidad);
                     console.log(`placa: ${unidad.num_placa}`);
-                    console.log(`Unidad: ${unidad.num_economico}`);
                 }
-                console.log("Se asignaron registros.");
-                return unidades;
             } else {
-                console.log("No se encontraron registros.");
-                return unidades;
+                console.log("No se encontraron registros. "+unidades);
             }
         }, (tx, error) => {
-            return unidades;
             console.log('Query error: ' + error.message);
         });
     }, errorTxFn);
+    console.log("Se asignaron registros. "+unidades);
+    return unidades;
 };

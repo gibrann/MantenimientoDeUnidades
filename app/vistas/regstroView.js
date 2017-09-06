@@ -28,9 +28,9 @@ import {
 import styles from '../estilos/estilos'
 import SideMenu from 'react-native-side-menu';
 import Menu from './menuView';
-import Preventivo from './preventivoView';
-import Correctivo from './correctivoView';
-import Rescate from './rescateView';
+import Preventivo from './mntoPreventivoView';
+import Correctivo from './mntoCorrectivoView';
+import Rescate from './mntoRescateView';
 
 
 export class masterView extends Component {

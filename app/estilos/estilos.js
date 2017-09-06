@@ -168,6 +168,38 @@ const styles = StyleSheet.create({
         height: 50,
         backgroundColor: "red",
         margin: 10,
+    },
+    autocompleteContainer: {
+        marginLeft: 10,
+        marginRight: 10
+    },
+    itemText: {
+        fontSize: 15,
+        margin: 2
+    },
+    descriptionContainer: {
+        // `backgroundColor` needs to be set otherwise the
+        // autocomplete input will disappear on text input.
+        backgroundColor: '#F5FCFF',
+        marginTop: 5
+    },
+    infoText: {
+        textAlign: 'center'
+    },
+    titleText: {
+        fontSize: 18,
+        fontWeight: '500',
+        marginBottom: 10,
+        marginTop: 10,
+        textAlign: 'center'
+    },
+    directorText: {
+        color: 'grey',
+        fontSize: 12,
+        textAlign: 'center'
+    },
+    openingText: {
+        textAlign: 'center'
     }
 });
 

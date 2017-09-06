@@ -43,9 +43,6 @@ export class catalogosView extends Component {
                                 )
                             })}
                         </Picker>
-
-                        <TextInput style={styles.input} placeholder='Clave...' underlineColorAndroid='transparent'
-                                   secureTextEntry={true}/>
                         <TouchableHighlight onPress={this.onSync.bind(this)} style={styles.boton}>
                             <Text style={styles.textoBoton}>Sincronizar</Text>
                         </TouchableHighlight>

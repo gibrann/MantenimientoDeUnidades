@@ -31,13 +31,18 @@ import Modal from 'react-native-modal'
 import styles from '../estilos/estilos'
 import ImagePicker from 'react-native-image-crop-picker';
 import SignatureCapture from 'react-native-signature-capture';
+import Autocomplete from 'react-native-autocomplete-input';
+import {obtenerUnidades} from '../repositorios/generalRepository';
 
 export class CorrectivoView extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            unidad: null,
             visibleModal: false,
             visibleSgnature: false,
+            unidades: [],
+            query: ''
         };
     };
 
@@ -90,7 +95,66 @@ export class CorrectivoView extends Component {
         console.log("dragged");
     }
 
+    componentDidMount() {
+        let _unidades = [];
+        _unidades = obtenerUnidades('');
+        var _this = this;
+        setTimeout(function () {
+            _this.setState({unidades: _unidades});
+        }, 5000);
+
+    }
+
+    findUnidad(query) {
+        if (query === '') {
+            return [];
+        }
+        console.log("Aplicando regex");
+        const {unidades} = this.state;
+        const regex = new RegExp(`${query.trim()}`, 'i');
+        return unidades.filter(unidad => unidad.num_placa.search(regex) >= 0);
+    }
+
+    renderUnidad(unidad) {
+        const {num_placa, num_economico, clase_vehiculo} = unidad;
+        return (
+            <View>
+                <Item floatingLabel disabled>
+                    <Label># Placa</Label>
+                    <Input disabled value={this.state.unidad.placa}/>
+                </Item>
+                <Item floatingLabel disabled>
+                    <Label>#Economico</Label>
+                    <Input value={this.state.unidad.economico}/>
+                </Item>
+                <Item floatingLabel>
+                    <Label>Kilometraje</Label>
+                    <Input value={this.state.unidad.kilometraje} keyboardType='numeric'/>
+                </Item>
+                <Item floatingLabel disabled>
+                    <Label>Tipo</Label>
+                    <Input disabled value={this.state.unidad.tipo}/>
+                </Item>
+                <Item floatingLabel disabled>
+                    <Label>Marca</Label>
+                    <Input disabled value={this.state.unidad.marca}/>
+                </Item>
+                <Item floatingLabel>
+                    <Label>Ruta</Label>
+                    <Input value={this.state.unidad.ruta}/>
+                </Item>
+                <Item>
+                    <Label>Fecha Entrada</Label>
+                    <Input disabled value={this.state.unidad.fechaEntrada}/>
+                </Item>
+            </View>
+        );
+    }
+
     render() {
+        const {query} = this.state;
+        const unidades = this.findUnidad(query);
+        const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
         return (
             <Form>
                 <Header>
@@ -98,38 +162,40 @@ export class CorrectivoView extends Component {
                     <Title>Datos de la Unidad</Title>
                     </Body>
                 </Header>
-                <Item floatingLabel>
-                    <Label># Placa</Label>
-                    <Input/>
-                </Item>
-                <Item floatingLabel>
-                    <Label>#Economico</Label>
-                    <Input/>
-                </Item>
-                <Item floatingLabel>
-                    <Label>Kilometraje</Label>
-                    <Input/>
-                </Item>
-                <Item disabled>
-                    <Label>SAG</Label>
-                    <Input disabled/>
-                </Item>
-                <Item disabled>
-                    <Label>Tipo</Label>
-                    <Input disabled/>
-                </Item>
-                <Item disabled>
-                    <Label>Marca</Label>
-                    <Input disabled/>
-                </Item>
-                <Item floatingLabel>
-                    <Label>Ruta</Label>
-                    <Input/>
-                </Item>
-                <Item disabled>
-                    <Label>Fecha Entrada</Label>
-                    <Input disabled/>
-                </Item>
+                <Autocomplete
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    containerStyle={styles.autocompleteContainer}
+                    data={unidades.length === 1 && comp(query, unidades[0].num_placa) ? [] : unidades}
+                    defaultValue={query}
+                    onChangeText={text => this.setState({query: text})}
+                    placeholder="Ingrese su numero de placa"
+                    renderItem={({num_placa, num_economico, kilometraje, denominacion_tipo, fabricante}) => (
+                        <TouchableOpacity onPress={() => this.setState({
+                            query: num_placa,
+                            unidad: {
+                                placa: num_placa,
+                                economico: num_economico,
+                                kilometraje: kilometraje,
+                                tipo: denominacion_tipo,
+                                marca: fabricante
+                            }
+                        })}>
+                            <Text style={styles.itemText}>
+                                {num_placa} ({num_economico})
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+                />
+                <View style={styles.descriptionContainer}>
+                    {this.state.unidad != null ? (
+                        this.renderUnidad(this.state.unidad)
+                    ) : (
+                        <Text style={styles.infoText}>
+                            Ingrese numero de Placa
+                        </Text>
+                    )}
+                </View>
                 <Separator bordered/>
                 <Header>
                     <Body>
