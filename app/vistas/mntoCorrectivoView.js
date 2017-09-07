@@ -4,7 +4,8 @@ import {
     TouchableOpacity,
     ScrollView,
     Image,
-    TouchableHighlight
+    TouchableHighlight,
+    Picker
 } from 'react-native'
 import {
     Container,
@@ -32,17 +33,32 @@ import styles from '../estilos/estilos'
 import ImagePicker from 'react-native-image-crop-picker';
 import SignatureCapture from 'react-native-signature-capture';
 import Autocomplete from 'react-native-autocomplete-input';
-import {obtenerUnidades} from '../repositorios/generalRepository';
+import {obtenerUnidades, obtenerFamilias} from '../repositorios/generalRepository';
 
 export class CorrectivoView extends Component {
     constructor(props) {
         super(props);
         this.state = {
             unidad: null,
+            operador: {nombres: '', apellidos: '', numEmpleado: '', telefono: ''},
             visibleModal: false,
             visibleSgnature: false,
             unidades: [],
-            query: ''
+            familias: [],
+            query: '',
+            queryFamilia: '',
+            selectedConcepto: "MTTO TOT",
+            selectedServicios: "Servicio",
+            selectedPaquete: "Transport",
+            conceptos: {"MTTO TOT": "MTTO TOT", "Mano de Obra": "Mano de Obra"},
+            servicios: {"Servicio": "Servicio", "Material": "Material"},
+            paquetes: {
+                "Transport": "Transport",
+                "Leases / Fuerza de ventanas": "Leases / Fuerza de ventanas",
+                "Leases / Rentals": "Leases / Rentals",
+                "Logistics Support": "Logistics Support",
+                "Utilities": "Utilities"
+            },
         };
     };
 
@@ -102,7 +118,11 @@ export class CorrectivoView extends Component {
         setTimeout(function () {
             _this.setState({unidades: _unidades});
         }, 5000);
-
+        let _familias = [];
+        _familias = obtenerFamilias('');
+        setTimeout(function () {
+            _this.setState({familias: _familias});
+        }, 5000);
     }
 
     findUnidad(query) {
@@ -115,8 +135,17 @@ export class CorrectivoView extends Component {
         return unidades.filter(unidad => unidad.num_placa.search(regex) >= 0);
     }
 
-    renderUnidad(unidad) {
-        const {num_placa, num_economico, clase_vehiculo} = unidad;
+    findFamilia(queryFamilia) {
+        if (queryFamilia === '') {
+            return [];
+        }
+        console.log("Aplicando regex");
+        const {familias} = this.state;
+        const regex = new RegExp(`${queryFamilia.trim()}`, 'i');
+        return familias.filter(familia => familia.subtipo_servicio.search(regex) >= 0);
+    }
+
+    renderUnidad() {
         return (
             <View>
                 <Item floatingLabel disabled>
@@ -153,7 +182,9 @@ export class CorrectivoView extends Component {
 
     render() {
         const {query} = this.state;
+        const {queryFamilia} = this.state;
         const unidades = this.findUnidad(query);
+        const familias = this.findFamilia(queryFamilia);
         const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
         return (
             <Form>
@@ -170,7 +201,7 @@ export class CorrectivoView extends Component {
                     defaultValue={query}
                     onChangeText={text => this.setState({query: text})}
                     placeholder="Ingrese su numero de placa"
-                    renderItem={({num_placa, num_economico, kilometraje, denominacion_tipo, fabricante}) => (
+                    renderItem={({num_placa, num_economico, kilometraje, denominacion_tipo, fabricante, nombres, apellidos, num_empleado, telefono}) => (
                         <TouchableOpacity onPress={() => this.setState({
                             query: num_placa,
                             unidad: {
@@ -179,6 +210,12 @@ export class CorrectivoView extends Component {
                                 kilometraje: kilometraje,
                                 tipo: denominacion_tipo,
                                 marca: fabricante
+                            },
+                            operador: {
+                                nombres: nombres,
+                                apellidos: apellidos,
+                                numEmpleado: num_empleado,
+                                telefono: telefono
                             }
                         })}>
                             <Text style={styles.itemText}>
@@ -189,7 +226,7 @@ export class CorrectivoView extends Component {
                 />
                 <View style={styles.descriptionContainer}>
                     {this.state.unidad != null ? (
-                        this.renderUnidad(this.state.unidad)
+                        this.renderUnidad()
                     ) : (
                         <Text style={styles.infoText}>
                             Ingrese numero de Placa
@@ -202,17 +239,21 @@ export class CorrectivoView extends Component {
                     <Title>Datos del Operador</Title>
                     </Body>
                 </Header>
-                <Item disabled>
-                    <Label>Operador</Label>
-                    <Input/>
+                <Item floatingLabel>
+                    <Label>Nombres</Label>
+                    <Input value={this.state.operador.nombres}/>
                 </Item>
-                <Item disabled>
+                <Item floatingLabel>
+                    <Label>Apellidos</Label>
+                    <Input value={this.state.operador.apellidos}/>
+                </Item>
+                <Item floatingLabel>
                     <Label>Telefono</Label>
-                    <Input disabled/>
+                    <Input value={this.state.operador.telefono}/>
                 </Item>
-                <Item disabled>
+                <Item floatingLabel>
                     <Label>#Empleado</Label>
-                    <Input disabled/>
+                    <Input value={this.state.operador.numEmpleado} keyboardType='numeric'/>
                 </Item>
                 <Separator bordered/>
                 <Header>
@@ -285,31 +326,88 @@ export class CorrectivoView extends Component {
                 >
                     <View style={styles.modalContent}>
                         <ScrollView style={styles.modalScroll}>
-                            <Item floatingLabel>
-                                <Label># Placa</Label>
-                                <Input/>
+                            <Item stackedLabel>
+                                <Label>Concepto</Label>
+                                <Picker
+                                    style={styles.inputPicker}
+                                    mode="dropdown"
+                                    selectedValue={this.state.selectedConcepto}
+                                    onValueChange={(itemValue, itemIndex) => {
+                                        this.setState({selectedConcepto: itemValue});
+                                    }}>
+                                    {Object.keys(this.state.conceptos).map((key) => {
+                                        return (
+                                            <Picker.Item label={this.state.conceptos[key]} value={key} key={key}/>
+                                        )
+                                    })}
+                                </Picker>
                             </Item>
-                            <Item floatingLabel>
-                                <Label>#Economico</Label>
-                                <Input/>
+                            <Item stackedLabel>
+                                <Label>Servicio/Material</Label>
+                                <Picker
+                                    style={styles.inputPicker}
+                                    mode="dropdown"
+                                    selectedValue={this.state.selectedServicio}
+                                    onValueChange={(itemValue, itemIndex) => {
+                                        this.setState({selectedServicio: itemValue});
+                                    }}>
+                                    {Object.keys(this.state.servicios).map((key) => {
+                                        return (
+                                            <Picker.Item label={this.state.servicios[key]} value={key} key={key}/>
+                                        )
+                                    })}
+                                </Picker>
                             </Item>
-                            <Item floatingLabel>
-                                <Label>Kilometraje</Label>
-                                <Input/>
+                            <Item stackedLabel>
+                                <Label>Paquete</Label>
+                                <Picker
+                                    style={styles.inputPicker}
+                                    mode="dropdown"
+                                    selectedValue={this.state.selectedPaquete}
+                                    onValueChange={(itemValue, itemIndex) => {
+                                        this.setState({selectedPaquete: itemValue});
+                                    }}>
+                                    {Object.keys(this.state.paquetes).map((key) => {
+                                        return (
+                                            <Picker.Item label={this.state.paquetes[key]} value={key} key={key}/>
+                                        )
+                                    })}
+                                </Picker>
                             </Item>
-                            <Item disabled>
-                                <Label>SAG</Label>
-                                <Input disabled/>
+                            <Item stackedLabel>
+                                <Label>Familia</Label>
+                                <Autocomplete
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                    containerStyle={styles.inputPicker}
+                                    data={familias.length === 1 && comp(queryFamilia, familias[0].subtipo_servicio) ? [] : familias}
+                                    defaultValue={queryFamilia}
+                                    onChangeText={text => this.setState({queryFamilia: text})}
+                                    placeholder="Ingrese su numero de placa"
+                                    renderItem={({id_material_servicio, subtipo_servicio}) => (
+                                        <TouchableOpacity onPress={() => this.setState({
+                                            queryFamilia: familia,
+                                            familia: {
+                                                idMaterialServicio: id_material_servicio,
+                                                subtipoServicio: subtipo_servicio
+                                            }
+                                        })}>
+                                            <Text style={styles.itemTextInModal}>
+                                                {subtipo_servicio}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )}
+                                />
                             </Item>
-                            <Item disabled>
+                            <Item stackedLabel>
                                 <Label>Tipo</Label>
                                 <Input disabled/>
                             </Item>
-                            <Item disabled>
+                            <Item stackedLabel>
                                 <Label>Marca</Label>
                                 <Input disabled/>
                             </Item>
-                            <Item floatingLabel>
+                            <Item stackedLabel>
                                 <Label>Ruta</Label>
                                 <Input/>
                             </Item>

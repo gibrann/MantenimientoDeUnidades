@@ -74,6 +74,16 @@ const styles = StyleSheet.create({
         paddingTop: 3,
         marginBottom: 10
     },
+    inputPicker: {
+        width: 600,
+        height: 35,
+        backgroundColor: 'white',
+        borderRadius: 8,
+        paddingTop: 3,
+        marginBottom: 10,
+        paddingLeft: 0,
+        flex: 1
+    },
     //Estilos de formularios
     inputFm: {
         width: 100,
@@ -173,7 +183,15 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginRight: 10
     },
+    autocompleteInModal: {
+        width: 300
+    },
     itemText: {
+        fontSize: 15,
+        margin: 2
+    },
+    itemTextInModal: {
+        flex:1,
         fontSize: 15,
         margin: 2
     },
