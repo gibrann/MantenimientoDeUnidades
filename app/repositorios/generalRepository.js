@@ -12,6 +12,7 @@ import bcrypt from 'react-native-bcrypt';
 var SQLite = require('react-native-sqlite-storage');
 var Respuesta = {data: null, mensaje: '', exito: false};
 var unidades = [];
+var familias = [];
 
 const INSERT_USUARIO = 'INSERT INTO am_usuario(username,password,enabled,id_empresa) VALUES (?,?,?,?)';
 const INSERT_PAQUETE = 'INSERT INTO ar_paquete_familia VALUES (?,?,?,?,?,?)';
@@ -112,8 +113,6 @@ export function guardarRegistro(tx, table, obj) {
             tx.executeSql(
                 INSERT_USUARIO,
                 [obj.username, obj.password, obj.enabled, obj.idEmpresa], (tx, res) => {
-                    console.log("insertId: " + res.insertId);
-                    console.log("rowsAffected: " + res.rowsAffected);
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
@@ -124,8 +123,6 @@ export function guardarRegistro(tx, table, obj) {
                 INSERT_PAQUETE,
                 [obj.idPaqueteFamilia, obj.paquete, obj.familia, obj.grupoArticulo, obj.numServicio,
                     obj.cuentaContable], (tx, res) => {
-                    console.log("insertId: " + res.insertId);
-                    console.log("rowsAffected: " + res.rowsAffected);
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
@@ -139,8 +136,6 @@ export function guardarRegistro(tx, table, obj) {
                     obj.centroCoste, obj.ordenInternaCombustible, obj.claseOrden, obj.areaFuncional, obj.paquete,
                     obj.grupoArticulo, obj.cuentaMantto, obj.comentarios, obj.kilometraje, obj.fechaUpdate,
                     obj.fechaProxServicio], (tx, res) => {
-                    console.log("insertId: " + res.insertId);
-                    console.log("rowsAffected: " + res.rowsAffected);
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
@@ -150,8 +145,6 @@ export function guardarRegistro(tx, table, obj) {
             tx.executeSql(
                 'INSERT INTO ar_operador(num_placa, num_economico, nombres, apellidos, num_empleado, telefono) VALUES (?,?,?,?,?,?)',
                 [obj.numPlaca, obj.numEconomico, obj.nombres, obj.apellidos, obj.numEmpleado, obj.telefono], (tx, res) => {
-                    console.log("insertId: " + res.insertId);
-                    console.log("rowsAffected: " + res.rowsAffected);
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
@@ -161,8 +154,6 @@ export function guardarRegistro(tx, table, obj) {
             tx.executeSql(
                 'INSERT INTO ar_material_servicio(id_material_servicio, clase_orden, nomenclatura, subtipo_servicio, tipo_servicio, id_empresa) VALUES (?,?,?,?,?,?)',
                 [obj.idMaterialServicio, obj.claseOrden, obj.nomenclatura, obj.subtipoServicio, obj.tipoServicio, 0], (tx, res) => {
-                    console.log("insertId: " + res.insertId);
-                    console.log("rowsAffected: " + res.rowsAffected);
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
@@ -172,8 +163,6 @@ export function guardarRegistro(tx, table, obj) {
             tx.executeSql(
                 'INSERT INTO ar_material_serv_refaccion(id_material_serv_refaccion, id_material_servicio, descripcion,marca_material,precio_unitario,unidad_medida,estatus,numero_existentes) VALUES (?,?,?,?,?,?,?,?)',
                 [obj.idMaterialServRefaccion, obj.idMaterialServicio, obj.descripcion, obj.marcaMaterial, obj.precioUnitario, obj.unidadMedida, obj.estatus, obj.numeroExistentes], (tx, res) => {
-                    console.log("insertId: " + res.insertId);
-                    console.log("rowsAffected: " + res.rowsAffected);
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
@@ -191,9 +180,6 @@ export function validarAcceso(usuario, password) {
             if (len == 1) {
                 let user = results.rows.item(0);
                 Respuesta.exito = bcrypt.compareSync(password, user.password);
-                console.log("Respuesta de pass:" + Respuesta.exito);
-                console.log(`Usuario: ${user.username}`);
-                console.log(`Password: ${user.password}`);
             } else {
                 Respuesta.exito = false;
             }
@@ -206,23 +192,60 @@ export function validarAcceso(usuario, password) {
 };
 
 export function obtenerUnidades(cadena) {
+    unidades = [];
     db.transaction((tx) => {
-        tx.executeSql('SELECT num_placa,num_economico, ifnull(cast(kilometraje as text),"") as kilometraje, denominacion_tipo, fabricante FROM ar_unidades WHERE num_placa LIKE ?', ['%' + cadena + '%'], (tx, results) => {
-            var len = results.rows.length;
-            if (len > 0) {
-                console.log("Se encontraron "+len+" registros.");
-                for (var i = 0; i < len; i++) {
-                    var unidad = results.rows.item(i);
-                    unidades.push(unidad);
-                    console.log(`placa: ${unidad.num_placa}`);
+        tx.executeSql(
+            ' SELECT u.num_placa, ' +
+            ' u.num_economico, ' +
+            ' ifnull(cast(u.kilometraje AS TEXT),"") AS kilometraje, ' +
+            ' u.denominacion_tipo, u.fabricante, ' +
+            ' ifnull(o.nombres,"") AS nombres, ' +
+            ' ifnull(o.apellidos,"") AS apellidos, ' +
+            ' ifnull(cast(o.num_empleado AS TEXT),"") AS num_empleado, ' +
+            ' ifnull(o.telefono,"") AS telefono ' +
+            ' FROM ar_unidades u ' +
+            ' LEFT JOIN ar_operador o ' +
+            ' ON o.num_placa = u.num_placa ' +
+            ' AND o.num_economico = u.num_economico ' +
+            ' WHERE u.num_placa LIKE ?',
+            ['%' + cadena + '%'], (tx, results) => {
+                var len = results.rows.length;
+                if (len > 0) {
+                    console.log("Se encontraron " + len + " unidades.");
+                    for (var i = 0; i < len; i++) {
+                        var unidad = results.rows.item(i);
+                        unidades.push(unidad);
+                    }
+                } else {
+                    console.log("No se encontraron registros. ");
                 }
-            } else {
-                console.log("No se encontraron registros. "+unidades);
-            }
-        }, (tx, error) => {
-            console.log('Query error: ' + error.message);
-        });
+            }, (tx, error) => {
+                console.log('Query error: ' + error.message);
+            });
     }, errorTxFn);
-    console.log("Se asignaron registros. "+unidades);
     return unidades;
+};
+
+export function obtenerFamilias(cadena) {
+    familias = [];
+    db.transaction((tx) => {
+        tx.executeSql(
+            ' SELECT id_material_servicio, subtipo_servicio FROM ar_material_servicio WHERE subtipo_servicio LIKE ?',
+            ['%' + cadena + '%'], (tx, results) => {
+                var len = results.rows.length;
+                if (len > 0) {
+                    console.log("Se encontraron " + len + " elementos.");
+                    for (var i = 0; i < len; i++) {
+                        var familia = results.rows.item(i);
+                        familias.push(familia);
+                        console.log("{"+familia.id_material_servicio+","+familia.subtipo_servicio+"}")
+                    }
+                } else {
+                    console.log("No se encontraron registros. ");
+                }
+            }, (tx, error) => {
+                console.log('Query error: ' + error.message);
+            });
+    }, errorTxFn);
+    return familias;
 };
