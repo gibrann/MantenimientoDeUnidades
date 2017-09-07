@@ -2,6 +2,9 @@ import React, {Component} from 'react';
 import {
     StyleSheet
 } from 'react-native';
+import Dimensions from 'Dimensions';
+
+var screenWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
     // Estilos de Login
@@ -118,8 +121,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     modalScroll: {
-        backgroundColor: 'white',
-        width: 900,
+        backgroundColor: '#FFF',
+        width: screenWidth*0.8,
     },
     textoInfoBox: {
         textAlign: 'center',
