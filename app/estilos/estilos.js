@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     inputPicker: {
-        width: 600,
+        width: screenWidth*0.9,
         height: 35,
         backgroundColor: 'white',
         borderRadius: 8,
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     },
     modalScroll: {
         backgroundColor: '#FFF',
-        width: screenWidth*0.8,
+        width: screenWidth*0.9,
     },
     textoInfoBox: {
         textAlign: 'center',

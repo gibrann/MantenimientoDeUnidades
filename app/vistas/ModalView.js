@@ -50,7 +50,7 @@ export default class ModalView extends Component {
 
                         <Item floatingLabel>
                             <Label># Placa</Label>
-                            <Input/>
+                            <Input />
                         </Item>
                         <Item floatingLabel>
                             <Label>#Economico</Label>

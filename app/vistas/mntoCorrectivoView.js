@@ -196,6 +196,7 @@ export class CorrectivoView extends Component {
                 <Autocomplete
                     autoCapitalize="none"
                     autoCorrect={false}
+					disableFullscreenUI={true}
                     containerStyle={styles.autocompleteContainer}
                     data={unidades.length === 1 && comp(query, unidades[0].num_placa) ? [] : unidades}
                     defaultValue={query}
@@ -379,6 +380,7 @@ export class CorrectivoView extends Component {
                                 <Autocomplete
                                     autoCapitalize="none"
                                     autoCorrect={false}
+									disableFullscreenUI={true}
                                     containerStyle={styles.inputPicker}
                                     data={familias.length === 1 && comp(queryFamilia, familias[0].subtipo_servicio) ? [] : familias}
                                     defaultValue={queryFamilia}
