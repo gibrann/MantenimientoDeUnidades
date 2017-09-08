@@ -221,7 +221,25 @@ const styles = StyleSheet.create({
     },
     openingText: {
         textAlign: 'center'
-    }
+    },
+	datePicker:{
+        width:screenWidth*0.7
+    },
+	datePickerInput:{
+        borderColor:'transparent',
+        alignItems:'flex-start',
+        justifyContent:'center',
+    },
+    textPickerInput:{
+        fontSize:17,
+        color:'#000'
+    },
+	btnTextConfirm:{
+        color:'#000'
+	},
+    btnTextCancel:{
+		color:'#000'
+    },
 });
 
 export default styles;

@@ -34,6 +34,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import SignatureCapture from 'react-native-signature-capture';
 import Autocomplete from 'react-native-autocomplete-input';
 import {obtenerUnidades, obtenerFamilias} from '../repositorios/generalRepository';
+import DatePicker from 'react-native-datepicker';
 
 export class CorrectivoView extends Component {
     constructor(props) {
@@ -47,6 +48,7 @@ export class CorrectivoView extends Component {
             familias: [],
             query: '',
             queryFamilia: '',
+			fechaEntrada: '',
             selectedConcepto: "MTTO TOT",
             selectedServicios: "Servicio",
             selectedPaquete: "Transport",
@@ -157,7 +159,7 @@ export class CorrectivoView extends Component {
                     <Input value={this.state.unidad.economico}/>
                 </Item>
                 <Item floatingLabel>
-                    <Label>Kilometraje</Label>
+                    <Label>Kilometrajes</Label>
                     <Input value={this.state.unidad.kilometraje} keyboardType='numeric'/>
                 </Item>
                 <Item floatingLabel disabled>
@@ -174,7 +176,21 @@ export class CorrectivoView extends Component {
                 </Item>
                 <Item>
                     <Label>Fecha Entrada</Label>
-                    <Input disabled value={this.state.unidad.fechaEntrada}/>
+                    <DatePicker
+						style={styles.datePicker}
+						date={this.state.fechaEntrada}
+						mode="date"
+						confirmBtnText="Seleccionar"
+						cancelBtnText="Cancelar"
+						format="YYYY-MM-DD"
+						showIcon={false}
+						onDateChange={(date) => {this.setState({fechaEntrada: date})}}
+                        customStyles={{
+							dateInput: styles.datePickerInput,
+							dateText: styles.textPickerInput,
+							btnTextConfirm: styles.btnTextConfirm,
+							btnTextCancel: styles.btnTextCancel,
+						}} />
                 </Item>
             </View>
         );

@@ -30,11 +30,13 @@ import {
 import Modal from 'react-native-modal'
 import styles from '../estilos/estilos'
 import ImagePicker from 'react-native-image-crop-picker';
+import DatePicker from 'react-native-datepicker';
 
 export class PreventivoView extends Component {
     constructor(props) {
         super(props);
         this.state = {
+			fechaEntrada:'',
             visibleModal: false,
             image: null,
             images: null
@@ -107,9 +109,23 @@ export class PreventivoView extends Component {
                     <Label>Ruta</Label>
                     <Input/>
                 </Item>
-                <Item disabled>
+                <Item>
                     <Label>Fecha Entrada</Label>
-                    <Input disabled/>
+                    <DatePicker
+						style={styles.datePicker}
+						date={this.state.fechaEntrada}
+						mode="date"
+						confirmBtnText="Seleccionar"
+						cancelBtnText="Cancelar"
+						format="YYYY-MM-DD"
+						showIcon={false}
+						onDateChange={(date) => {this.setState({fechaEntrada: date})}}
+                        customStyles={{
+							dateInput: styles.datePickerInput,
+							dateText: styles.textPickerInput,
+							btnTextConfirm: styles.btnTextConfirm,
+							btnTextCancel: styles.btnTextCancel,
+						}} />
                 </Item>
                 <Separator bordered/>
                 <Header>

@@ -23,11 +23,13 @@ import {
 } from 'native-base';
 import Modal from 'react-native-modal'
 import styles from '../estilos/estilos'
+import DatePicker from 'react-native-datepicker';
 
 export class RescateView extends Component {
     constructor(props) {
         super(props);
         this.state = {
+			fechaEntrada:'',
             visibleModal: false,
         };
     };
@@ -76,7 +78,21 @@ export class RescateView extends Component {
                 </Item>
                 <Item disabled>
                     <Label>Fecha Entrada</Label>
-                    <Input disabled/>
+                    <DatePicker
+						style={styles.datePicker}
+						date={this.state.fechaEntrada}
+						mode="date"
+						confirmBtnText="Seleccionar"
+						cancelBtnText="Cancelar"
+						format="YYYY-MM-DD"
+						showIcon={false}
+						onDateChange={(date) => {this.setState({fechaEntrada: date})}}
+                        customStyles={{
+							dateInput: styles.datePickerInput,
+							dateText: styles.textPickerInput,
+							btnTextConfirm: styles.btnTextConfirm,
+							btnTextCancel: styles.btnTextCancel,
+						}} />
                 </Item>
                 <Header>
                     <Body>
