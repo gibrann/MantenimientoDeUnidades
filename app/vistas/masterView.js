@@ -31,6 +31,7 @@ import Menu from './menuView';
 import Preventivo from './mntoPreventivoView';
 import Correctivo from './mntoCorrectivoView';
 import Rescate from './mntoRescateView';
+import Bandeja from './bandejaView'
 
 
 export class masterView extends Component {
@@ -43,7 +44,7 @@ export class masterView extends Component {
             username: this.props.navigation.state.params.username,
             isOpen: false,
             selectedTab: 'correctivo',
-            selectedItem: 'About',
+            selectedItem: 'Registro',
         };
     };
 
@@ -62,7 +63,6 @@ export class masterView extends Component {
             isOpen: false,
             selectedItem: item,
         });
-
 
 
     renderSelectedTab() {
@@ -122,18 +122,14 @@ export class masterView extends Component {
                 );
                 break;
             default:
+                break;
         }
     }
 
-    render() {
-        const menu = <Menu onItemSelected={this.onMenuItemSelected} username={this.state.username}/>;
-        return (
-            <SideMenu
-                menu={menu}
-                isOpen={this.state.isOpen}
-                onChange={isOpen => this.updateMenuState(isOpen)}
-                menuPosition={'right'}
-            >
+    renderItem() {
+        if (this.state.selectedItem === 'Registro') {
+            console.log('Registro de unidades.');
+            return (
                 <Container style={styles.container}>
                     <Content padder>
                         {this.renderSelectedTab()}
@@ -158,6 +154,38 @@ export class masterView extends Component {
                         </FooterTab>
                     </Footer>
                 </Container>
+            );
+        } else if (this.state.selectedItem === 'Bandeja') {
+            console.log('Bandeja de ordenes.');
+            return (
+                <Container style={styles.container}>
+                    <Header>
+                        <Body>
+                        <Title>BANDEJA DE ORDENES</Title>
+                        </Body>
+                        <Right>
+                            <Button transparent onPress={this.toggle}>
+                                <Icon name='menu'/>
+                            </Button>
+                        </Right>
+                    </Header>
+                    <Bandeja username={this.state.username}/>
+                </Container>
+            );
+        }
+    }
+
+    render() {
+        const menu = <Menu onItemSelected={this.onMenuItemSelected} username={this.state.username}/>;
+        return (
+            <SideMenu
+                menu={menu}
+                isOpen={this.state.isOpen}
+                onChange={isOpen => this.updateMenuState(isOpen)}
+                menuPosition={'right'}
+                disableGestures={true}
+            >
+                {this.renderItem()}
             </SideMenu>
         );
     }

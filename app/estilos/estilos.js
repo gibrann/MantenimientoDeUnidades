@@ -2,6 +2,9 @@ import React, {Component} from 'react';
 import {
     StyleSheet
 } from 'react-native';
+import Dimensions from 'Dimensions';
+
+var screenWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
     // Estilos de Login
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     inputPicker: {
-        width: 600,
+        width: screenWidth * 0.9,
         height: 35,
         backgroundColor: 'white',
         borderRadius: 8,
@@ -127,9 +130,12 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white'
     },
+    scroll: {
+        backgroundColor: '#FFF',
+    },
     modalScroll: {
-        backgroundColor: 'white',
-        width: 900,
+        backgroundColor: '#FFF',
+        width: screenWidth * 0.9,
     },
     textoInfoBox: {
         textAlign: 'center',
@@ -191,7 +197,7 @@ const styles = StyleSheet.create({
         margin: 2
     },
     itemTextInModal: {
-        flex:1,
+        flex: 1,
         fontSize: 15,
         margin: 2
     },
@@ -218,6 +224,97 @@ const styles = StyleSheet.create({
     },
     openingText: {
         textAlign: 'center'
+    },
+    datePicker: {
+        width: screenWidth * 0.7
+    },
+    datePickerInput: {
+        borderColor: 'transparent',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+    },
+    textPickerInput: {
+        fontSize: 17,
+        color: '#000'
+    },
+    btnTextConfirm: {
+        color: '#000'
+    },
+    btnTextCancel: {
+        color: '#000'
+    },
+    ontainer: {
+        backgroundColor: 'white',
+        flex: 1
+    },
+    standalone: {
+        marginTop: 30,
+        marginBottom: 30,
+    },
+    standaloneRowFront: {
+        alignItems: 'center',
+        backgroundColor: '#CCC',
+        justifyContent: 'center',
+        height: 50,
+    },
+    standaloneRowBack: {
+        alignItems: 'center',
+        backgroundColor: '#8BC645',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 15
+    },
+    backTextWhite: {
+        color: '#FFF'
+    },
+    rowFront: {
+        alignItems: 'center',
+        backgroundColor: '#CCC',
+        borderBottomColor: 'black',
+        borderBottomWidth: 1,
+        justifyContent: 'center',
+        height: 50,
+    },
+    rowBack: {
+        alignItems: 'center',
+        backgroundColor: '#DDD',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingLeft: 15,
+    },
+    backRightBtn: {
+        alignItems: 'center',
+        bottom: 0,
+        justifyContent: 'center',
+        position: 'absolute',
+        top: 0,
+        width: 75
+    },
+    backRightBtnLeft: {
+        backgroundColor: 'blue',
+        right: 75
+    },
+    backRightBtnRight: {
+        backgroundColor: 'red',
+        right: 0
+    },
+    controls: {
+        alignItems: 'center',
+        marginBottom: 30
+    },
+    switchContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 5
+    },
+    switch: {
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'black',
+        paddingVertical: 10,
+        width: 100,
     }
 });
 

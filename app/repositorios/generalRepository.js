@@ -13,6 +13,8 @@ var SQLite = require('react-native-sqlite-storage');
 var Respuesta = {data: null, mensaje: '', exito: false};
 var unidades = [];
 var familias = [];
+var servicios = [];
+var refacciones = [];
 
 const INSERT_USUARIO = 'INSERT INTO am_usuario(username,password,enabled,id_empresa) VALUES (?,?,?,?)';
 const INSERT_PAQUETE = 'INSERT INTO ar_paquete_familia VALUES (?,?,?,?,?,?)';
@@ -226,19 +228,19 @@ export function obtenerUnidades(cadena) {
     return unidades;
 };
 
-export function obtenerFamilias(cadena) {
-    familias = [];
+export function obtenerServicios(cadena) {
+    servicios = [];
     db.transaction((tx) => {
         tx.executeSql(
-            ' SELECT id_material_servicio, subtipo_servicio FROM ar_material_servicio WHERE subtipo_servicio LIKE ?',
+            ' SELECT id_material_servicio AS key, subtipo_servicio AS label FROM ar_material_servicio WHERE subtipo_servicio LIKE ?',
             ['%' + cadena + '%'], (tx, results) => {
                 var len = results.rows.length;
                 if (len > 0) {
-                    console.log("Se encontraron " + len + " elementos.");
+                    console.log("Se encontraron " + len + " servicios.");
                     for (var i = 0; i < len; i++) {
-                        var familia = results.rows.item(i);
-                        familias.push(familia);
-                        console.log("{"+familia.id_material_servicio+","+familia.subtipo_servicio+"}")
+                        var servicio = results.rows.item(i);
+                        servicios.push(servicio);
+                        console.log("{"+servicio.key+","+servicio.label+"}")
                     }
                 } else {
                     console.log("No se encontraron registros. ");
@@ -247,5 +249,28 @@ export function obtenerFamilias(cadena) {
                 console.log('Query error: ' + error.message);
             });
     }, errorTxFn);
-    return familias;
+    return servicios;
+};
+
+export function obtenerRefacciones(idServio) {
+    refacciones = [];
+    db.transaction((tx) => {
+        tx.executeSql(
+            ' SELECT id_material_serv_refaccion AS key, marca_material||" "||descripcion||" #("||numero_existentes||")"  AS label FROM ar_material_serv_refaccion WHERE id_material_servicio = ?',
+            [idServio], (tx, results) => {
+                var len = results.rows.length;
+                if (len > 0) {
+                    console.log("Se encontraron " + len + " refacciones.");
+                    for (var i = 0; i < len; i++) {
+                        var refaccion = results.rows.item(i);
+                        refacciones.push(refaccion);
+                    }
+                } else {
+                    console.log("No se encontraron registros. ");
+                }
+            }, (tx, error) => {
+                console.log('Query error: ' + error.message);
+            });
+    }, errorTxFn);
+    return refacciones;
 };

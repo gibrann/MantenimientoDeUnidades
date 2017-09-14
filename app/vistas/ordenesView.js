@@ -1,87 +1,69 @@
-
-import React, { Component } from 'react';
+import React, {
+    Component,
+} from 'react';
 import {
+    AppRegistry,
+    ListView,
     StyleSheet,
     Text,
     TouchableOpacity,
+    TouchableHighlight,
     View
 } from 'react-native';
 
-const API = 'https://swapi.co/api';
-const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
-import Autocomplete from 'react-native-autocomplete-input';
+import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 
-class AutocompleteExample extends Component {
-    static renderFilm(film) {
-        const { title, director, opening_crawl, episode_id } = film;
-        const roman = episode_id < ROMAN.length ? ROMAN[episode_id] : episode_id;
-
-        return (
-            <View>
-                <Text style={styles.titleText}>{roman}. {title}</Text>
-                <Text style={styles.directorText}>({director})</Text>
-                <Text style={styles.openingText}>{opening_crawl}</Text>
-            </View>
-        );
-    }
+class App extends Component {
 
     constructor(props) {
         super(props);
+        this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            films: [],
-            query: ''
+            basic: true,
+            listViewData: Array(20).fill('').map((_, i) => `item #${i}`)
         };
     }
 
-    componentDidMount() {
-        fetch(`${API}/films/`).then(res => res.json()).then((json) => {
-            const { results: films } = json;
-            this.setState({ films });
-        });
-    }
-
-    findFilm(query) {
-        if (query === '') {
-            return [];
-        }
-
-        const { films } = this.state;
-        const regex = new RegExp(`${query.trim()}`, 'i');
-        return films.filter(film => film.title.search(regex) >= 0);
+    deleteRow(secId, rowId, rowMap) {
+        rowMap[`${secId}${rowId}`].closeRow();
+        const newData = [...this.state.listViewData];
+        newData.splice(rowId, 1);
+        this.setState({listViewData: newData});
     }
 
     render() {
-        const { query } = this.state;
-        const films = this.findFilm(query);
-        const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
-
         return (
             <View style={styles.container}>
-                <Autocomplete
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    containerStyle={styles.autocompleteContainer}
-                    data={films.length === 1 && comp(query, films[0].title) ? [] : films}
-                    defaultValue={query}
-                    onChangeText={text => this.setState({ query: text })}
-                    placeholder="Enter Star Wars film title"
-                    renderItem={({ title, release_date }) => (
-                        <TouchableOpacity onPress={() => this.setState({ query: title })}>
-                            <Text style={styles.itemText}>
-                                {title} ({release_date.split('-')[0]})
-                            </Text>
-                        </TouchableOpacity>
+                <SwipeListView
+                    dataSource={this.ds.cloneWithRows(this.state.listViewData)}
+                    renderRow={(data, secId, rowId, rowMap) => (
+                        <SwipeRow
+                            disableLeftSwipe={parseInt(rowId) % 2 === 0}
+                            leftOpenValue={20 + Math.random() * 150}
+                            rightOpenValue={-150}
+                        >
+                            <View style={styles.rowBack}>
+                                <Text>Ver</Text>
+                                <View style={[styles.backRightBtn, styles.backRightBtnLeft]}>
+                                    <Text style={styles.backTextWhite}>Editar</Text>
+                                </View>
+                                <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnRight]}
+                                                  onPress={_ => this.deleteRow(secId, rowId, rowMap)}>
+                                    <Text style={styles.backTextWhite}>Eliminar</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TouchableHighlight
+                                onPress={_ => console.log('You touched me')}
+                                style={styles.rowFront}
+                                underlayColor={'#AAA'}
+                            >
+                                <View>
+                                    <Text>Refaccion {data} de la orden</Text>
+                                </View>
+                            </TouchableHighlight>
+                        </SwipeRow>
                     )}
                 />
-                <View style={styles.descriptionContainer}>
-                    {films.length > 0 ? (
-                        AutocompleteExample.renderFilm(films[0])
-                    ) : (
-                        <Text style={styles.infoText}>
-                            Enter Title of a Star Wars movie
-                        </Text>
-                    )}
-                </View>
             </View>
         );
     }
@@ -89,43 +71,78 @@ class AutocompleteExample extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#F5FCFF',
+        backgroundColor: 'white',
+        flex: 1
+    },
+    standalone: {
+        marginTop: 30,
+        marginBottom: 30,
+    },
+    standaloneRowFront: {
+        alignItems: 'center',
+        backgroundColor: '#CCC',
+        justifyContent: 'center',
+        height: 50,
+    },
+    standaloneRowBack: {
+        alignItems: 'center',
+        backgroundColor: '#8BC645',
         flex: 1,
-        paddingTop: 25
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 15
     },
-    autocompleteContainer: {
-        marginLeft: 10,
-        marginRight: 10
+    backTextWhite: {
+        color: '#FFF'
     },
-    itemText: {
-        fontSize: 15,
-        margin: 2
+    rowFront: {
+        alignItems: 'center',
+        backgroundColor: '#CCC',
+        borderBottomColor: 'black',
+        borderBottomWidth: 1,
+        justifyContent: 'center',
+        height: 50,
     },
-    descriptionContainer: {
-        // `backgroundColor` needs to be set otherwise the
-        // autocomplete input will disappear on text input.
-        backgroundColor: '#F5FCFF',
-        marginTop: 8
+    rowBack: {
+        alignItems: 'center',
+        backgroundColor: '#DDD',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingLeft: 15,
     },
-    infoText: {
-        textAlign: 'center'
+    backRightBtn: {
+        alignItems: 'center',
+        bottom: 0,
+        justifyContent: 'center',
+        position: 'absolute',
+        top: 0,
+        width: 75
     },
-    titleText: {
-        fontSize: 18,
-        fontWeight: '500',
-        marginBottom: 10,
-        marginTop: 10,
-        textAlign: 'center'
+    backRightBtnLeft: {
+        backgroundColor: 'blue',
+        right: 75
     },
-    directorText: {
-        color: 'grey',
-        fontSize: 12,
-        marginBottom: 10,
-        textAlign: 'center'
+    backRightBtnRight: {
+        backgroundColor: 'red',
+        right: 0
     },
-    openingText: {
-        textAlign: 'center'
+    controls: {
+        alignItems: 'center',
+        marginBottom: 30
+    },
+    switchContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 5
+    },
+    switch: {
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'black',
+        paddingVertical: 10,
+        width: 100,
     }
 });
 
-module.exports = AutocompleteExample;
+module.exports = App;

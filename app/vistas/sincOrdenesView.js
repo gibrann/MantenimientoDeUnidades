@@ -1,89 +1,73 @@
-
-import React, { Component } from 'react';
+import React, {
+    Component,
+} from 'react';
 import {
+    AppRegistry,
+    ListView,
     StyleSheet,
     Text,
     TouchableOpacity,
+    TouchableHighlight,
     View
 } from 'react-native';
-import Autocomplete from 'react-native-autocomplete-input';
 
-import {obtenerUnidades} from '../repositorios/generalRepository';
+import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 
-class AutocompleteExample extends Component {
-    static renderUnidad(unidad) {
-        const { num_placa,num_economico,clase_vehiculo } = unidad;
-        return (
-            <View>
-                <Text style={styles.titleText}>{num_placa}</Text>
-                <Text style={styles.titleText}>({num_economico})</Text>
-                <Text style={styles.openingText}>{clase_vehiculo}</Text>
-            </View>
-        );
-    }
+class App extends Component {
 
     constructor(props) {
         super(props);
+        this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            unidades: [],
-            query: ''
+            basic: true,
+            listViewData: Array(20).fill('').map((_, i) => `item #${i}`),
+            //listViewData: props.dataSource
         };
     }
 
-    componentDidMount() {
-        let _unidades = [];
-        _unidades = obtenerUnidades('');
-        var _this = this;
-        setTimeout(function () {
-            _this.setState({unidades:_unidades});
-            console.log("Se asgnaron unidades");
-            console.log("Unidades: "+_unidades);
-        },5000);
-
-    }
-
-    findUnidad(query) {
-        if (query === '') {
-            return [];
-        }
-        console.log("Aplicando regex");
-        const { unidades } = this.state;
-        const regex = new RegExp(`${query.trim()}`, 'i');
-        return unidades.filter(unidad => unidad.num_placa.search(regex) >= 0);
+    deleteRow(secId, rowId, rowMap) {
+        rowMap[`${secId}${rowId}`].closeRow();
+        const newData = [...this.state.listViewData];
+        newData.splice(rowId, 1);
+        this.setState({listViewData: newData});
     }
 
     render() {
-        const { query } = this.state;
-        const unidades = this.findUnidad(query);
-        const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
-
         return (
             <View style={styles.container}>
-                <Autocomplete
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    containerStyle={styles.autocompleteContainer}
-                    data={unidades.length === 1 && comp(query, unidades[0].num_placa) ? [] : unidades}
-                    defaultValue={query}
-                    onChangeText={text => this.setState({ query: text })}
-                    placeholder="Ingrese su numero de placa"
-                    renderItem={({ num_placa, num_economico }) => (
-                        <TouchableOpacity onPress={() => this.setState({ query: num_placa })}>
-                            <Text style={styles.itemText}>
-                                {num_placa} ({num_economico})
-                            </Text>
-                        </TouchableOpacity>
+
+                <SwipeListView
+                    dataSource={this.ds.cloneWithRows(this.state.listViewData)}
+                    renderRow={(data, secId, rowId, rowMap) => (
+                        <SwipeRow
+                            disableLeftSwipe={parseInt(rowId) % 2 === 0}
+                            leftOpenValue={20 + Math.random() * 150}
+                            rightOpenValue={-150}
+                        >
+                            <View style={styles.rowBack}>
+                                <Text>Ver</Text>
+                                <View style={[styles.backRightBtn, styles.backRightBtnLeft]}>
+                                    <Text style={styles.backTextWhite}>Editar</Text>
+                                </View>
+                                <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnRight]}
+                                                  onPress={_ => this.deleteRow(secId, rowId, rowMap)}>
+                                    <Text style={styles.backTextWhite}>Eliminar</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TouchableHighlight
+                                onPress={_ => console.log('You touched me')}
+                                style={styles.rowFront}
+                                underlayColor={'#AAA'}
+                            >
+                                <View>
+                                    <Text>Refaccion {data} de la orden</Text>
+                                </View>
+                            </TouchableHighlight>
+                        </SwipeRow>
                     )}
                 />
-                <View style={styles.descriptionContainer}>
-                    {unidades.length > 0 ? (
-                        AutocompleteExample.renderUnidad(unidades[0])
-                    ) : (
-                        <Text style={styles.infoText}>
-                            Ingrese numero de Placa
-                        </Text>
-                    )}
-                </View>
+
+
             </View>
         );
     }
@@ -91,42 +75,78 @@ class AutocompleteExample extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#F5FCFF',
+        backgroundColor: 'white',
+        flex: 1
+    },
+    standalone: {
+        marginTop: 30,
+        marginBottom: 30,
+    },
+    standaloneRowFront: {
+        alignItems: 'center',
+        backgroundColor: '#CCC',
+        justifyContent: 'center',
+        height: 50,
+    },
+    standaloneRowBack: {
+        alignItems: 'center',
+        backgroundColor: '#8BC645',
         flex: 1,
-        paddingTop: 15
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 15
     },
-    autocompleteContainer: {
-        marginLeft: 10,
-        marginRight: 10
+    backTextWhite: {
+        color: '#FFF'
     },
-    itemText: {
-        fontSize: 15,
-        margin: 2
+    rowFront: {
+        alignItems: 'center',
+        backgroundColor: '#CCC',
+        borderBottomColor: 'black',
+        borderBottomWidth: 1,
+        justifyContent: 'center',
+        height: 50,
     },
-    descriptionContainer: {
-        // `backgroundColor` needs to be set otherwise the
-        // autocomplete input will disappear on text input.
-        backgroundColor: '#F5FCFF',
-        marginTop: 5
+    rowBack: {
+        alignItems: 'center',
+        backgroundColor: '#DDD',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingLeft: 15,
     },
-    infoText: {
-        textAlign: 'center'
+    backRightBtn: {
+        alignItems: 'center',
+        bottom: 0,
+        justifyContent: 'center',
+        position: 'absolute',
+        top: 0,
+        width: 75
     },
-    titleText: {
-        fontSize: 18,
-        fontWeight: '500',
-        marginBottom: 10,
-        marginTop: 10,
-        textAlign: 'center'
+    backRightBtnLeft: {
+        backgroundColor: 'blue',
+        right: 75
     },
-    directorText: {
-        color: 'grey',
-        fontSize: 12,
-        textAlign: 'center'
+    backRightBtnRight: {
+        backgroundColor: 'red',
+        right: 0
     },
-    openingText: {
-        textAlign: 'center'
+    controls: {
+        alignItems: 'center',
+        marginBottom: 30
+    },
+    switchContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 5
+    },
+    switch: {
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'black',
+        paddingVertical: 10,
+        width: 100,
     }
 });
 
-module.exports = AutocompleteExample;
+module.exports = App;
