@@ -315,6 +315,9 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         paddingVertical: 10,
         width: 100,
+    },
+    switchButton: {
+        paddingLeft: 10,
     }
 });
 

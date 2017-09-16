@@ -49,8 +49,7 @@ export class CorrectivoView extends Component {
             operador: {nombres: '', apellidos: '', numEmpleado: '', telefono: ''},
             observaciones: {problema: '', reparacion: '', observacion: '', manoObra: ''},
             unidades: [],
-            listRefacciones: [{concepto:'1', servicio:'1', paquete: '1', familia: '1', cantidad: '1', precio: '1' }
-                             ,{concepto:'2', servicio:'2', paquete: '2', familia: '2', cantidad: '2', precio: '2' }],
+            listRefacciones: [],
         };
     };
 
@@ -133,7 +132,7 @@ export class CorrectivoView extends Component {
                         confirmBtnText="Seleccionar"
                         cancelBtnText="Cancelar"
                         format="YYYY-MM-DD"
-                        showIcon={true}
+                        showIcon={false}
                         onDateChange={(date) => {
                             this.setState({fechaEntrada: date})
                         }}
@@ -149,8 +148,9 @@ export class CorrectivoView extends Component {
     }
 
     agregarItem = (refaccion)=>{
-        this.setState({registroPantalla:'orden',refaccion:refaccion});
-        console.log('Exito')
+        var {listRefacciones} = this.state;
+        listRefacciones.push(refaccion);
+        this.setState({registroPantalla:'orden'});
     }
 
     renderScreen() {
@@ -265,7 +265,7 @@ export class CorrectivoView extends Component {
                                     underlayColor={'#AAA'}
                                 >
                                     <View>
-                                        <Text>Refaccion {data.concepto} de la orden</Text>
+                                        <Text>{data.refaccion.label}</Text>
                                     </View>
                                 </TouchableHighlight>
                             </SwipeRow>

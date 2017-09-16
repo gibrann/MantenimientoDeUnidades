@@ -44,6 +44,7 @@ export class PreventivoView extends Component {
             visibleModal: false,
             query: '',
             fechaEntrada: '',
+            proximoServicio: '',
             registroPantalla: 'orden',
             unidad: null,
             operador: {nombres: '', apellidos: '', numEmpleado: '', telefono: ''},
@@ -52,7 +53,6 @@ export class PreventivoView extends Component {
             unidades: [],
             listRefacciones: [],
         };
-        this.agregarRefaccion = this.agregarItem.bind(this);
     };
 
     pickMultiple() {
@@ -137,7 +137,7 @@ export class PreventivoView extends Component {
                         confirmBtnText="Seleccionar"
                         cancelBtnText="Cancelar"
                         format="YYYY-MM-DD"
-                        showIcon={true}
+                        showIcon={false}
                         onDateChange={(date) => {
                             this.setState({fechaEntrada: date})
                         }}
@@ -321,7 +321,23 @@ export class PreventivoView extends Component {
                     </Item>
                     <Item floatingLabel>
                         <Label>Próximo Servicio</Label>
-                        <Input value={this.state.servicio.proximo}/>
+                        <DatePicker
+                            style={styles.datePicker}
+                            date={this.state.proximoServicio}
+                            mode="datetime"
+                            confirmBtnText="Seleccionar"
+                            cancelBtnText="Cancelar"
+                            format="YYYY-MM-DD"
+                            showIcon={false}
+                            onDateChange={(date) => {
+                                this.setState({proximoServicio: date})
+                            }}
+                            customStyles={{
+                                dateInput: styles.datePickerInput,
+                                dateText: styles.textPickerInput,
+                                btnTextConfirm: styles.btnTextConfirm,
+                                btnTextCancel: styles.btnTextCancel,
+                            }}/>
                     </Item>
                     <Separator bordered/>
                     <TouchableHighlight onPress={() => {

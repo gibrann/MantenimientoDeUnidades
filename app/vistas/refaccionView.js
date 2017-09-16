@@ -53,7 +53,7 @@ export class refaccionesView extends Component {
                 "Utilities": "Utilities"
             },
             refacciones: [],
-            selectedRefaccion: null,
+            selectedRefaccion: 'Seleccione...',
             visibleFamilia: false,
             pickedFamilia: null,
             pickedText: '',
@@ -114,15 +114,10 @@ export class refaccionesView extends Component {
             this.state.refaccion.concepto = this.state.selectedConcepto;
             this.state.refaccion.servicio = this.state.selectedServicios;
             this.state.refaccion.paquete = this.state.selectedPaquete;
-            this.state.refaccion.familia = this.state.pickedFamilia;
+            this.state.refaccion.familia = this.state.selectedFamilia;
             this.state.refaccion.refaccion = this.state.selectedRefaccion;
             this.props.agregarRefaccion(this.state.refaccion);
         }
-    }
-
-    validacion() {
-
-
     }
 
     render() {
@@ -201,7 +196,9 @@ export class refaccionesView extends Component {
                             }}>
                             {Object.keys(this.state.refacciones).map((key, label) => {
                                 return (
-                                    <Picker.Item label={this.state.refacciones[key].label} value={key} key={key}/>
+                                    <Picker.Item label={this.state.refacciones[key].label}
+                                                 value={this.state.refacciones[key]}
+                                                 key={key}/>
                                 )
                             })}
                         </Picker>
