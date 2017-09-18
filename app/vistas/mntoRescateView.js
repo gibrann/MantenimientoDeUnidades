@@ -7,6 +7,7 @@ import {
     TouchableHighlight,
     Picker,
     ListView,
+    Alert
 } from 'react-native'
 import {
     Container,
@@ -35,6 +36,7 @@ import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 import {Switch} from 'react-native-switch';
 import styles from '../estilos/estilos';
 import Refaccion from './refaccionView';
+import ModalPicker from 'react-native-modal-picker'
 import {obtenerUnidades} from '../repositorios/generalRepository';
 
 export class RescateView extends Component {
@@ -44,30 +46,57 @@ export class RescateView extends Component {
         this.state = {
             visibleModal: false,
             query: '',
-            fechaEntrada: '',
             registroPantalla: 'orden',
             unidad: null,
             operador: {nombres: '', apellidos: '', numEmpleado: '', telefono: ''},
-            observaciones: {problema: '', reparacion: '', observacion: '', manoObra: ''},
+            observaciones: {ciudad: '', estado: '', poblacion: '', feachaTermino: '', horaTermino: ''},
             unidades: [],
             listRefacciones: [],
+            images: [],
+            textInputValue: '',
+            editRefaccion: null,
+            fechaReporte: '',
+            horaReporte: '',
+            horaArribo: '',
+            horaSalida: ''
         };
     };
 
     pickMultiple() {
-        ImagePicker.openPicker({
-            multiple: true,
-            waitAnimationEnd: false,
-            maxFiles: 2,
-        }).then(images => {
-            this.setState({
-                image: null,
-                images: images.map(i => {
-                    console.log('received image', i);
-                    return {uri: i.path, width: i.width, height: i.height, mime: i.mime};
-                })
-            });
-        }).catch(e => alert(e));
+        const {images} = this.state;
+        const imagenesActuales = images.length;
+        let imagenesAux = [];
+        if (imagenesActuales < 5) {
+            ImagePicker.openPicker({
+                multiple: true,
+                waitAnimationEnd: false,
+                maxFiles: 5,
+            }).then(imagenes => {
+                if (imagenesActuales + imagenes.length <= 5) {
+                    imagenesAux = imagenes.map(i => {
+                        return {uri: i.path, width: i.width, height: i.height, mime: i.mime};
+                    });
+                    images.push.apply(images, imagenesAux);
+                    this.setState({
+                        images: images
+                    });
+                } else {
+                    Alert.alert(
+                        'Error',
+                        'El numero de imagenes permitido es 5 verifique su elección',
+                        [{text: 'Aceptar'}]
+                    );
+                }
+            }).catch(e => Alert.alert(
+                'Error', e, [{text: 'Aceptar'}]
+            ));
+        } else {
+            Alert.alert(
+                'Error',
+                'Ya ha seleccionado las imagenes permitidas',
+                [{text: 'Aceptar'}]
+            );
+        }
     };
 
     renderAsset(image) {
@@ -75,8 +104,28 @@ export class RescateView extends Component {
     };
 
     renderImage(image) {
-        return <Image style={{width: 300, height: 300, resizeMode: 'contain'}} source={image}/>
+        return (
+            <View>
+                <ModalPicker
+                    data={[{key: 1, label: 'Eliminar'}]}
+                    onChange={() => {
+                        this.deleteImage(image);
+                    }}
+                    optionTextStyle={{color: 'red'}}
+                    cancelText={'Cancelar'}
+                >
+                    <Image style={{width: 300, height: 300, resizeMode: 'contain'}} source={image}/>
+                </ModalPicker>
+            </View>
+        );
     };
+
+    deleteImage(image) {
+        const {images} = this.state;
+        var i = images.indexOf(image);
+        images.splice(i, 1);
+        this.setState({images: images});
+    }
 
     componentDidMount() {
         let _unidades = [];
@@ -110,9 +159,11 @@ export class RescateView extends Component {
                 </Item>
                 <Item floatingLabel>
                     <Label>Kilometrajes</Label>
-                    <Input value={this.state.unidad.kilometraje}
-                           onChangeText={(text) => this.setState({unidad: {kilometraje: text}})}
-                           keyboardType='numeric'/>
+                    <Input value={this.state.unidad.kilometraje} onChangeText={(text) => {
+                        const {unidad} = this.state;
+                        unidad.kilometraje = text;
+                        this.setState({unidad: unidad});
+                    }} keyboardType='numeric'/>
                 </Item>
                 <Item floatingLabel disabled>
                     <Label>Tipo</Label>
@@ -124,21 +175,26 @@ export class RescateView extends Component {
                 </Item>
                 <Item floatingLabel>
                     <Label>Ruta</Label>
-                    <Input value={this.state.unidad.ruta}
-                           onChangeText={(text) => this.setState({unidad: {ruta: text}})}/>
+                    <Input value={this.state.unidad.ruta} onChangeText={(text) => {
+                        const {unidad} = this.state;
+                        unidad.ruta = text;
+                        this.setState({unidad: unidad});
+                    }}/>
                 </Item>
                 <Item>
                     <Label>Fecha Entrada</Label>
                     <DatePicker
                         style={styles.datePicker}
-                        date={this.state.fechaEntrada}
+                        date={this.state.unidad.fechaEntrada}
                         mode="datetime"
                         confirmBtnText="Seleccionar"
                         cancelBtnText="Cancelar"
                         format="YYYY-MM-DD"
-                        showIcon={true}
-                        onDateChange={(date) => {
-                            this.setState({fechaEntrada: date})
+                        showIcon={false}
+                        onChangeText={(date) => {
+                            const {unidad} = this.state;
+                            unidad.fechaEntrada = date;
+                            this.setState({unidad: unidad});
                         }}
                         customStyles={{
                             dateInput: styles.datePickerInput,
@@ -155,14 +211,39 @@ export class RescateView extends Component {
         var {listRefacciones} = this.state;
         listRefacciones.push(refaccion);
         this.setState({registroPantalla: 'orden'});
-    }
+    };
+
+    updateItem = (refaccion) => {
+        var {listRefacciones} = this.state;
+        listRefacciones[refaccion.index] = refaccion;
+        this.setState({registroPantalla: 'orden',listRefacciones: listRefacciones});
+    };
+
+    regresarFromRefaccion = () => {
+        this.setState({registroPantalla: 'orden'});
+    };
+
+    deleteRow(secId, rowId, rowMap) {
+        rowMap[`${secId}${rowId}`].closeRow();
+        const newData = [...this.state.listRefacciones];
+        newData.splice(rowId, 1);
+        this.setState({listRefacciones: newData});
+    };
+
+    editRow(data) {
+        const {listRefacciones} = this.state;
+        data.index = listRefacciones.indexOf(data);
+        this.setState({editRefaccion: data, registroPantalla: 'refaccion'});
+    };
 
     renderScreen() {
         const {query} = this.state;
         const unidades = this.findUnidad(query);
         const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
-        if (this.state.registroPantalla === 'orden') {
-            return (
+        const {registroPantalla} = this.state;
+        switch (registroPantalla) {
+            case 'orden':
+                return (
                 <Form>
                     <Header>
                         <Body>
@@ -173,14 +254,14 @@ export class RescateView extends Component {
                         <Label>Fecha Reporte</Label>
                         <DatePicker
                             style={styles.datePicker}
-                            date={this.state.fechaEntrada}
+                            date={this.state.fechaReporte}
                             mode="date"
                             confirmBtnText="Seleccionar"
                             cancelBtnText="Cancelar"
                             format="YYYY-MM-DD"
                             showIcon={false}
                             onDateChange={(date) => {
-                                this.setState({fechaEntrada: date})
+                                this.setState({fechaReporte: date})
                             }}
                             customStyles={{
                                 dateInput: styles.datePickerInput,
@@ -193,14 +274,14 @@ export class RescateView extends Component {
                         <Label>Hora Reporte</Label>
                         <DatePicker
                             style={styles.datePicker}
-                            date={this.state.fechaEntrada}
+                            date={this.state.horaReporte}
                             mode="time"
                             confirmBtnText="Seleccionar"
                             cancelBtnText="Cancelar"
                             format="hh:mm"
                             showIcon={false}
                             onDateChange={(date) => {
-                                this.setState({fechaEntrada: date})
+                                this.setState({horaReporte: date})
                             }}
                             customStyles={{
                                 dateInput: styles.datePickerInput,
@@ -219,14 +300,14 @@ export class RescateView extends Component {
                         <Label>Hora Salida</Label>
                         <DatePicker
                             style={styles.datePicker}
-                            date={this.state.fechaEntrada}
+                            date={this.state.horaSalida}
                             mode="date"
                             confirmBtnText="Seleccionar"
                             cancelBtnText="Cancelar"
                             format="YYYY-MM-DD"
                             showIcon={false}
                             onDateChange={(date) => {
-                                this.setState({fechaEntrada: date})
+                                this.setState({horaSalida: date})
                             }}
                             customStyles={{
                                 dateInput: styles.datePickerInput,
@@ -239,14 +320,14 @@ export class RescateView extends Component {
                         <Label>Hora Arribo</Label>
                         <DatePicker
                             style={styles.datePicker}
-                            date={this.state.fechaEntrada}
+                            date={this.state.horaArribo}
                             mode="time"
                             confirmBtnText="Seleccionar"
                             cancelBtnText="Cancelar"
                             format="hh:mm"
                             showIcon={false}
                             onDateChange={(date) => {
-                                this.setState({fechaEntrada: date})
+                                this.setState({horaArribo: date})
                             }}
                             customStyles={{
                                 dateInput: styles.datePickerInput,
@@ -307,7 +388,8 @@ export class RescateView extends Component {
                                     kilometraje: kilometraje,
                                     tipo: denominacion_tipo,
                                     marca: fabricante,
-                                    ruta: ''
+                                    ruta: '',
+                                    fechaEntrada: ''
                                 },
                                 operador: {
                                     nombres: nombres,
@@ -332,75 +414,86 @@ export class RescateView extends Component {
                         )}
                     </View>
                     <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Datos del Operador</Title>
-                        </Body>
-                    </Header>
-                    <Item floatingLabel>
-                        <Label>Nombres</Label>
-                        <Input value={this.state.operador.nombres}
-                               onChangeText={(text) => this.setState({operador: {nombres: text}})}/>
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>Apellidos</Label>
-                        <Input value={this.state.operador.apellidos}
-                               onChangeText={(text) => this.setState({operador: {apellidos: text}})}/>
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>Telefono</Label>
-                        <Input value={this.state.operador.telefono}
-                               onChangeText={(text) => this.setState({operador: {telefono: text}})}/>
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>#Empleado</Label>
-                        <Input value={this.state.operador.numEmpleado}
-                               onChangeText={(text) => this.setState({operador: {numEmpleado: text}})}
-                               keyboardType='numeric'/>
-                    </Item>
-                    <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Material - Refacciones</Title>
-                        </Body>
-                        <Right>
-                            <Button transparent onPress={() => {
-                                this.setState({registroPantalla: 'refaccion'})
-                            }}>
-                                <Icon active name="add"/>
-                            </Button>
-                        </Right>
-                    </Header>
-                    <SwipeListView
-                        dataSource={this.ds.cloneWithRows(this.state.listRefacciones)}
-                        renderRow={(data, secId, rowId, rowMap) => (
-                            <SwipeRow
-                                leftOpenValue={20 + Math.random() * 150}
-                                rightOpenValue={-150}
-                            >
-                                <View style={styles.rowBack}>
-                                    <Text>Ver</Text>
-                                    <View style={[styles.backRightBtn, styles.backRightBtnLeft]}>
-                                        <Text style={styles.backTextWhite}>Editar</Text>
-                                    </View>
-                                    <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnRight]}
-                                                      onPress={_ => this.deleteRow(secId, rowId, rowMap)}>
-                                        <Text style={styles.backTextWhite}>Eliminar</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <TouchableHighlight
-                                    onPress={_ => console.log('You touched me')}
-                                    style={styles.rowFront}
-                                    underlayColor={'#AAA'}
+                        <Header>
+                            <Body>
+                            <Title>Datos del Operador</Title>
+                            </Body>
+                        </Header>
+                        <Item floatingLabel>
+                            <Label>Nombres</Label>
+                            <Input value={this.state.operador.nombres} onChangeText={(text) => {
+                                const {operador} = this.state;
+                                operador.nombres = text;
+                                this.setState({operador: operador});
+                            }}/>
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>Apellidos</Label>
+                            <Input value={this.state.operador.apellidos} onChangeText={(text) => {
+                                const {operador} = this.state;
+                                operador.apellidos = text;
+                                this.setState({operador: operador});
+                            }}/>
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>Telefono</Label>
+                            <Input value={this.state.operador.telefono} onChangeText={(text) => {
+                                const {operador} = this.state;
+                                operador.telefono = text;
+                                this.setState({operador: operador});
+                            }}/>
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>#Empleado</Label>
+                            <Input value={this.state.operador.numEmpleado} onChangeText={(text) => {
+                                const {operador} = this.state;
+                                operador.numEmpleado = text;
+                                this.setState({operador: operador});
+                            }} keyboardType='numeric'/>
+                        </Item>
+                        <Separator bordered/>
+                        <Header>
+                            <Body>
+                            <Title>Material - Refacciones</Title>
+                            </Body>
+                            <Right>
+                                <Button transparent onPress={() => {
+                                    this.setState({registroPantalla: 'refaccion'})
+                                }}>
+                                    <Icon active name="add"/>
+                                </Button>
+                            </Right>
+                        </Header>
+                        <SwipeListView
+                            dataSource={this.ds.cloneWithRows(this.state.listRefacciones)}
+                            renderRow={(data, secId, rowId, rowMap) => (
+                                <SwipeRow
+                                    leftOpenValue={20 + Math.random() * 150}
+                                    rightOpenValue={-150}
                                 >
-                                    <View>
-                                        <Text>{data.refaccion.label}</Text>
+                                    <View style={styles.rowBack}>
+                                        <TouchableOpacity style={[styles.leftBtn, styles.backLeftBtn]}
+                                                          onPress={_ => this.editRow(data)}>
+                                            <Text style={styles.backTextWhite}>Editar</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnRight]}
+                                                          onPress={_ => this.deleteRow(secId, rowId, rowMap)}>
+                                            <Text style={styles.backTextWhite}>Eliminar</Text>
+                                        </TouchableOpacity>
                                     </View>
-                                </TouchableHighlight>
-                            </SwipeRow>
-                        )}
-                    />
-                    <Separator bordered/>
+                                    <TouchableHighlight
+                                        onPress={_ => console.log('You touched me')}
+                                        style={styles.rowFront}
+                                        underlayColor={'#AAA'}
+                                    >
+                                        <View>
+                                            <Text>{data.cantidad} - {data.refaccion.label.replace('#','-existencia->)')}</Text>
+                                        </View>
+                                    </TouchableHighlight>
+                                </SwipeRow>
+                            )}
+                        />
+                        <Separator bordered/>
                     <Header>
                         <Body>
                         <Title>Imagenes</Title>
@@ -437,21 +530,33 @@ export class RescateView extends Component {
                     </Header>
                     <Item floatingLabel>
                         <Label>Ciudad</Label>
-                        <Input value={this.state.observaciones.problema}/>
+                        <Input value={this.state.observaciones.ciudad} onChangeText={(text) => {
+                            const {observaciones} = this.state;
+                            observaciones.ciudad = text;
+                            this.setState({observaciones:observaciones});
+                        }}/>
                     </Item>
                     <Item floatingLabel>
                         <Label>Estado</Label>
-                        <Input value={this.state.observaciones.observacion}/>
+                        <Input value={this.state.observaciones.estado} onChangeText={(text) => {
+                            const {observaciones} = this.state;
+                            observaciones.estado = text;
+                            this.setState({observaciones:observaciones});
+                        }}/>
                     </Item>
                     <Item floatingLabel>
                         <Label>Población</Label>
-                        <Input value={this.state.observaciones.observacion}/>
+                        <Input value={this.state.observaciones.poblacion} onChangeText={(text) => {
+                            const {observaciones} = this.state;
+                            observaciones.poblacion = text;
+                            this.setState({observaciones:observaciones});
+                        }}/>
                     </Item>
                     <Item>
                         <Label>Fecha Termino</Label>
                         <DatePicker
                             style={styles.datePicker}
-                            date={this.state.fechaEntrada}
+                            date={this.state.observaciones.fechaTermino}
                             mode="date"
                             confirmBtnText="Seleccionar"
                             cancelBtnText="Cancelar"
@@ -471,7 +576,7 @@ export class RescateView extends Component {
                         <Label>Hora Termino</Label>
                         <DatePicker
                             style={styles.datePicker}
-                            date={this.state.fechaEntrada}
+                            date={this.state.observaciones.horaTermino}
                             mode="time"
                             confirmBtnText="Seleccionar"
                             cancelBtnText="Cancelar"
@@ -488,29 +593,27 @@ export class RescateView extends Component {
                             }}/>
                     </Item>
                     <Separator bordered/>
-                    <TouchableHighlight onPress={() => {
-                        this.setState({visibleSgnature: true})
-                    }} style={styles.buttonEnd}>
-                        <Text style={styles.textoBoton}>Registrar Ordenes</Text>
-                    </TouchableHighlight>
-                    <Separator bordered/>
-                </Form>
-            );
-        } else if (this.state.registroPantalla === 'refaccion') {
-            return (
-                <View>
-                    <Refaccion username={this.state.username}
-                               agregarRefaccion={this.agregarItem.bind(this)}/>
-                </View>
-            );
+                        <TouchableHighlight onPress={() => {
+                            this.setState({visibleSgnature: true})
+                        }} style={styles.buttonEnd}>
+                            <Text style={styles.textoBoton}>Registrar Ordenes</Text>
+                        </TouchableHighlight>
+                        <Separator bordered/>
+                    </Form>);
+                break;
+            case 'refaccion':
+                return (
+                    <View>
+                        <Refaccion username={this.state.username}
+                                   agregarRefaccion={this.agregarItem.bind(this)}
+                                   actualizarRefaccion={this.updateItem.bind(this)}
+                                   regresar={this.regresarFromRefaccion.bind(this)}
+                                   refaccion={this.state.editRefaccion}
+                        />
+                    </View>
+                );
+                break;
         }
-    }
-
-    deleteRow(secId, rowId, rowMap) {
-        rowMap[`${secId}${rowId}`].closeRow();
-        const newData = [...this.state.listRefacciones];
-        newData.splice(rowId, 1);
-        this.setState({listRefacciones: newData});
     }
 
     render() {

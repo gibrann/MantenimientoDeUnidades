@@ -37,34 +37,70 @@ import {
 
 export class refaccionesView extends Component {
     constructor(props) {
+        var refaccion = null;
+        var _refacciones = [];
         super(props);
-        this.state = {
-            selectedConcepto: "MTTO TOT",
-            selectedServicios: "Servicio",
-            selectedPaquete: "Transport",
-            selectedFamilia: null,
-            conceptos: {"MTTO TOT": "MTTO TOT", "Mano de Obra": "Mano de Obra"},
-            servicios: {"Servicio": "Servicio", "Material": "Material"},
-            paquetes: {
-                "Transport": "Transport",
-                "Leases / Fuerza de ventanas": "Leases / Fuerza de ventanas",
-                "Leases / Rentals": "Leases / Rentals",
-                "Logistics Support": "Logistics Support",
-                "Utilities": "Utilities"
-            },
-            refacciones: [],
-            selectedRefaccion: 'Seleccione...',
-            visibleFamilia: false,
-            pickedFamilia: null,
-            pickedText: '',
-            familias: [],
-            refaccion: {concepto: '', servicio: '', paquete: ' ', familia: '', cantidad: ''}
+        if (props.refaccion !== null) {
+            refaccion = props.refaccion;
+            let _familias = obtenerServicios('');
+            let _refacciones = obtenerRefacciones(refaccion.familia.key);
+            this.state = {
+                selectedConcepto: "MTTO TOT",
+                selectedServicios: "Servicio",
+                selectedPaquete: "Transport",
+                selectedFamilia: refaccion.familia,
+                conceptos: {"MTTO TOT": "MTTO TOT", "Mano de Obra": "Mano de Obra"},
+                servicios: {"Servicio": "Servicio", "Material": "Material"},
+                paquetes: {
+                    "Transport": "Transport",
+                    "Leases / Fuerza de ventanas": "Leases / Fuerza de ventanas",
+                    "Leases / Rentals": "Leases / Rentals",
+                    "Logistics Support": "Logistics Support",
+                    "Utilities": "Utilities"
+                },
+                refacciones: _refacciones,
+                selectedRefaccion: refaccion.refaccion,
+                visibleFamilia: false,
+                pickedFamilia: refaccion.familia.key,
+                pickedText: refaccion.familia.label,
+                familias: _familias,
+                refaccion: {concepto: '', servicio: '', paquete: ' ', familia: '', cantidad: refaccion.cantidad, index: refaccion.index},
+                accion: 'actualizar'
+            };
+        } else {
+            this.state = {
+                selectedConcepto: "MTTO TOT",
+                selectedServicios: "Servicio",
+                selectedPaquete: "Transport",
+                selectedFamilia: null,
+                conceptos: {"MTTO TOT": "MTTO TOT", "Mano de Obra": "Mano de Obra"},
+                servicios: {"Servicio": "Servicio", "Material": "Material"},
+                paquetes: {
+                    "Transport": "Transport",
+                    "Leases / Fuerza de ventanas": "Leases / Fuerza de ventanas",
+                    "Leases / Rentals": "Leases / Rentals",
+                    "Logistics Support": "Logistics Support",
+                    "Utilities": "Utilities"
+                },
+                refacciones: [{key: -1, label: 'Seleccione...'}],
+                selectedRefaccion: 'Seleccione...',
+                visibleFamilia: false,
+                pickedFamilia: null,
+                pickedText: '',
+                familias: [],
+                refaccion: {concepto: '', servicio: '', paquete: ' ', familia: '', cantidad: ''},
+                accion: 'agregar'
+            }
         }
     };
 
 
     onShowFamilia = () => {
         this.setState({visibleFamilia: true});
+    };
+
+    componentWillReceiveProps(nextProps) {
+        console.log(nextProps);
     }
 
     onSelectFamilia = (picked) => {
@@ -97,6 +133,18 @@ export class refaccionesView extends Component {
         }, 500);
     }
 
+    accion(){
+        const {accion} = this.state;
+        switch (accion){
+            case 'agregar':
+                this.agregarRefaccion();
+                break;
+            case 'actualizar':
+                this.actualizarRefaccion();
+                break;
+        }
+    }
+
     agregarRefaccion() {
         if (this.state.cantidad === null
             || this.state.pickedFamilia === null
@@ -118,6 +166,33 @@ export class refaccionesView extends Component {
             this.state.refaccion.refaccion = this.state.selectedRefaccion;
             this.props.agregarRefaccion(this.state.refaccion);
         }
+    }
+
+    actualizarRefaccion() {
+        if (this.state.cantidad === null
+            || this.state.pickedFamilia === null
+        ) {
+            Alert.alert(
+                'Acceso',
+                'Los campos Cantidad, Precio, Familia. Son requeridos para continuar',
+                [
+                    {
+                        text: 'Aceptar',
+                    }
+                ]
+            );
+        } else {
+            this.state.refaccion.concepto = this.state.selectedConcepto;
+            this.state.refaccion.servicio = this.state.selectedServicios;
+            this.state.refaccion.paquete = this.state.selectedPaquete;
+            this.state.refaccion.familia = this.state.selectedFamilia;
+            this.state.refaccion.refaccion = this.state.selectedRefaccion;
+            this.props.actualizarRefaccion(this.state.refaccion);
+        }
+    }
+
+    regresar() {
+        this.props.regresar();
     }
 
     render() {
@@ -176,7 +251,7 @@ export class refaccionesView extends Component {
                     <Item stackedLabel>
                         <Label>Familia</Label>
                         <TouchableOpacity style={styles.inputPicker} onPress={this.onShowFamilia}>
-                            <Text>{pickedFamilia !== null ? pickedText : 'Seleccione'}</Text>
+                            <Text>{pickedFamilia !== null ? pickedText : 'Seleccione...'}</Text>
                         </TouchableOpacity>
                         <ModalFilterPicker
                             visible={visibleFamilia}
@@ -209,9 +284,14 @@ export class refaccionesView extends Component {
                                onChangeText={(text) => this.setState({refaccion: {cantidad: text}})}
                                keyboardType='numeric'/>
                     </Item>
-                    <TouchableOpacity onPress={this.agregarRefaccion.bind(this)}>
+                    <TouchableOpacity onPress={this.accion.bind(this)}>
                         <View style={styles.button}>
                             <Text>Agregar</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={this.regresar.bind(this)}>
+                        <View style={styles.cancel}>
+                            <Text>Cancelar</Text>
                         </View>
                     </TouchableOpacity>
                 </ScrollView>

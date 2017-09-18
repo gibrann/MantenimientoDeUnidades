@@ -105,7 +105,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 4,
         borderColor: 'rgba(0, 0, 0, 0.1)'
-    }, modalContent: {
+    },
+    cancel: {
+        backgroundColor: '#BDBDBD',
+        padding: 12,
+        margin: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4,
+        borderColor: 'rgba(0, 0, 0, 0.1)'
+    },
+    modalContent: {
         flex: 1,
         backgroundColor: 'white',
         padding: 10,
@@ -295,6 +305,17 @@ const styles = StyleSheet.create({
     backRightBtnLeft: {
         backgroundColor: 'blue',
         right: 75
+    },
+    leftBtn:{
+      backgroundColor: 'blue',
+        width: 75
+    },
+    backLeftBtn: {
+        alignItems: 'center',
+        bottom: 0,
+        justifyContent: 'center',
+        top: 0,
+        width: 75
     },
     backRightBtnRight: {
         backgroundColor: 'red',

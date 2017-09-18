@@ -25,13 +25,14 @@ import {
     SwipeRow,
     Separator
 } from 'native-base';
-import styles from '../estilos/estilos'
+import {NavigationActions} from 'react-navigation';
 import SideMenu from 'react-native-side-menu';
+import styles from '../estilos/estilos'
 import Menu from './menuView';
-import Preventivo from './mntoPreventivoView';
-import Correctivo from './mntoCorrectivoView';
-import Rescate from './mntoRescateView';
 import Bandeja from './bandejaView'
+import Correctivo from './mntoCorrectivoView';
+import Preventivo from './mntoPreventivoView';
+import Rescate from './mntoRescateView';
 
 
 export class masterView extends Component {
@@ -127,51 +128,61 @@ export class masterView extends Component {
     }
 
     renderItem() {
-        if (this.state.selectedItem === 'Registro') {
-            console.log('Registro de unidades.');
-            return (
-                <Container style={styles.container}>
-                    <Content padder>
-                        {this.renderSelectedTab()}
-                    </Content>
-                    <Footer>
-                        <FooterTab>
-                            <Button vertical active={this.state.selectedTab === 'correctivo'}
-                                    onPress={() => this.setState({selectedTab: 'correctivo'})}>
-                                <Icon name="md-settings"/>
-                                <Text>Correctivo</Text>
-                            </Button>
-                            <Button vertical active={this.state.selectedTab === 'preventivo'}
-                                    onPress={() => this.setState({selectedTab: 'preventivo'})}>
-                                <Icon name="alert"/>
-                                <Text>Preventivo</Text>
-                            </Button>
-                            <Button vertical active={this.state.selectedTab === 'rescate'}
-                                    onPress={() => this.setState({selectedTab: 'rescate'})}>
-                                <Icon active name="briefcase"/>
-                                <Text>Rescate</Text>
-                            </Button>
-                        </FooterTab>
-                    </Footer>
-                </Container>
-            );
-        } else if (this.state.selectedItem === 'Bandeja') {
-            console.log('Bandeja de ordenes.');
-            return (
-                <Container style={styles.container}>
-                    <Header>
-                        <Body>
-                        <Title>BANDEJA DE ORDENES</Title>
-                        </Body>
-                        <Right>
-                            <Button transparent onPress={this.toggle}>
-                                <Icon name='menu'/>
-                            </Button>
-                        </Right>
-                    </Header>
-                    <Bandeja username={this.state.username}/>
-                </Container>
-            );
+        switch (this.state.selectedItem){
+            case 'Registro':
+                return (
+                    <Container style={styles.container}>
+                        <Content padder>
+                            {this.renderSelectedTab()}
+                        </Content>
+                        <Footer>
+                            <FooterTab>
+                                <Button vertical active={this.state.selectedTab === 'correctivo'}
+                                        onPress={() => this.setState({selectedTab: 'correctivo'})}>
+                                    <Icon name="md-settings"/>
+                                    <Text>Correctivo</Text>
+                                </Button>
+                                <Button vertical active={this.state.selectedTab === 'preventivo'}
+                                        onPress={() => this.setState({selectedTab: 'preventivo'})}>
+                                    <Icon name="alert"/>
+                                    <Text>Preventivo</Text>
+                                </Button>
+                                <Button vertical active={this.state.selectedTab === 'rescate'}
+                                        onPress={() => this.setState({selectedTab: 'rescate'})}>
+                                    <Icon active name="briefcase"/>
+                                    <Text>Rescate</Text>
+                                </Button>
+                            </FooterTab>
+                        </Footer>
+                    </Container>
+                );
+                break;
+            case 'Bandeja':
+                return (
+                    <Container style={styles.container}>
+                        <Header>
+                            <Body>
+                            <Title>BANDEJA DE ORDENES</Title>
+                            </Body>
+                            <Right>
+                                <Button transparent onPress={this.toggle}>
+                                    <Icon name='menu'/>
+                                </Button>
+                            </Right>
+                        </Header>
+                        <Bandeja username={this.state.username}/>
+                    </Container>
+                );
+                break;
+            case 'Salir':
+                const resetAction = NavigationActions.reset({
+                    index: 0,
+                    actions: [
+                        NavigationActions.navigate({routeName: 'Login', params: {username:''}})
+                    ]
+                });
+                this.props.navigation.dispatch(resetAction);
+                break;
         }
     }
 

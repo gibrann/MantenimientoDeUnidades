@@ -256,7 +256,7 @@ export function obtenerRefacciones(idServio) {
     refacciones = [];
     db.transaction((tx) => {
         tx.executeSql(
-            ' SELECT id_material_serv_refaccion AS key, marca_material||" "||descripcion||" #("||numero_existentes||")"  AS label FROM ar_material_serv_refaccion WHERE id_material_servicio = ?',
+            ' SELECT -1 AS key, "Seleccione..." AS label UNION SELECT id_material_serv_refaccion AS key, marca_material||" "||descripcion||" #("||numero_existentes||")"  AS label FROM ar_material_serv_refaccion WHERE id_material_servicio = ?',
             [idServio], (tx, results) => {
                 var len = results.rows.length;
                 if (len > 0) {

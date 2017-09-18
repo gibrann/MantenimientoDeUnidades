@@ -69,6 +69,12 @@ export default function Menu({onItemSelected,username}) {
             >
                 Bandeja Ordenes
             </Text>
+            <Text
+                onPress={() => onItemSelected('Salir')}
+                style={styles.item}
+            >
+                Salir
+            </Text>
         </ScrollView>
     );
 }
