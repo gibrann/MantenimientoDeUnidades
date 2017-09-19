@@ -1,152 +1,96 @@
-import React, {
-    Component,
-} from 'react';
-import {
+var React = require('react');
+var ReactNative = require('react-native');
+
+var {
     AppRegistry,
-    ListView,
     StyleSheet,
-    Text,
+    View,
     TouchableOpacity,
-    TouchableHighlight,
-    View
-} from 'react-native';
+    Text
+} = ReactNative;
 
-import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
+var Spinner = require('react-native-spinkit');
 
-class App extends Component {
+var Example = React.createClass({
 
-    constructor(props) {
-        super(props);
-        this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.state = {
-            basic: true,
-            listViewData: Array(20).fill('').map((_, i) => `item #${i}`),
-            //listViewData: props.dataSource
-        };
-    }
+    getInitialState() {
+        return {
+            index: 0,
+            types: ['CircleFlip', 'Bounce', 'Wave', 'WanderingCubes', 'Pulse', 'ChasingDots', 'ThreeBounce', 'Circle', '9CubeGrid', 'WordPress', 'FadingCircle', 'FadingCircleAlt', 'Arc', 'ArcAlt'],
+            size: 100,
+            color: "#FFFFFF",
+            isVisible: true
+        }
+    },
 
-    deleteRow(secId, rowId, rowMap) {
-        rowMap[`${secId}${rowId}`].closeRow();
-        const newData = [...this.state.listViewData];
-        newData.splice(rowId, 1);
-        this.setState({listViewData: newData});
-    }
+    next() {
+        if (this.state.index++ >= this.state.types.length)
+            this.setState({index: 0})
+        else
+            this.setState({index: this.state.index++})
+    },
+
+    increaseSize() {
+        this.setState({size: this.state.size + 10});
+    },
+
+    changeColor() {
+        this.setState({color: '#'+Math.floor(Math.random()*16777215).toString(16)});
+    },
+
+    changeVisibility() {
+        this.setState({isVisible: !this.state.isVisible});
+    },
 
     render() {
+        var type = this.state.types[this.state.index];
+
         return (
             <View style={styles.container}>
+                <Spinner style={styles.spinner} isVisible={this.state.isVisible} size={this.state.size} type={type} color={this.state.color}/>
 
-                <SwipeListView
-                    dataSource={this.ds.cloneWithRows(this.state.listViewData)}
-                    renderRow={(data, secId, rowId, rowMap) => (
-                        <SwipeRow
-                            disableLeftSwipe={parseInt(rowId) % 2 === 0}
-                            leftOpenValue={20 + Math.random() * 150}
-                            rightOpenValue={-150}
-                        >
-                            <View style={styles.rowBack}>
-                                <Text>Ver</Text>
-                                <View style={[styles.backRightBtn, styles.backRightBtnLeft]}>
-                                    <Text style={styles.backTextWhite}>Editar</Text>
-                                </View>
-                                <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnRight]}
-                                                  onPress={_ => this.deleteRow(secId, rowId, rowMap)}>
-                                    <Text style={styles.backTextWhite}>Eliminar</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <TouchableHighlight
-                                onPress={_ => console.log('You touched me')}
-                                style={styles.rowFront}
-                                underlayColor={'#AAA'}
-                            >
-                                <View>
-                                    <Text>Refaccion {data} de la orden</Text>
-                                </View>
-                            </TouchableHighlight>
-                        </SwipeRow>
-                    )}
-                />
+                <Text style={styles.text}>Type: {type}</Text>
 
+                <TouchableOpacity style={styles.btn} onPress={this.next}>
+                    <Text style={styles.text}>Next</Text>
+                </TouchableOpacity>
 
+                <TouchableOpacity style={styles.btn} onPress={this.increaseSize}>
+                    <Text style={styles.text}>Increase size</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.btn} onPress={this.changeColor}>
+                    <Text style={styles.text}>Change color</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.btn} onPress={this.changeVisibility}>
+                    <Text style={styles.text}>Change visibility</Text>
+                </TouchableOpacity>
             </View>
         );
     }
-}
 
-const styles = StyleSheet.create({
+});
+
+var styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white',
-        flex: 1
-    },
-    standalone: {
-        marginTop: 30,
-        marginBottom: 30,
-    },
-    standaloneRowFront: {
-        alignItems: 'center',
-        backgroundColor: '#CCC',
-        justifyContent: 'center',
-        height: 50,
-    },
-    standaloneRowBack: {
-        alignItems: 'center',
-        backgroundColor: '#8BC645',
         flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 15
-    },
-    backTextWhite: {
-        color: '#FFF'
-    },
-    rowFront: {
-        alignItems: 'center',
-        backgroundColor: '#CCC',
-        borderBottomColor: 'black',
-        borderBottomWidth: 1,
         justifyContent: 'center',
-        height: 50,
-    },
-    rowBack: {
         alignItems: 'center',
-        backgroundColor: '#DDD',
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingLeft: 15,
+        backgroundColor: '#d35400',
     },
-    backRightBtn: {
-        alignItems: 'center',
-        bottom: 0,
-        justifyContent: 'center',
-        position: 'absolute',
-        top: 0,
-        width: 75
+
+    spinner: {
+        marginBottom: 50
     },
-    backRightBtnLeft: {
-        backgroundColor: 'blue',
-        right: 75
+
+    btn: {
+        marginTop: 20
     },
-    backRightBtnRight: {
-        backgroundColor: 'red',
-        right: 0
-    },
-    controls: {
-        alignItems: 'center',
-        marginBottom: 30
-    },
-    switchContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginBottom: 5
-    },
-    switch: {
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'black',
-        paddingVertical: 10,
-        width: 100,
+
+    text: {
+        color: "white"
     }
 });
 
-module.exports = App;
+module.exports = Example;

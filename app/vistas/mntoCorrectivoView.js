@@ -85,7 +85,7 @@ export class CorrectivoView extends Component {
                     );
                 }
             }).catch(e => Alert.alert(
-                'Error', e, [{text: 'Aceptar'}]
+                'Error', e.message, [{text: 'Aceptar'}]
             ));
         } else {
             Alert.alert(

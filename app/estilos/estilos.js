@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         height: 50,
-        backgroundColor: "red",
+        backgroundColor: "green",
         margin: 10,
     },
     autocompleteContainer: {
@@ -339,6 +339,17 @@ const styles = StyleSheet.create({
     },
     switchButton: {
         paddingLeft: 10,
+    },
+    spinner: {
+        marginBottom: 90
+    },
+
+    btn: {
+        marginTop: 20
+    },
+
+    text: {
+        color: "white"
     }
 });
 

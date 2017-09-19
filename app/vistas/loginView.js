@@ -8,6 +8,7 @@ import {
     TextInput
 } from 'react-native';
 import {NavigationActions} from 'react-navigation'
+var Spinner = require('react-native-spinkit');
 import styles from '../estilos/estilos';
 import {validarAcceso} from '../repositorios/generalRepository';
 
@@ -18,6 +19,7 @@ export class loginView extends Component {
             isLLogged: null,
             username: null,
             password: null,
+            isVisibleSpinner:false
         }
     };
 
@@ -36,6 +38,7 @@ export class loginView extends Component {
             console.log(this.state.username + ' ' + this.state.password);
             let Respuesta = {data: null, mensaje: '', exito: false};
             Respuesta = validarAcceso(this.state.username, this.state.password);
+            this.setState({isVisibleSpinner:true});
             var _this = this;
             setTimeout(function () {
                 console.log("resultado: " + Respuesta.exito)
@@ -48,6 +51,7 @@ export class loginView extends Component {
                     });
                     _this.props.navigation.dispatch(resetAction);
                 } else {
+                    _this.setState({isVisibleSpinner:false});
                     Alert.alert(
                         'Acceso',
                         'Los datos ingresados son invalidos verifiquelos una vez más.',
@@ -77,6 +81,7 @@ export class loginView extends Component {
                 <Image style={styles.contenedorPrincipal} source={require('../imagenes/mantocor2.jpg')}>
                     <View>
                         <View style={styles.cajaLogin}>
+                            <Spinner style={styles.spinner} isVisible={this.state.isVisibleSpinner} size={50} type={'WanderingCubes'} color={'white'}/>
                             <Image source={require('../imagenes/final.png')} style={styles.banner}/>
                             <Text style={styles.tituloLogin}>MANTENIMIENTO DE UNIDADES 1.1</Text>
                             <TextInput style={styles.input} placeholder='Usuario...' underlineColorAndroid='transparent'
