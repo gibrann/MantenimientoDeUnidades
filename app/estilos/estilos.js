@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     }, botonRed: {
         width: 300,
         height: 30,
-        backgroundColor: '#e03a34',
+        backgroundColor: '#c3740e',
         justifyContent: 'center',
         marginTop: 8,
         marginBottom: 8,
@@ -196,20 +196,23 @@ const styles = StyleSheet.create({
         margin: 10,
     },
     autocompleteContainer: {
-        marginLeft: 10,
-        marginRight: 10
+        /*paddingLeft: 10,
+        paddingRight: 10*/
+        width:screenWidth
     },
     autocompleteInModal: {
         width: 300
     },
     itemText: {
         fontSize: 15,
-        margin: 2
+        margin: 0,
+        paddingLeft:5,
+        paddingRight:5
     },
     itemTextInModal: {
         flex: 1,
         fontSize: 15,
-        margin: 2
+        margin: 0
     },
     descriptionContainer: {
         // `backgroundColor` needs to be set otherwise the

@@ -23,7 +23,8 @@ import {
     Title,
     Right,
     SwipeRow,
-    Separator
+    Separator,
+    StyleProvider
 } from 'native-base';
 import {NavigationActions} from 'react-navigation';
 import SideMenu from 'react-native-side-menu';
@@ -33,6 +34,7 @@ import Bandeja from './bandejaView'
 import Correctivo from './mntoCorrectivoView';
 import Preventivo from './mntoPreventivoView';
 import Rescate from './mntoRescateView';
+import getTheme from '../../native-base-theme/components';
 
 
 export class masterView extends Component {
@@ -70,8 +72,9 @@ export class masterView extends Component {
         switch (this.state.selectedTab) {
             case 'preventivo':
                 return (
-                    <View>
-                        <Header>
+                        
+                        <View>
+                         <Header>
                             <Body>
                             <Title>MANTENIMIENTO PREVENTIVO</Title>
                             </Body>
@@ -82,12 +85,13 @@ export class masterView extends Component {
                             </Right>
                         </Header>
                         <Separator bordered/>
-                        <Preventivo/>
-                    </View>
+                        <Content><Preventivo/></Content>
+                        </View>
                 );
                 break;
             case 'correctivo':
                 return (
+                <StyleProvider style={getTheme()}>
                     <View>
                         <Header>
                             <Body>
@@ -102,10 +106,12 @@ export class masterView extends Component {
                         <Separator bordered/>
                         <Correctivo/>
                     </View>
+                    </StyleProvider>
                 );
                 break;
             case 'rescate':
                 return (
+                <StyleProvider style={getTheme()}>
                     <View>
                         <Header>
                             <Body>
@@ -120,6 +126,7 @@ export class masterView extends Component {
                         <Separator bordered/>
                         <Rescate/>
                     </View>
+                    </StyleProvider>
                 );
                 break;
             default:
@@ -132,7 +139,7 @@ export class masterView extends Component {
             case 'Registro':
                 return (
                     <Container style={styles.container}>
-                        <Content padder>
+                        <Content>
                             {this.renderSelectedTab()}
                         </Content>
                         <Footer>
@@ -189,6 +196,7 @@ export class masterView extends Component {
     render() {
         const menu = <Menu onItemSelected={this.onMenuItemSelected} username={this.state.username}/>;
         return (
+        <StyleProvider style={getTheme()}>
             <SideMenu
                 menu={menu}
                 isOpen={this.state.isOpen}
@@ -198,6 +206,7 @@ export class masterView extends Component {
             >
                 {this.renderItem()}
             </SideMenu>
+        </StyleProvider>
         );
     }
 }

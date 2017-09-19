@@ -29,6 +29,7 @@ import {
     Title,
     Right,
     Separator,
+    StyleProvider
 } from 'native-base';
 import ImagePicker from 'react-native-image-crop-picker';
 import Autocomplete from 'react-native-autocomplete-input';
@@ -38,6 +39,7 @@ import styles from '../estilos/estilos';
 import Refaccion from './refaccionView';
 import ModalPicker from 'react-native-modal-picker'
 import {obtenerUnidades} from '../repositorios/generalRepository';
+import getTheme from '../../native-base-theme/components';
 
 export class CorrectivoView extends Component {
 
@@ -450,9 +452,11 @@ export class CorrectivoView extends Component {
 
     render() {
         return (
+                <StyleProvider style={getTheme()}>
             <View>
                 {this.renderScreen()}
             </View>
+            </StyleProvider>
         );
     };
 };
