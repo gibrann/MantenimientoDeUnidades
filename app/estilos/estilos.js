@@ -310,15 +310,16 @@ const styles = StyleSheet.create({
         right: 75
     },
     leftBtn:{
-      backgroundColor: 'blue',
-        width: 75
-    },
-    backLeftBtn: {
         alignItems: 'center',
         bottom: 0,
         justifyContent: 'center',
+        position: 'absolute',
         top: 0,
         width: 75
+    },
+    backLeftBtn: {
+        backgroundColor: 'blue',
+        left: 0
     },
     backRightBtnRight: {
         backgroundColor: 'red',

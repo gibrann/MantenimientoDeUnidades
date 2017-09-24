@@ -7,7 +7,8 @@ import {
     TouchableHighlight,
     Picker,
     ListView,
-    Alert
+    Alert,
+    TextInput
 } from 'react-native'
 import {
     Container,
@@ -28,6 +29,7 @@ import {
     Title,
     Right,
     Separator,
+    StyleProvider
 } from 'native-base';
 import ImagePicker from 'react-native-image-crop-picker';
 import Autocomplete from 'react-native-autocomplete-input';
@@ -38,8 +40,10 @@ import styles from '../estilos/estilos';
 import Refaccion from './refaccionView';
 import ModalPicker from 'react-native-modal-picker'
 import {obtenerUnidades} from '../repositorios/generalRepository';
+import getTheme from '../../native-base-theme/components';
 
 export class RescateView extends Component {
+
     constructor(props) {
         super(props);
         this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
@@ -88,7 +92,7 @@ export class RescateView extends Component {
                     );
                 }
             }).catch(e => Alert.alert(
-                'Error', e, [{text: 'Aceptar'}]
+                'Error', e.message, [{text: 'Aceptar'}]
             ));
         } else {
             Alert.alert(
@@ -143,7 +147,7 @@ export class RescateView extends Component {
         console.log("Aplicando regex");
         const {unidades} = this.state;
         const regex = new RegExp(`${query.trim()}`, 'i');
-        return unidades.filter(unidad => unidad.num_placa.search(regex) >= 0);
+        return unidades.filter(unidad => unidad.num_economico.search(regex) >= 0);
     }
 
     renderUnidad() {
@@ -154,7 +158,7 @@ export class RescateView extends Component {
                     <Input disabled value={this.state.unidad.placa}/>
                 </Item>
                 <Item floatingLabel disabled>
-                    <Label>#Economico</Label>
+                    <Label>#Económico</Label>
                     <Input disabled value={this.state.unidad.economico}/>
                 </Item>
                 <Item floatingLabel>
@@ -175,11 +179,12 @@ export class RescateView extends Component {
                 </Item>
                 <Item floatingLabel>
                     <Label>Ruta</Label>
-                    <Input value={this.state.unidad.ruta} onChangeText={(text) => {
+                    <Input keyboardType='numeric' value={this.state.unidad.ruta} onChangeText={(text) => {
                         const {unidad} = this.state;
                         unidad.ruta = text;
                         this.setState({unidad: unidad});
-                    }}/>
+                    }}
+                    />
                 </Item>
                 <Item>
                     <Label>Fecha Entrada</Label>
@@ -214,9 +219,9 @@ export class RescateView extends Component {
     };
 
     updateItem = (refaccion) => {
-        var {listRefacciones} = this.state;
-        listRefacciones[refaccion.index] = refaccion;
-        this.setState({registroPantalla: 'orden',listRefacciones: listRefacciones});
+        const newData = [...this.state.listRefacciones];
+        newData[refaccion.index] = refaccion;
+        this.setState({registroPantalla: 'orden', listRefacciones: newData});
     };
 
     regresarFromRefaccion = () => {
@@ -244,176 +249,176 @@ export class RescateView extends Component {
         switch (registroPantalla) {
             case 'orden':
                 return (
-                <Form>
-                    <Header>
-                        <Body>
-                        <Title>Resgistro</Title>
-                        </Body>
-                    </Header>
-                    <Item>
-                        <Label>Fecha Reporte</Label>
-                        <DatePicker
-                            style={styles.datePicker}
-                            date={this.state.fechaReporte}
-                            mode="date"
-                            confirmBtnText="Seleccionar"
-                            cancelBtnText="Cancelar"
-                            format="YYYY-MM-DD"
-                            showIcon={false}
-                            onDateChange={(date) => {
-                                this.setState({fechaReporte: date})
-                            }}
-                            customStyles={{
-                                dateInput: styles.datePickerInput,
-                                dateText: styles.textPickerInput,
-                                btnTextConfirm: styles.btnTextConfirm,
-                                btnTextCancel: styles.btnTextCancel,
-                            }}/>
-                    </Item>
-                    <Item>
-                        <Label>Hora Reporte</Label>
-                        <DatePicker
-                            style={styles.datePicker}
-                            date={this.state.horaReporte}
-                            mode="time"
-                            confirmBtnText="Seleccionar"
-                            cancelBtnText="Cancelar"
-                            format="hh:mm"
-                            showIcon={false}
-                            onDateChange={(date) => {
-                                this.setState({horaReporte: date})
-                            }}
-                            customStyles={{
-                                dateInput: styles.datePickerInput,
-                                dateText: styles.textPickerInput,
-                                btnTextConfirm: styles.btnTextConfirm,
-                                btnTextCancel: styles.btnTextCancel,
-                            }}/>
-                    </Item>
-                    <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Trabajo de rescate</Title>
-                        </Body>
-                    </Header>
-                    <Item>
-                        <Label>Hora Salida</Label>
-                        <DatePicker
-                            style={styles.datePicker}
-                            date={this.state.horaSalida}
-                            mode="date"
-                            confirmBtnText="Seleccionar"
-                            cancelBtnText="Cancelar"
-                            format="YYYY-MM-DD"
-                            showIcon={false}
-                            onDateChange={(date) => {
-                                this.setState({horaSalida: date})
-                            }}
-                            customStyles={{
-                                dateInput: styles.datePickerInput,
-                                dateText: styles.textPickerInput,
-                                btnTextConfirm: styles.btnTextConfirm,
-                                btnTextCancel: styles.btnTextCancel,
-                            }}/>
-                    </Item>
-                    <Item>
-                        <Label>Hora Arribo</Label>
-                        <DatePicker
-                            style={styles.datePicker}
-                            date={this.state.horaArribo}
-                            mode="time"
-                            confirmBtnText="Seleccionar"
-                            cancelBtnText="Cancelar"
-                            format="hh:mm"
-                            showIcon={false}
-                            onDateChange={(date) => {
-                                this.setState({horaArribo: date})
-                            }}
-                            customStyles={{
-                                dateInput: styles.datePickerInput,
-                                dateText: styles.textPickerInput,
-                                btnTextConfirm: styles.btnTextConfirm,
-                                btnTextCancel: styles.btnTextCancel,
-                            }}/>
-                    </Item>
-                    <Item>
-                        <Label>Uso Grúa</Label>
-                        <Switch
-                            value={true}
-                            onValueChange={(val) => console.log(val)}
-                            disabled={false}
-                            activeText={'Sí'}
-                            inActiveText={'No'}
-                            backgroundActive={'green'}
-                            backgroundInactive={'red'}
-                            circleActiveColor={'#30a566'}
-                            circleInActiveColor={'#000000'}
+                    <Form>
+                        <Header>
+                            <Body>
+                            <Title>Resgistro</Title>
+                            </Body>
+                        </Header>
+                        <Item>
+                            <Label>Fecha Reporte</Label>
+                            <DatePicker
+                                style={styles.datePicker}
+                                date={this.state.fechaReporte}
+                                mode="date"
+                                confirmBtnText="Seleccionar"
+                                cancelBtnText="Cancelar"
+                                format="YYYY-MM-DD"
+                                showIcon={false}
+                                onDateChange={(date) => {
+                                    this.setState({fechaReporte: date})
+                                }}
+                                customStyles={{
+                                    dateInput: styles.datePickerInput,
+                                    dateText: styles.textPickerInput,
+                                    btnTextConfirm: styles.btnTextConfirm,
+                                    btnTextCancel: styles.btnTextCancel,
+                                }}/>
+                        </Item>
+                        <Item>
+                            <Label>Hora Reporte</Label>
+                            <DatePicker
+                                style={styles.datePicker}
+                                date={this.state.horaReporte}
+                                mode="time"
+                                confirmBtnText="Seleccionar"
+                                cancelBtnText="Cancelar"
+                                format="hh:mm"
+                                showIcon={false}
+                                onDateChange={(date) => {
+                                    this.setState({horaReporte: date})
+                                }}
+                                customStyles={{
+                                    dateInput: styles.datePickerInput,
+                                    dateText: styles.textPickerInput,
+                                    btnTextConfirm: styles.btnTextConfirm,
+                                    btnTextCancel: styles.btnTextCancel,
+                                }}/>
+                        </Item>
+                        <Separator bordered/>
+                        <Header>
+                            <Body>
+                            <Title>Trabajo de rescate</Title>
+                            </Body>
+                        </Header>
+                        <Item>
+                            <Label>Hora Salida</Label>
+                            <DatePicker
+                                style={styles.datePicker}
+                                date={this.state.horaSalida}
+                                mode="date"
+                                confirmBtnText="Seleccionar"
+                                cancelBtnText="Cancelar"
+                                format="YYYY-MM-DD"
+                                showIcon={false}
+                                onDateChange={(date) => {
+                                    this.setState({horaSalida: date})
+                                }}
+                                customStyles={{
+                                    dateInput: styles.datePickerInput,
+                                    dateText: styles.textPickerInput,
+                                    btnTextConfirm: styles.btnTextConfirm,
+                                    btnTextCancel: styles.btnTextCancel,
+                                }}/>
+                        </Item>
+                        <Item>
+                            <Label>Hora Arribo</Label>
+                            <DatePicker
+                                style={styles.datePicker}
+                                date={this.state.horaArribo}
+                                mode="time"
+                                confirmBtnText="Seleccionar"
+                                cancelBtnText="Cancelar"
+                                format="hh:mm"
+                                showIcon={false}
+                                onDateChange={(date) => {
+                                    this.setState({horaArribo: date})
+                                }}
+                                customStyles={{
+                                    dateInput: styles.datePickerInput,
+                                    dateText: styles.textPickerInput,
+                                    btnTextConfirm: styles.btnTextConfirm,
+                                    btnTextCancel: styles.btnTextCancel,
+                                }}/>
+                        </Item>
+                        <Item>
+                            <Label>Uso Grúa</Label>
+                            <Switch
+                                value={true}
+                                onValueChange={(val) => console.log(val)}
+                                disabled={false}
+                                activeText={'Sí'}
+                                inActiveText={'No'}
+                                backgroundActive={'green'}
+                                backgroundInactive={'red'}
+                                circleActiveColor={'#30a566'}
+                                circleInActiveColor={'#000000'}
+                            />
+                        </Item>
+                        <Item>
+                            <Label>Uso Remplazo</Label>
+                            <Switch
+                                value={true}
+                                onValueChange={(val) => console.log(val)}
+                                disabled={false}
+                                activeText={'Sí'}
+                                inActiveText={'No'}
+                                backgroundActive={'green'}
+                                backgroundInactive={'red'}
+                                circleActiveColor={'#30a566'}
+                                circleInActiveColor={'#000000'}
+                            />
+                        </Item>
+                        <Separator bordered/>
+                        <Header>
+                            <Body>
+                            <Title>Datos de la Unidad</Title>
+                            </Body>
+                        </Header>
+                        <Autocomplete
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            disableFullscreenUI={true}
+                            containerStyle={styles.autocompleteContainer}
+                            data={unidades.length === 1 && comp(query, unidades[0].num_economico) ? [] : unidades}
+                            defaultValue={query}
+                            onChangeText={text => this.setState({query: text})}
+                            placeholder="Ingrese su numero económico"
+                            renderItem={({num_placa, num_economico, kilometraje, denominacion_tipo, fabricante, nombres, apellidos, num_empleado, telefono}) => (
+                                <TouchableOpacity onPress={() => this.setState({
+                                    query: num_economico,
+                                    unidad: {
+                                        placa: num_placa,
+                                        economico: num_economico,
+                                        kilometraje: kilometraje,
+                                        tipo: denominacion_tipo,
+                                        marca: fabricante,
+                                        ruta: '',
+                                        fechaEntrada: ''
+                                    },
+                                    operador: {
+                                        nombres: nombres,
+                                        apellidos: apellidos,
+                                        numEmpleado: num_empleado,
+                                        telefono: telefono
+                                    }
+                                })}>
+                                    <Text style={styles.itemText}>
+                                        {num_placa} ({num_economico})
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
                         />
-                    </Item>
-                    <Item>
-                        <Label>Uso Remplazo</Label>
-                        <Switch
-                            value={true}
-                            onValueChange={(val) => console.log(val)}
-                            disabled={false}
-                            activeText={'Sí'}
-                            inActiveText={'No'}
-                            backgroundActive={'green'}
-                            backgroundInactive={'red'}
-                            circleActiveColor={'#30a566'}
-                            circleInActiveColor={'#000000'}
-                        />
-                    </Item>
-                    <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Datos de la Unidad</Title>
-                        </Body>
-                    </Header>
-                    <Autocomplete
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        disableFullscreenUI={true}
-                        containerStyle={styles.autocompleteContainer}
-                        data={unidades.length === 1 && comp(query, unidades[0].num_placa) ? [] : unidades}
-                        defaultValue={query}
-                        onChangeText={text => this.setState({query: text})}
-                        placeholder="Ingrese su numero de placa"
-                        renderItem={({num_placa, num_economico, kilometraje, denominacion_tipo, fabricante, nombres, apellidos, num_empleado, telefono}) => (
-                            <TouchableOpacity onPress={() => this.setState({
-                                query: num_placa,
-                                unidad: {
-                                    placa: num_placa,
-                                    economico: num_economico,
-                                    kilometraje: kilometraje,
-                                    tipo: denominacion_tipo,
-                                    marca: fabricante,
-                                    ruta: '',
-                                    fechaEntrada: ''
-                                },
-                                operador: {
-                                    nombres: nombres,
-                                    apellidos: apellidos,
-                                    numEmpleado: num_empleado,
-                                    telefono: telefono
-                                }
-                            })}>
-                                <Text style={styles.itemText}>
-                                    {num_placa} ({num_economico})
+                        <View style={styles.descriptionContainer}>
+                            {this.state.unidad != null ? (
+                                this.renderUnidad()
+                            ) : (
+                                <Text style={styles.infoText}>
+                                    Ingrese numero económico
                                 </Text>
-                            </TouchableOpacity>
-                        )}
-                    />
-                    <View style={styles.descriptionContainer}>
-                        {this.state.unidad != null ? (
-                            this.renderUnidad()
-                        ) : (
-                            <Text style={styles.infoText}>
-                                Ingrese numero de Placa
-                            </Text>
-                        )}
-                    </View>
-                    <Separator bordered/>
+                            )}
+                        </View>
+                        <Separator bordered/>
                         <Header>
                             <Body>
                             <Title>Datos del Operador</Title>
@@ -436,8 +441,8 @@ export class RescateView extends Component {
                             }}/>
                         </Item>
                         <Item floatingLabel>
-                            <Label>Telefono</Label>
-                            <Input value={this.state.operador.telefono} onChangeText={(text) => {
+                            <Label>Teléfono</Label>
+                            <Input keyboardType='numeric' value={this.state.operador.telefono} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.telefono = text;
                                 this.setState({operador: operador});
@@ -458,7 +463,7 @@ export class RescateView extends Component {
                             </Body>
                             <Right>
                                 <Button transparent onPress={() => {
-                                    this.setState({registroPantalla: 'refaccion'})
+                                    this.setState({registroPantalla: 'refaccion', editRefaccion: null})
                                 }}>
                                     <Icon active name="add"/>
                                 </Button>
@@ -468,8 +473,8 @@ export class RescateView extends Component {
                             dataSource={this.ds.cloneWithRows(this.state.listRefacciones)}
                             renderRow={(data, secId, rowId, rowMap) => (
                                 <SwipeRow
-                                    leftOpenValue={20 + Math.random() * 150}
-                                    rightOpenValue={-150}
+                                    leftOpenValue={20 + Math.random() * 100}
+                                    rightOpenValue={-100}
                                 >
                                     <View style={styles.rowBack}>
                                         <TouchableOpacity style={[styles.leftBtn, styles.backLeftBtn]}
@@ -487,119 +492,121 @@ export class RescateView extends Component {
                                         underlayColor={'#AAA'}
                                     >
                                         <View>
-                                            <Text>{data.cantidad} - {data.refaccion.label.replace('#','-existencia->)')}</Text>
+                                            <Text>{data.cantidad}
+                                                - {data.refaccion.label.replace('#', '-existencia->')}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </SwipeRow>
                             )}
                         />
                         <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Imagenes</Title>
-                        </Body>
-                        <Right>
-                            <Button transparent onPress={this.pickMultiple.bind(this)}>
-                                <Icon active name="add"/>
-                            </Button>
-                        </Right>
-                    </Header>
-                    <ScrollView horizontal={true}>
-                        {this.state.images ? this.state.images.map(i => <View style={{paddingRight: 50}}
-                                                                              key={i.uri}>{this.renderAsset(i)}</View>) : null}
-                    </ScrollView>
-                    <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Observaciones</Title>
-                        </Body>
-                    </Header>
-                    <Item floatingLabel>
-                        <Label>Diagnostico Falla</Label>
-                        <Input value={this.state.observaciones.problema}/>
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>Descrpción Problema</Label>
-                        <Input value={this.state.observaciones.observacion}/>
-                    </Item>
-                    <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Ubicacion de la Unidad</Title>
-                        </Body>
-                    </Header>
-                    <Item floatingLabel>
-                        <Label>Ciudad</Label>
-                        <Input value={this.state.observaciones.ciudad} onChangeText={(text) => {
-                            const {observaciones} = this.state;
-                            observaciones.ciudad = text;
-                            this.setState({observaciones:observaciones});
-                        }}/>
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>Estado</Label>
-                        <Input value={this.state.observaciones.estado} onChangeText={(text) => {
-                            const {observaciones} = this.state;
-                            observaciones.estado = text;
-                            this.setState({observaciones:observaciones});
-                        }}/>
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>Población</Label>
-                        <Input value={this.state.observaciones.poblacion} onChangeText={(text) => {
-                            const {observaciones} = this.state;
-                            observaciones.poblacion = text;
-                            this.setState({observaciones:observaciones});
-                        }}/>
-                    </Item>
-                    <Item>
-                        <Label>Fecha Termino</Label>
-                        <DatePicker
-                            style={styles.datePicker}
-                            date={this.state.observaciones.fechaTermino}
-                            mode="date"
-                            confirmBtnText="Seleccionar"
-                            cancelBtnText="Cancelar"
-                            format="YYYY-MM-DD"
-                            showIcon={false}
-                            onDateChange={(date) => {
-                                this.setState({fechaEntrada: date})
-                            }}
-                            customStyles={{
-                                dateInput: styles.datePickerInput,
-                                dateText: styles.textPickerInput,
-                                btnTextConfirm: styles.btnTextConfirm,
-                                btnTextCancel: styles.btnTextCancel,
+                        <Header>
+                            <Body>
+                            <Title>Imagenes</Title>
+                            </Body>
+                            <Right>
+                                <Button transparent onPress={this.pickMultiple.bind(this)}>
+                                    <Icon active name="add"/>
+                                </Button>
+                            </Right>
+                        </Header>
+                        <ScrollView horizontal={true}>
+                            {this.state.images ? this.state.images.map(i => <View style={{paddingRight: 50}}
+                                                                                  key={i.uri}>{this.renderAsset(i)}</View>) : null}
+                        </ScrollView>
+                        <Separator bordered/>
+                        <Header>
+                            <Body>
+                            <Title>Observaciones</Title>
+                            </Body>
+                        </Header>
+                        <Item floatingLabel>
+                            <Label>Diagnostico Falla</Label>
+                            <Input value={this.state.observaciones.problema}/>
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>Descrpción Problema</Label>
+                            <Input value={this.state.observaciones.observacion}/>
+                        </Item>
+                        <Separator bordered/>
+                        <Header>
+                            <Body>
+                            <Title>Ubicacion de la Unidad</Title>
+                            </Body>
+                        </Header>
+                        <Item floatingLabel>
+                            <Label>Ciudad</Label>
+                            <Input value={this.state.observaciones.ciudad} onChangeText={(text) => {
+                                const {observaciones} = this.state;
+                                observaciones.ciudad = text;
+                                this.setState({observaciones: observaciones});
                             }}/>
-                    </Item>
-                    <Item>
-                        <Label>Hora Termino</Label>
-                        <DatePicker
-                            style={styles.datePicker}
-                            date={this.state.observaciones.horaTermino}
-                            mode="time"
-                            confirmBtnText="Seleccionar"
-                            cancelBtnText="Cancelar"
-                            format="hh:mm"
-                            showIcon={false}
-                            onDateChange={(date) => {
-                                this.setState({fechaEntrada: date})
-                            }}
-                            customStyles={{
-                                dateInput: styles.datePickerInput,
-                                dateText: styles.textPickerInput,
-                                btnTextConfirm: styles.btnTextConfirm,
-                                btnTextCancel: styles.btnTextCancel,
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>Estado</Label>
+                            <Input value={this.state.observaciones.estado} onChangeText={(text) => {
+                                const {observaciones} = this.state;
+                                observaciones.estado = text;
+                                this.setState({observaciones: observaciones});
                             }}/>
-                    </Item>
-                    <Separator bordered/>
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>Población</Label>
+                            <Input value={this.state.observaciones.poblacion} onChangeText={(text) => {
+                                const {observaciones} = this.state;
+                                observaciones.poblacion = text;
+                                this.setState({observaciones: observaciones});
+                            }}/>
+                        </Item>
+                        <Item>
+                            <Label>Fecha Termino</Label>
+                            <DatePicker
+                                style={styles.datePicker}
+                                date={this.state.observaciones.fechaTermino}
+                                mode="date"
+                                confirmBtnText="Seleccionar"
+                                cancelBtnText="Cancelar"
+                                format="YYYY-MM-DD"
+                                showIcon={false}
+                                onDateChange={(date) => {
+                                    this.setState({fechaEntrada: date})
+                                }}
+                                customStyles={{
+                                    dateInput: styles.datePickerInput,
+                                    dateText: styles.textPickerInput,
+                                    btnTextConfirm: styles.btnTextConfirm,
+                                    btnTextCancel: styles.btnTextCancel,
+                                }}/>
+                        </Item>
+                        <Item>
+                            <Label>Hora Termino</Label>
+                            <DatePicker
+                                style={styles.datePicker}
+                                date={this.state.observaciones.horaTermino}
+                                mode="time"
+                                confirmBtnText="Seleccionar"
+                                cancelBtnText="Cancelar"
+                                format="hh:mm"
+                                showIcon={false}
+                                onDateChange={(date) => {
+                                    this.setState({fechaEntrada: date})
+                                }}
+                                customStyles={{
+                                    dateInput: styles.datePickerInput,
+                                    dateText: styles.textPickerInput,
+                                    btnTextConfirm: styles.btnTextConfirm,
+                                    btnTextCancel: styles.btnTextCancel,
+                                }}/>
+                        </Item>
+                        <Separator bordered/>
                         <TouchableHighlight onPress={() => {
                             this.setState({visibleSgnature: true})
                         }} style={styles.buttonEnd}>
                             <Text style={styles.textoBoton}>Registrar Ordenes</Text>
                         </TouchableHighlight>
                         <Separator bordered/>
-                    </Form>);
+                    </Form>
+                );
                 break;
             case 'refaccion':
                 return (
@@ -618,9 +625,11 @@ export class RescateView extends Component {
 
     render() {
         return (
-            <View>
-                {this.renderScreen()}
-            </View>
+            <StyleProvider style={getTheme()}>
+                <View>
+                    {this.renderScreen()}
+                </View>
+            </StyleProvider>
         );
     };
 };

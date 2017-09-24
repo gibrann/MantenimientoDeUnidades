@@ -7,6 +7,8 @@ import {
     TouchableHighlight,
     Picker,
     ListView,
+    Alert,
+    TextInput
 } from 'react-native'
 import {
     Container,
@@ -27,6 +29,7 @@ import {
     Title,
     Right,
     Separator,
+    StyleProvider
 } from 'native-base';
 import ImagePicker from 'react-native-image-crop-picker';
 import Autocomplete from 'react-native-autocomplete-input';
@@ -36,8 +39,10 @@ import styles from '../estilos/estilos';
 import Refaccion from './refaccionView';
 import ModalPicker from 'react-native-modal-picker'
 import {obtenerUnidades} from '../repositorios/generalRepository';
+import getTheme from '../../native-base-theme/components';
 
 export class PreventivoView extends Component {
+
     constructor(props) {
         super(props);
         this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
@@ -48,7 +53,7 @@ export class PreventivoView extends Component {
             unidad: null,
             operador: {nombres: '', apellidos: '', numEmpleado: '', telefono: ''},
             observaciones: {problema: '', falla: ''},
-            servicio: {comentarios: '',proximo : ''},
+            servicio: {comentarios: '', proximo: ''},
             unidades: [],
             listRefacciones: [],
             images: [],
@@ -83,7 +88,7 @@ export class PreventivoView extends Component {
                     );
                 }
             }).catch(e => Alert.alert(
-                'Error', e, [{text: 'Aceptar'}]
+                'Error', e.message, [{text: 'Aceptar'}]
             ));
         } else {
             Alert.alert(
@@ -138,7 +143,7 @@ export class PreventivoView extends Component {
         console.log("Aplicando regex");
         const {unidades} = this.state;
         const regex = new RegExp(`${query.trim()}`, 'i');
-        return unidades.filter(unidad => unidad.num_placa.search(regex) >= 0);
+        return unidades.filter(unidad => unidad.num_economico.search(regex) >= 0);
     }
 
     renderUnidad() {
@@ -149,7 +154,7 @@ export class PreventivoView extends Component {
                     <Input disabled value={this.state.unidad.placa}/>
                 </Item>
                 <Item floatingLabel disabled>
-                    <Label>#Economico</Label>
+                    <Label>#Económico</Label>
                     <Input disabled value={this.state.unidad.economico}/>
                 </Item>
                 <Item floatingLabel>
@@ -170,11 +175,12 @@ export class PreventivoView extends Component {
                 </Item>
                 <Item floatingLabel>
                     <Label>Ruta</Label>
-                    <Input value={this.state.unidad.ruta} onChangeText={(text) => {
+                    <Input keyboardType='numeric' value={this.state.unidad.ruta} onChangeText={(text) => {
                         const {unidad} = this.state;
                         unidad.ruta = text;
                         this.setState({unidad: unidad});
-                    }}/>
+                    }}
+                    />
                 </Item>
                 <Item>
                     <Label>Fecha Entrada</Label>
@@ -209,9 +215,9 @@ export class PreventivoView extends Component {
     };
 
     updateItem = (refaccion) => {
-        var {listRefacciones} = this.state;
-        listRefacciones[refaccion.index] = refaccion;
-        this.setState({registroPantalla: 'orden',listRefacciones: listRefacciones});
+        const newData = [...this.state.listRefacciones];
+        newData[refaccion.index] = refaccion;
+        this.setState({registroPantalla: 'orden', listRefacciones: newData});
     };
 
     regresarFromRefaccion = () => {
@@ -250,13 +256,13 @@ export class PreventivoView extends Component {
                             autoCorrect={false}
                             disableFullscreenUI={true}
                             containerStyle={styles.autocompleteContainer}
-                            data={unidades.length === 1 && comp(query, unidades[0].num_placa) ? [] : unidades}
+                            data={unidades.length === 1 && comp(query, unidades[0].num_economico) ? [] : unidades}
                             defaultValue={query}
                             onChangeText={text => this.setState({query: text})}
-                            placeholder="Ingrese su numero de placa"
+                            placeholder="Ingrese su numero económico"
                             renderItem={({num_placa, num_economico, kilometraje, denominacion_tipo, fabricante, nombres, apellidos, num_empleado, telefono}) => (
                                 <TouchableOpacity onPress={() => this.setState({
-                                    query: num_placa,
+                                    query: num_economico,
                                     unidad: {
                                         placa: num_placa,
                                         economico: num_economico,
@@ -284,7 +290,7 @@ export class PreventivoView extends Component {
                                 this.renderUnidad()
                             ) : (
                                 <Text style={styles.infoText}>
-                                    Ingrese numero de Placa
+                                    Ingrese numero económico
                                 </Text>
                             )}
                         </View>
@@ -311,8 +317,8 @@ export class PreventivoView extends Component {
                             }}/>
                         </Item>
                         <Item floatingLabel>
-                            <Label>Telefono</Label>
-                            <Input value={this.state.operador.telefono} onChangeText={(text) => {
+                            <Label>Teléfono</Label>
+                            <Input keyboardType='numeric' value={this.state.operador.telefono} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.telefono = text;
                                 this.setState({operador: operador});
@@ -333,7 +339,7 @@ export class PreventivoView extends Component {
                             </Body>
                             <Right>
                                 <Button transparent onPress={() => {
-                                    this.setState({registroPantalla: 'refaccion'})
+                                    this.setState({registroPantalla: 'refaccion', editRefaccion: null})
                                 }}>
                                     <Icon active name="add"/>
                                 </Button>
@@ -343,8 +349,8 @@ export class PreventivoView extends Component {
                             dataSource={this.ds.cloneWithRows(this.state.listRefacciones)}
                             renderRow={(data, secId, rowId, rowMap) => (
                                 <SwipeRow
-                                    leftOpenValue={20 + Math.random() * 150}
-                                    rightOpenValue={-150}
+                                    leftOpenValue={20 + Math.random() * 100}
+                                    rightOpenValue={-100}
                                 >
                                     <View style={styles.rowBack}>
                                         <TouchableOpacity style={[styles.leftBtn, styles.backLeftBtn]}
@@ -362,93 +368,95 @@ export class PreventivoView extends Component {
                                         underlayColor={'#AAA'}
                                     >
                                         <View>
-                                            <Text>{data.cantidad} - {data.refaccion.label.replace('#','-existencia->)')}</Text>
+                                            <Text>{data.cantidad}
+                                                - {data.refaccion.label.replace('#', '-existencia->')}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </SwipeRow>
                             )}
                         />
                         <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Imagenes</Title>
-                        </Body>
-                        <Right>
-                            <Button transparent onPress={this.pickMultiple.bind(this)}>
-                                <Icon active name="add"/>
-                            </Button>
-                        </Right>
-                    </Header>
-                    <ScrollView horizontal={true}>
-                        {this.state.images ? this.state.images.map(i => <View style={{paddingRight: 50}}
-                                                                              key={i.uri}>{this.renderAsset(i)}</View>) : null}
-                    </ScrollView>
-                    <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Observaciones</Title>
-                        </Body>
-                    </Header>
-                    <Item floatingLabel>
-                        <Label>Diagnostico Falla</Label>
-                        <Input value={this.state.observaciones.falla} onChangeText={(text) => {
-                            const {observaciones} = this.state;
-                            observaciones.falla = text;
-                            this.setState({observaciones:observaciones});
-                        }}/>
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>Descrpción Problema</Label>
-                        <Input value={this.state.observaciones.problema} onChangeText={(text) => {
-                            const {observaciones} = this.state;
-                            observaciones.problema = text;
-                            this.setState({observaciones:observaciones});
-                        }}/>
-                    </Item>
-                    <Separator bordered/>
-                    <Header>
-                        <Body>
-                        <Title>Próximo Servicio</Title>
-                        </Body>
-                    </Header>
-                    <Item floatingLabel>
-                        <Label>Comentarios (UNIDAD)</Label>
-                        <Input value={this.state.servicio.comentarios} onChangeText={(text) => {
-                            const {servicio} = this.state;
-                            servicio.comentarios = text;
-                            this.setState({servicio:servicio});
-                        }}/>
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>Próximo Servicio</Label>
-                        <DatePicker
-                            style={styles.datePicker}
-                            date={this.state.servicio.proximo}
-                            mode="datetime"
-                            confirmBtnText="Seleccionar"
-                            cancelBtnText="Cancelar"
-                            format="YYYY-MM-DD"
-                            showIcon={false}
-                            onChangeText={(date) => {
-                                const {servicio} = this.state;
-                                servicio.proximo = date;
-                                this.setState({servicio:servicio});
-                            }}
-                            customStyles={{
-                                dateInput: styles.datePickerInput,
-                                dateText: styles.textPickerInput,
-                                btnTextConfirm: styles.btnTextConfirm,
-                                btnTextCancel: styles.btnTextCancel,
+                        <Header>
+                            <Body>
+                            <Title>Imagenes</Title>
+                            </Body>
+                            <Right>
+                                <Button transparent onPress={this.pickMultiple.bind(this)}>
+                                    <Icon active name="add"/>
+                                </Button>
+                            </Right>
+                        </Header>
+                        <ScrollView horizontal={true}>
+                            {this.state.images ? this.state.images.map(i => <View style={{paddingRight: 50}}
+                                                                                  key={i.uri}>{this.renderAsset(i)}</View>) : null}
+                        </ScrollView>
+                        <Separator bordered/>
+                        <Header>
+                            <Body>
+                            <Title>Observaciones</Title>
+                            </Body>
+                        </Header>
+                        <Item floatingLabel>
+                            <Label>Diagnostico Falla</Label>
+                            <Input value={this.state.observaciones.falla} onChangeText={(text) => {
+                                const {observaciones} = this.state;
+                                observaciones.falla = text;
+                                this.setState({observaciones: observaciones});
                             }}/>
-                    </Item>
-                    <Separator bordered/>
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>Descrpción Problema</Label>
+                            <Input value={this.state.observaciones.problema} onChangeText={(text) => {
+                                const {observaciones} = this.state;
+                                observaciones.problema = text;
+                                this.setState({observaciones: observaciones});
+                            }}/>
+                        </Item>
+                        <Separator bordered/>
+                        <Header>
+                            <Body>
+                            <Title>Próximo Servicio</Title>
+                            </Body>
+                        </Header>
+                        <Item floatingLabel>
+                            <Label>Comentarios (UNIDAD)</Label>
+                            <Input value={this.state.servicio.comentarios} onChangeText={(text) => {
+                                const {servicio} = this.state;
+                                servicio.comentarios = text;
+                                this.setState({servicio: servicio});
+                            }}/>
+                        </Item>
+                        <Item>
+                            <Label>Próximo Servicio</Label>
+                            <DatePicker
+                                style={styles.datePicker}
+                                date={this.state.servicio.proximo}
+                                mode="datetime"
+                                confirmBtnText="Seleccionar"
+                                cancelBtnText="Cancelar"
+                                format="YYYY-MM-DD"
+                                showIcon={false}
+                                onChangeText={(date) => {
+                                    const {servicio} = this.state;
+                                    servicio.proximo = date;
+                                    this.setState({servicio: servicio});
+                                }}
+                                customStyles={{
+                                    dateInput: styles.datePickerInput,
+                                    dateText: styles.textPickerInput,
+                                    btnTextConfirm: styles.btnTextConfirm,
+                                    btnTextCancel: styles.btnTextCancel,
+                                }}/>
+                        </Item>
+                        <Separator bordered/>
                         <TouchableHighlight onPress={() => {
                             this.setState({visibleSgnature: true})
                         }} style={styles.buttonEnd}>
                             <Text style={styles.textoBoton}>Registrar Ordenes</Text>
                         </TouchableHighlight>
                         <Separator bordered/>
-                    </Form>);
+                    </Form>
+                );
                 break;
             case 'refaccion':
                 return (
@@ -467,9 +475,11 @@ export class PreventivoView extends Component {
 
     render() {
         return (
-            <View>
-                {this.renderScreen()}
-            </View>
+            <StyleProvider style={getTheme()}>
+                <View>
+                    {this.renderScreen()}
+                </View>
+            </StyleProvider>
         );
     };
 };

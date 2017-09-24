@@ -64,7 +64,8 @@ export class refaccionesView extends Component {
                 pickedFamilia: refaccion.familia.key,
                 pickedText: refaccion.familia.label,
                 familias: _familias,
-                refaccion: {concepto: '', servicio: '', paquete: ' ', familia: '', cantidad: refaccion.cantidad, index: refaccion.index},
+                refaccion: {concepto: '', servicio: '', paquete: ' ', familia: '', cantidad: refaccion.cantidad},
+                index: refaccion.index,
                 accion: 'actualizar'
             };
         } else {
@@ -133,6 +134,10 @@ export class refaccionesView extends Component {
         }, 500);
     }
 
+    componentWillMount() {
+        console.log(this.state.selectedRefaccion);
+    }
+
     accion(){
         const {accion} = this.state;
         switch (accion){
@@ -187,6 +192,7 @@ export class refaccionesView extends Component {
             this.state.refaccion.paquete = this.state.selectedPaquete;
             this.state.refaccion.familia = this.state.selectedFamilia;
             this.state.refaccion.refaccion = this.state.selectedRefaccion;
+            this.state.refaccion.index = this.state.index;
             this.props.actualizarRefaccion(this.state.refaccion);
         }
     }
@@ -261,7 +267,7 @@ export class refaccionesView extends Component {
                         />
                     </Item>
                     <Item stackedLabel>
-                        <Label>Refaccion</Label>
+                        <Label>Refacción</Label>
                         <Picker
                             style={styles.inputPicker}
                             mode="dropdown"

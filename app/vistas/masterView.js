@@ -72,60 +72,61 @@ export class masterView extends Component {
         switch (this.state.selectedTab) {
             case 'preventivo':
                 return (
-                        
+                    <StyleProvider style={getTheme()}>
                         <View>
-                         <Header>
-                            <Body>
-                            <Title>MANTENIMIENTO PREVENTIVO</Title>
-                            </Body>
-                            <Right>
-                                <Button transparent onPress={this.toggle}>
-                                    <Icon name='menu'/>
-                                </Button>
-                            </Right>
-                        </Header>
-                        <Separator bordered/>
-                        <Content><Preventivo/></Content>
+                            <Header>
+                                <Body>
+                                <Title>MANTENIMIENTO PREVENTIVO</Title>
+                                </Body>
+                                <Right>
+                                    <Button transparent onPress={this.toggle}>
+                                        <Icon name='menu'/>
+                                    </Button>
+                                </Right>
+                            </Header>
+                            <Separator bordered/>
+                            <Preventivo/>
                         </View>
+                    </StyleProvider>
                 );
                 break;
             case 'correctivo':
                 return (
-                <StyleProvider style={getTheme()}>
-                    <View>
-                        <Header>
-                            <Body>
-                            <Title>MANTENIMIENTO CORRECTIVO</Title>
-                            </Body>
-                            <Right>
-                                <Button transparent onPress={this.toggle}>
-                                    <Icon name='menu'/>
-                                </Button>
-                            </Right>
-                        </Header>
-                        <Separator bordered/>
-                        <Correctivo/>
-                    </View>
+                    <StyleProvider style={getTheme()}>
+                        <View>
+                            <Header>
+                                <Body>
+                                <Title>MANTENIMIENTO CORRECTIVO</Title>
+                                </Body>
+                                <Right>
+                                    <Button transparent onPress={this.toggle}>
+                                        <Icon name='menu'/>
+                                    </Button>
+                                </Right>
+                            </Header>
+                            <Separator bordered/>
+                            <Correctivo/>
+                        </View>
                     </StyleProvider>
                 );
                 break;
             case 'rescate':
                 return (
-                <StyleProvider style={getTheme()}>
-                    <View>
-                        <Header>
-                            <Body>
-                            <Title>MANTENIMIENTO DE RESCATE</Title>
-                            </Body>
-                            <Right>
-                                <Button transparent onPress={this.toggle}>
-                                    <Icon name='menu'/>
-                                </Button>
-                            </Right>
-                        </Header>
-                        <Separator bordered/>
-                        <Rescate/>
-                    </View>
+                    <StyleProvider style={getTheme()}>
+                        <View>
+                            <Header>
+                                <Body>
+                                <Title>MANTENIMIENTO DE RESCATE</Title>
+                                </Body>
+                                <Right>
+                                    <Button transparent onPress={this.toggle}>
+                                        <Icon name='menu'/>
+                                    </Button>
+                                </Right>
+                            </Header>
+                            <Separator bordered/>
+                            <Rescate/>
+                        </View>
                     </StyleProvider>
                 );
                 break;
@@ -135,7 +136,7 @@ export class masterView extends Component {
     }
 
     renderItem() {
-        switch (this.state.selectedItem){
+        switch (this.state.selectedItem) {
             case 'Registro':
                 return (
                     <Container style={styles.container}>
@@ -185,7 +186,7 @@ export class masterView extends Component {
                 const resetAction = NavigationActions.reset({
                     index: 0,
                     actions: [
-                        NavigationActions.navigate({routeName: 'Login', params: {username:''}})
+                        NavigationActions.navigate({routeName: 'Login', params: {username: ''}})
                     ]
                 });
                 this.props.navigation.dispatch(resetAction);
@@ -196,17 +197,17 @@ export class masterView extends Component {
     render() {
         const menu = <Menu onItemSelected={this.onMenuItemSelected} username={this.state.username}/>;
         return (
-        <StyleProvider style={getTheme()}>
-            <SideMenu
-                menu={menu}
-                isOpen={this.state.isOpen}
-                onChange={isOpen => this.updateMenuState(isOpen)}
-                menuPosition={'right'}
-                disableGestures={true}
-            >
-                {this.renderItem()}
-            </SideMenu>
-        </StyleProvider>
+            <StyleProvider style={getTheme()}>
+                <SideMenu
+                    menu={menu}
+                    isOpen={this.state.isOpen}
+                    onChange={isOpen => this.updateMenuState(isOpen)}
+                    menuPosition={'right'}
+                    disableGestures={true}
+                >
+                    {this.renderItem()}
+                </SideMenu>
+            </StyleProvider>
         );
     }
 }

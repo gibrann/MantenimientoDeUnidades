@@ -142,7 +142,7 @@ export class CorrectivoView extends Component {
         console.log("Aplicando regex");
         const {unidades} = this.state;
         const regex = new RegExp(`${query.trim()}`, 'i');
-        return unidades.filter(unidad => unidad.num_placa.search(regex) >= 0);
+        return unidades.filter(unidad => unidad.num_economico.search(regex) >= 0);
     }
 
     renderUnidad() {
@@ -153,7 +153,7 @@ export class CorrectivoView extends Component {
                     <Input disabled value={this.state.unidad.placa}/>
                 </Item>
                 <Item floatingLabel disabled>
-                    <Label>#Economico</Label>
+                    <Label>#Económico</Label>
                     <Input disabled value={this.state.unidad.economico}/>
                 </Item>
                 <Item floatingLabel>
@@ -174,11 +174,12 @@ export class CorrectivoView extends Component {
                 </Item>
                 <Item floatingLabel>
                     <Label>Ruta</Label>
-                    <Input value={this.state.unidad.ruta} onChangeText={(text) => {
+                    <Input keyboardType='numeric' value={this.state.unidad.ruta} onChangeText={(text) => {
                         const {unidad} = this.state;
                         unidad.ruta = text;
                         this.setState({unidad: unidad});
-                    }}/>
+                    }}
+                    />
                 </Item>
                 <Item>
                     <Label>Fecha Entrada</Label>
@@ -213,9 +214,9 @@ export class CorrectivoView extends Component {
     };
 
     updateItem = (refaccion) => {
-        var {listRefacciones} = this.state;
-        listRefacciones[refaccion.index] = refaccion;
-        this.setState({registroPantalla: 'orden',listRefacciones: listRefacciones});
+        const newData = [...this.state.listRefacciones];
+        newData[refaccion.index] = refaccion;
+        this.setState({registroPantalla: 'orden', listRefacciones: newData});
     };
 
     regresarFromRefaccion = () => {
@@ -254,13 +255,13 @@ export class CorrectivoView extends Component {
                             autoCorrect={false}
                             disableFullscreenUI={true}
                             containerStyle={styles.autocompleteContainer}
-                            data={unidades.length === 1 && comp(query, unidades[0].num_placa) ? [] : unidades}
+                            data={unidades.length === 1 && comp(query, unidades[0].num_economico) ? [] : unidades}
                             defaultValue={query}
                             onChangeText={text => this.setState({query: text})}
-                            placeholder="Ingrese su numero de placa"
+                            placeholder="Ingrese su numero económico"
                             renderItem={({num_placa, num_economico, kilometraje, denominacion_tipo, fabricante, nombres, apellidos, num_empleado, telefono}) => (
                                 <TouchableOpacity onPress={() => this.setState({
-                                    query: num_placa,
+                                    query: num_economico,
                                     unidad: {
                                         placa: num_placa,
                                         economico: num_economico,
@@ -288,7 +289,7 @@ export class CorrectivoView extends Component {
                                 this.renderUnidad()
                             ) : (
                                 <Text style={styles.infoText}>
-                                    Ingrese numero de Placa
+                                    Ingrese numero económico
                                 </Text>
                             )}
                         </View>
@@ -315,8 +316,8 @@ export class CorrectivoView extends Component {
                             }}/>
                         </Item>
                         <Item floatingLabel>
-                            <Label>Telefono</Label>
-                            <Input value={this.state.operador.telefono} onChangeText={(text) => {
+                            <Label>Teléfono</Label>
+                            <Input keyboardType='numeric' value={this.state.operador.telefono} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.telefono = text;
                                 this.setState({operador: operador});
@@ -337,7 +338,7 @@ export class CorrectivoView extends Component {
                             </Body>
                             <Right>
                                 <Button transparent onPress={() => {
-                                    this.setState({registroPantalla: 'refaccion'})
+                                    this.setState({registroPantalla: 'refaccion', editRefaccion: null})
                                 }}>
                                     <Icon active name="add"/>
                                 </Button>
@@ -347,8 +348,8 @@ export class CorrectivoView extends Component {
                             dataSource={this.ds.cloneWithRows(this.state.listRefacciones)}
                             renderRow={(data, secId, rowId, rowMap) => (
                                 <SwipeRow
-                                    leftOpenValue={20 + Math.random() * 150}
-                                    rightOpenValue={-150}
+                                    leftOpenValue={20 + Math.random() * 100}
+                                    rightOpenValue={-100}
                                 >
                                     <View style={styles.rowBack}>
                                         <TouchableOpacity style={[styles.leftBtn, styles.backLeftBtn]}
@@ -366,7 +367,8 @@ export class CorrectivoView extends Component {
                                         underlayColor={'#AAA'}
                                     >
                                         <View>
-                                            <Text>{data.cantidad} - {data.refaccion.label.replace('#','-existencia->)')}</Text>
+                                            <Text>{data.cantidad}
+                                                - {data.refaccion.label.replace('#', '-existencia->')}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </SwipeRow>
@@ -402,7 +404,7 @@ export class CorrectivoView extends Component {
                             }}/>
                         </Item>
                         <Item floatingLabel>
-                            <Label>Detalle de la reparacoón</Label>
+                            <Label>Detalle de la reparación</Label>
                             <Input value={this.state.observaciones.reparacion} onChangeText={(text) => {
                                 const {observaciones} = this.state;
                                 observaciones.reparacion = text;
@@ -410,7 +412,7 @@ export class CorrectivoView extends Component {
                             }}/>
                         </Item>
                         <Item floatingLabel>
-                            <Label>Observacionnes(Orden de trabajo)</Label>
+                            <Label>Observaciones(Orden de trabajo)</Label>
                             <Input value={this.state.observaciones.observacion} onChangeText={(text) => {
                                 const {observaciones} = this.state;
                                 observaciones.observacion = text;
@@ -452,10 +454,10 @@ export class CorrectivoView extends Component {
 
     render() {
         return (
-                <StyleProvider style={getTheme()}>
-            <View>
-                {this.renderScreen()}
-            </View>
+            <StyleProvider style={getTheme()}>
+                <View>
+                    {this.renderScreen()}
+                </View>
             </StyleProvider>
         );
     };
