@@ -13,6 +13,8 @@ import {
     Image,
     NetInfo
 } from 'react-native'
+
+var Spinner = require('react-native-spinkit');
 import {NavigationActions} from 'react-navigation';
 import {limpiaCatalogos, cargarCatalogos} from '../repositorios/generalRepository'
 import styles from '../estilos/estilos';
@@ -25,25 +27,21 @@ export class ObtenerCatalogosView extends Component {
         this.state = {
             empresa: this.props.navigation.state.params.empresa,
             isConnected: false,
-            loaded: false,
+            loaded: true,
+            dataSource: null
         }
     };
 
     render() {
-        if (!this.state.loaded) {
-            return this.renderLoadingView();
-        }
         return (
             <Image style={styles.contenedorPrincipal} source={require('../imagenes/mantocor2.jpg')}>
                 <View>
                     <View style={styles.cajaLogin}>
                         <Image source={require('../imagenes/final.png')} style={styles.banner}/>
                         <Text style={styles.tituloLogin}>SINCRONINZACION DE CATALOGOS</Text>
-                        <ListView
-                            dataSource={this.state.dataSource}
-                            renderRow={this.renderCatalogos}
-                            style={styles.listView}
-                        />
+                        <Spinner style={styles.spinner} isVisible={this.state.loaded} size={50} type={'WanderingCubes'}
+                                 color={'white'}/>
+                        {this.renderLoadingView()}
                         <TouchableHighlight onPress={this.onSyncOrd.bind(this)} style={styles.botonAlt}>
                             <Text style={styles.textoBoton}>Syncronizar Ordenes</Text>
                         </TouchableHighlight>
@@ -94,7 +92,7 @@ export class ObtenerCatalogosView extends Component {
                 let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
                 this.setState({
                     dataSource: ds.cloneWithRows(keys),
-                    loaded: true,
+                    loaded: false,
                 }, function () {
                     limpiaCatalogos();
                     cargarCatalogos(responseJson);
@@ -138,12 +136,13 @@ export class ObtenerCatalogosView extends Component {
     };
 
     renderLoadingView() {
+        if(this.state.dataSource!==null)
         return (
-            <View style={styles.contenedorPrincipal}>
-                <Text>
-                    Sincronizando...
-                </Text>
-            </View>
+            <ListView
+                dataSource={this.state.dataSource}
+                renderRow={this.renderCatalogos}
+                style={styles.listView}
+            />
         );
     };
 
