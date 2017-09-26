@@ -9,10 +9,6 @@ import {
     ScrollView,
     Picker
 } from 'react-native';
-
-import styles from '../estilos/estilos';
-import ModalFilterPicker from 'react-native-modal-filter-picker';
-import {obtenerServicios, obtenerRefacciones} from '../repositorios/generalRepository';
 import {
     Container,
     Header,
@@ -34,21 +30,43 @@ import {
     SwipeRow,
     Separator,
 } from 'native-base';
+import ModalFilterPicker from 'react-native-modal-filter-picker';
+import styles from '../estilos/estilos';
+import {obtenerServicios, obtenerRefacciones} from '../repositorios/generalRepository';
+import {cadenaValida} from '../util/stringUtil'
 
 export class refaccionesView extends Component {
     constructor(props) {
-        var refaccion = null;
-        var _refacciones = [];
         super(props);
+        let refaccion = null;
+        let _refacciones = [{key: -1, label: 'Seleccione...'}];
+        let _familias = obtenerServicios('');
+        this.state = {
+            conceptos: {"MTTO TOT": "MTTO TOT", "Mano de Obra": "Mano de Obra"},
+            servicios: {"Servicio": "Servicio", "Material": "Material"},
+            paquetes: {
+                "Transport": "Transport",
+                "Leases / Fuerza de ventanas": "Leases / Fuerza de ventanas",
+                "Leases / Rentals": "Leases / Rentals",
+                "Logistics Support": "Logistics Support",
+                "Utilities": "Utilities"
+            },
+            familias: _familias,
+            refacciones: _refacciones,
+            selectedConcepto: "MTTO TOT",
+            selectedServicios: "Servicio",
+            selectedPaquete: "Transport",
+            selectedFamilia: null,
+            selectedRefaccion: 'Seleccione...',
+            visibleFamilia: false,
+            pickedFamilia: null,
+            pickedText: '',
+            refaccion: {concepto: '', servicio: '', paquete: ' ', familia: '', cantidad: ''},
+            accion: 'agregar'
+        };
         if (props.refaccion !== null) {
             refaccion = props.refaccion;
-            let _familias = obtenerServicios('');
-            let _refacciones = obtenerRefacciones(refaccion.familia.key);
             this.state = {
-                selectedConcepto: "MTTO TOT",
-                selectedServicios: "Servicio",
-                selectedPaquete: "Transport",
-                selectedFamilia: refaccion.familia,
                 conceptos: {"MTTO TOT": "MTTO TOT", "Mano de Obra": "Mano de Obra"},
                 servicios: {"Servicio": "Servicio", "Material": "Material"},
                 paquetes: {
@@ -58,51 +76,28 @@ export class refaccionesView extends Component {
                     "Logistics Support": "Logistics Support",
                     "Utilities": "Utilities"
                 },
-                refacciones: _refacciones,
-                selectedRefaccion: refaccion.refaccion,
+                familias: _familias,
                 visibleFamilia: false,
+                refacciones: _refacciones,
+                selectedConcepto: refaccion.concepto,
+                selectedServicios: refaccion.servicio,
+                selectedPaquete: refaccion.paquete,
+                selectedFamilia: refaccion.familia,
                 pickedFamilia: refaccion.familia.key,
                 pickedText: refaccion.familia.label,
-                familias: _familias,
+                selectedRefaccion: refaccion.refaccion,
                 refaccion: {concepto: '', servicio: '', paquete: ' ', familia: '', cantidad: refaccion.cantidad},
                 index: refaccion.index,
                 accion: 'actualizar'
             };
-        } else {
-            this.state = {
-                selectedConcepto: "MTTO TOT",
-                selectedServicios: "Servicio",
-                selectedPaquete: "Transport",
-                selectedFamilia: null,
-                conceptos: {"MTTO TOT": "MTTO TOT", "Mano de Obra": "Mano de Obra"},
-                servicios: {"Servicio": "Servicio", "Material": "Material"},
-                paquetes: {
-                    "Transport": "Transport",
-                    "Leases / Fuerza de ventanas": "Leases / Fuerza de ventanas",
-                    "Leases / Rentals": "Leases / Rentals",
-                    "Logistics Support": "Logistics Support",
-                    "Utilities": "Utilities"
-                },
-                refacciones: [{key: -1, label: 'Seleccione...'}],
-                selectedRefaccion: 'Seleccione...',
-                visibleFamilia: false,
-                pickedFamilia: null,
-                pickedText: '',
-                familias: [],
-                refaccion: {concepto: '', servicio: '', paquete: ' ', familia: '', cantidad: ''},
-                accion: 'agregar'
-            }
         }
+        ;
     };
 
 
     onShowFamilia = () => {
         this.setState({visibleFamilia: true});
     };
-
-    componentWillReceiveProps(nextProps) {
-        console.log(nextProps);
-    }
 
     onSelectFamilia = (picked) => {
         this.setState({
@@ -116,7 +111,7 @@ export class refaccionesView extends Component {
         var _this = this;
         setTimeout(function () {
             _this.setState({refacciones: _refacciones});
-        }, 500);
+        }, 300);
     }
 
     onCancelFamilia = () => {
@@ -125,22 +120,26 @@ export class refaccionesView extends Component {
         });
     }
 
-    componentDidMount() {
-        let _familias = [];
-        _familias = obtenerServicios('');
-        var _this = this;
-        setTimeout(function () {
-            _this.setState({familias: _familias});
-        }, 500);
-    }
-
     componentWillMount() {
-        console.log(this.state.selectedRefaccion);
+        if (this.props.refaccion !== null) {
+            let refaccion = this.props.refaccion;
+            let _refaccion = null;
+            let _refacciones = obtenerRefacciones(refaccion.familia.key);
+            var _this = this;
+            setTimeout(function () {
+                for (let i in _refacciones) {
+                    if (_refacciones[i].key === refaccion.refaccion.key) {
+                        _refaccion = _refacciones[i];
+                    }
+                }
+                _this.setState({refacciones: _refacciones, selectedRefaccion: _refaccion});
+            }, 300);
+        }
     }
 
-    accion(){
+    accion() {
         const {accion} = this.state;
-        switch (accion){
+        switch (accion) {
             case 'agregar':
                 this.agregarRefaccion();
                 break;
@@ -151,12 +150,22 @@ export class refaccionesView extends Component {
     }
 
     agregarRefaccion() {
-        if (this.state.cantidad === null
-            || this.state.pickedFamilia === null
-        ) {
+        var msg = "Verifique sus datos\nLos campos requeridos son:\n_campos_";
+        var campos = "";
+        if(this.state.pickedFamilia === null){
+            campos+="*Familia\n";
+        }
+        if(this.state.selectedRefaccion.key===undefined||this.state.selectedRefaccion.key===null||this.state.selectedRefaccion.key===-1){
+            campos+="*Refacción\n"
+        }
+        if(!cadenaValida(this.state.refaccion.cantidad)){
+            campos+="*Cantidad\n";
+        }
+        if (cadenaValida(campos)) {
+            msg=msg.replace('_campos_',campos);
             Alert.alert(
-                'Acceso',
-                'Los campos Cantidad, Precio, Familia. Son requeridos para continuar',
+                'Error',
+                msg.toString(),
                 [
                     {
                         text: 'Aceptar',
@@ -174,12 +183,22 @@ export class refaccionesView extends Component {
     }
 
     actualizarRefaccion() {
-        if (this.state.cantidad === null
-            || this.state.pickedFamilia === null
-        ) {
+        var msg = "Verifique sus datos\nLos campos requeridos son:\n_campos_";
+        var campos = "";
+        if(this.state.pickedFamilia === null){
+            campos+="*Familia\n";
+        }
+        if(this.state.selectedRefaccion.key===undefined||this.state.selectedRefaccion.key===null||this.state.selectedRefaccion.key===-1){
+            campos+="*Refacción\n"
+        }
+        if(!cadenaValida(this.state.refaccion.cantidad)){
+            campos+="*Cantidad\n";
+        }
+        if (cadenaValida(campos)) {
+            msg=msg.replace('_campos_',campos);
             Alert.alert(
-                'Acceso',
-                'Los campos Cantidad, Precio, Familia. Son requeridos para continuar',
+                'Error',
+                msg.toString(),
                 [
                     {
                         text: 'Aceptar',
@@ -273,9 +292,11 @@ export class refaccionesView extends Component {
                             mode="dropdown"
                             selectedValue={this.state.selectedRefaccion}
                             onValueChange={(itemValue, itemIndex) => {
+                                console.log("valor:" + itemValue);
+                                console.log("index:" + itemIndex);
                                 this.setState({selectedRefaccion: itemValue});
                             }}>
-                            {Object.keys(this.state.refacciones).map((key, label) => {
+                            {Object.keys(this.state.refacciones).map((key) => {
                                 return (
                                     <Picker.Item label={this.state.refacciones[key].label}
                                                  value={this.state.refacciones[key]}

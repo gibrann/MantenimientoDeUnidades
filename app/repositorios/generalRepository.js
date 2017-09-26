@@ -240,7 +240,7 @@ export function obtenerServicios(cadena) {
                     for (var i = 0; i < len; i++) {
                         var servicio = results.rows.item(i);
                         servicios.push(servicio);
-                        console.log("{"+servicio.key+","+servicio.label+"}")
+                        console.log("{" + servicio.key + "," + servicio.label + "}")
                     }
                 } else {
                     console.log("No se encontraron registros. ");
@@ -262,7 +262,7 @@ export function obtenerRefacciones(idServio) {
                 if (len > 0) {
                     console.log("Se encontraron " + len + " refacciones.");
                     for (var i = 0; i < len; i++) {
-                        var refaccion = results.rows.item(i);
+                        var refaccion = {key: results.rows.item(i).key, label: results.rows.item(i).label};
                         refacciones.push(refaccion);
                     }
                 } else {

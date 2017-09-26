@@ -11,6 +11,7 @@ import {NavigationActions} from 'react-navigation'
 var Spinner = require('react-native-spinkit');
 import styles from '../estilos/estilos';
 import {validarAcceso} from '../repositorios/generalRepository';
+import {cadenaValida} from '../util/stringUtil'
 
 export class loginView extends Component {
     constructor(props) {
@@ -24,7 +25,7 @@ export class loginView extends Component {
     };
 
     onLogin() {
-        if (this.state.username === null || this.state.password === null) {
+        if (!cadenaValida(this.state.username) || !cadenaValida(this.state.password)) {
             Alert.alert(
                 'Acceso',
                 'Los datos ingresados son invalidos verifiquelos una vez más.',
@@ -62,7 +63,7 @@ export class loginView extends Component {
                         ]
                     );
                 }
-            },800);
+            },100);
         }
     };
 
@@ -81,9 +82,9 @@ export class loginView extends Component {
                 <Image style={styles.contenedorPrincipal} source={require('../imagenes/mantocor2.jpg')}>
                     <View>
                         <View style={styles.cajaLogin}>
-                            <Spinner style={styles.spinner} isVisible={this.state.isVisibleSpinner} size={50} type={'WanderingCubes'} color={'white'}/>
                             <Image source={require('../imagenes/final.png')} style={styles.banner}/>
                             <Text style={styles.tituloLogin}>MANTENIMIENTO DE UNIDADES 1.1</Text>
+                            <Spinner style={styles.spinner} isVisible={this.state.isVisibleSpinner} size={50} type={'WanderingCubes'} color={'white'}/>
                             <TextInput style={styles.input} placeholder='Usuario...' underlineColorAndroid='transparent'
                                        onChangeText={(text) => this.setState({username: text})}/>
                             <TextInput style={styles.input} placeholder='Password...'
