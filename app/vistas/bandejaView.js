@@ -10,8 +10,8 @@ import {
     TouchableHighlight,
     View
 } from 'react-native';
-
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
+import {obtenerOrdenesByUser} from '../repositorios/generalRepository'
 
 class bandejaOrdenesView extends Component {
 
@@ -19,17 +19,26 @@ class bandejaOrdenesView extends Component {
         super(props);
         this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
+            listOrdenes: [],
             username: props.username,
-            basic: true,
-            listViewData: Array(20).fill('').map((_, i) => `item #${i}`)
+            basic: true
         };
     }
 
     deleteRow(secId, rowId, rowMap) {
         rowMap[`${secId}${rowId}`].closeRow();
-        const newData = [...this.state.listViewData];
+        const newData = [...this.state.listOrdenes];
         newData.splice(rowId, 1);
-        this.setState({listViewData: newData});
+        this.setState({listOrdenes: newData});
+    }
+
+    componentDidMount() {
+        var _ordenes = [];
+        _ordenes = obtenerOrdenesByUser(this.state.username);
+        var _this = this;
+        setTimeout(function () {
+            _this.setState({listOrdenes: _ordenes});
+        }, 5000);
     }
 
     render() {
@@ -37,7 +46,8 @@ class bandejaOrdenesView extends Component {
             <View style={styles.container}>
 
                 <SwipeListView
-                    dataSource={this.ds.cloneWithRows(this.state.listViewData)}
+                    enableEmptySections={true}
+                    dataSource={this.ds.cloneWithRows(this.state.listOrdenes)}
                     renderRow={(data, secId, rowId, rowMap) => (
                         <SwipeRow
                             disableLeftSwipe={parseInt(rowId) % 2 === 0}
@@ -60,7 +70,9 @@ class bandejaOrdenesView extends Component {
                                 underlayColor={'#AAA'}
                             >
                                 <View>
-                                    <Text>Refaccion {data} de la orden</Text>
+                                    <Text>Numero Económico: {data.numeroEconomico}</Text>
+                                    <Text>Tipo Servicio: {data.tipoServicio}    Estatus: {data.estatus}</Text>
+                                    <Text>Fecha Entrada: {data.fechaEntrada}    Asignado: {data.usuarioAsignado}</Text>
                                 </View>
                             </TouchableHighlight>
                         </SwipeRow>

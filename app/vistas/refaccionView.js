@@ -33,7 +33,7 @@ import {
 import ModalFilterPicker from 'react-native-modal-filter-picker';
 import styles from '../estilos/estilos';
 import {obtenerServicios, obtenerRefacciones} from '../repositorios/generalRepository';
-import {cadenaValida} from '../util/stringUtil'
+import {cadenaValida, objetoValido} from '../util/comunUtil'
 
 export class refaccionesView extends Component {
     constructor(props) {
@@ -64,7 +64,7 @@ export class refaccionesView extends Component {
             refaccion: {concepto: '', servicio: '', paquete: ' ', familia: '', cantidad: ''},
             accion: 'agregar'
         };
-        if (props.refaccion !== null) {
+        if (objetoValido(props.refaccion)) {
             refaccion = props.refaccion;
             this.state = {
                 conceptos: {"MTTO TOT": "MTTO TOT", "Mano de Obra": "Mano de Obra"},
@@ -121,7 +121,7 @@ export class refaccionesView extends Component {
     }
 
     componentWillMount() {
-        if (this.props.refaccion !== null) {
+        if (objetoValido(this.props.refaccion)) {
             let refaccion = this.props.refaccion;
             let _refaccion = null;
             let _refacciones = obtenerRefacciones(refaccion.familia.key);
@@ -152,17 +152,17 @@ export class refaccionesView extends Component {
     agregarRefaccion() {
         var msg = "Verifique sus datos\nLos campos requeridos son:\n_campos_";
         var campos = "";
-        if(this.state.pickedFamilia === null){
-            campos+="*Familia\n";
+        if (!objetoValido(this.state.pickedFamilia)) {
+            campos += "*Familia\n";
         }
-        if(this.state.selectedRefaccion.key===undefined||this.state.selectedRefaccion.key===null||this.state.selectedRefaccion.key===-1){
-            campos+="*Refacción\n"
+        if (this.state.selectedRefaccion.key === undefined || this.state.selectedRefaccion.key === null || this.state.selectedRefaccion.key === -1) {
+            campos += "*Refacción\n"
         }
-        if(!cadenaValida(this.state.refaccion.cantidad)){
-            campos+="*Cantidad\n";
+        if (!cadenaValida(this.state.refaccion.cantidad)) {
+            campos += "*Cantidad\n";
         }
         if (cadenaValida(campos)) {
-            msg=msg.replace('_campos_',campos);
+            msg = msg.replace('_campos_', campos);
             Alert.alert(
                 'Error',
                 msg.toString(),
@@ -185,17 +185,17 @@ export class refaccionesView extends Component {
     actualizarRefaccion() {
         var msg = "Verifique sus datos\nLos campos requeridos son:\n_campos_";
         var campos = "";
-        if(this.state.pickedFamilia === null){
-            campos+="*Familia\n";
+        if (!objetoValido(this.state.pickedFamilia)) {
+            campos += "*Familia\n";
         }
-        if(this.state.selectedRefaccion.key===undefined||this.state.selectedRefaccion.key===null||this.state.selectedRefaccion.key===-1){
-            campos+="*Refacción\n"
+        if (this.state.selectedRefaccion.key === undefined || this.state.selectedRefaccion.key === null || this.state.selectedRefaccion.key === -1) {
+            campos += "*Refacción\n"
         }
-        if(!cadenaValida(this.state.refaccion.cantidad)){
-            campos+="*Cantidad\n";
+        if (!cadenaValida(this.state.refaccion.cantidad)) {
+            campos += "*Cantidad\n";
         }
         if (cadenaValida(campos)) {
-            msg=msg.replace('_campos_',campos);
+            msg = msg.replace('_campos_', campos);
             Alert.alert(
                 'Error',
                 msg.toString(),
@@ -283,6 +283,7 @@ export class refaccionesView extends Component {
                             onSelect={this.onSelectFamilia}
                             onCancel={this.onCancelFamilia}
                             options={familias}
+                            onRequestClose={true}
                         />
                     </Item>
                     <Item stackedLabel>

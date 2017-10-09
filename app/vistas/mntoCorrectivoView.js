@@ -38,8 +38,9 @@ import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 import styles from '../estilos/estilos';
 import Refaccion from './refaccionView';
 import ModalPicker from 'react-native-modal-picker'
-import {obtenerUnidades} from '../repositorios/generalRepository';
+import {obtenerUnidades,guarddarMntoCorrectivo} from '../repositorios/generalRepository';
 import getTheme from '../../native-base-theme/components';
+import {cadenaValida} from "../util/comunUtil";
 
 export class CorrectivoView extends Component {
 
@@ -47,6 +48,7 @@ export class CorrectivoView extends Component {
         super(props);
         this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
+            username:props.username,
             visibleModal: false,
             query: '',
             registroPantalla: 'orden',
@@ -57,7 +59,9 @@ export class CorrectivoView extends Component {
             listRefacciones: [],
             images: [],
             textInputValue: '',
-            editRefaccion: null
+            editRefaccion: null,
+            nuevoOperador: true,
+            idOrdenTrabajo: null
         };
     };
 
@@ -82,7 +86,7 @@ export class CorrectivoView extends Component {
                 } else {
                     Alert.alert(
                         'Error',
-                        'El numero de imagenes permitido es 5 verifique su elección',
+                        'El número de imágenes permitido es 5 verifique su elección',
                         [{text: 'Aceptar'}]
                     );
                 }
@@ -92,7 +96,7 @@ export class CorrectivoView extends Component {
         } else {
             Alert.alert(
                 'Error',
-                'Ya ha seleccionado las imagenes permitidas',
+                'Ya ha seleccionado las imágenes permitidas',
                 [{text: 'Aceptar'}]
             );
         }
@@ -186,14 +190,36 @@ export class CorrectivoView extends Component {
                     <DatePicker
                         style={styles.datePicker}
                         date={this.state.unidad.fechaEntrada}
-                        mode="datetime"
+                        mode="date"
                         confirmBtnText="Seleccionar"
                         cancelBtnText="Cancelar"
                         format="YYYY-MM-DD"
                         showIcon={false}
-                        onChangeText={(date) => {
+                        onDateChange={(date) => {
                             const {unidad} = this.state;
                             unidad.fechaEntrada = date;
+                            this.setState({unidad: unidad});
+                        }}
+                        customStyles={{
+                            dateInput: styles.datePickerInput,
+                            dateText: styles.textPickerInput,
+                            btnTextConfirm: styles.btnTextConfirm,
+                            btnTextCancel: styles.btnTextCancel,
+                        }}/>
+                </Item>
+                <Item>
+                    <Label>Hora Entrada</Label>
+                    <DatePicker
+                        style={styles.datePicker}
+                        date={this.state.unidad.horaEntrada}
+                        mode="time"
+                        confirmBtnText="Seleccionar"
+                        cancelBtnText="Cancelar"
+                        format="HH:mm"
+                        showIcon={false}
+                        onDateChange={(date) => {
+                            const {unidad} = this.state;
+                            unidad.horaEntrada = date;
                             this.setState({unidad: unidad});
                         }}
                         customStyles={{
@@ -258,7 +284,7 @@ export class CorrectivoView extends Component {
                             data={unidades.length === 1 && comp(query, unidades[0].num_economico) ? [] : unidades}
                             defaultValue={query}
                             onChangeText={text => this.setState({query: text})}
-                            placeholder="Ingrese su numero económico"
+                            placeholder="Ingrese su número económico"
                             renderItem={({num_placa, num_economico, kilometraje, denominacion_tipo, fabricante, nombres, apellidos, num_empleado, telefono}) => (
                                 <TouchableOpacity onPress={() => this.setState({
                                     query: num_economico,
@@ -269,7 +295,8 @@ export class CorrectivoView extends Component {
                                         tipo: denominacion_tipo,
                                         marca: fabricante,
                                         ruta: '',
-                                        fechaEntrada: ''
+                                        fechaEntrada: '',
+                                        horaEntrada: ''
                                     },
                                     operador: {
                                         nombres: nombres,
@@ -289,7 +316,7 @@ export class CorrectivoView extends Component {
                                 this.renderUnidad()
                             ) : (
                                 <Text style={styles.infoText}>
-                                    Ingrese numero económico
+                                    Ingrese número económico
                                 </Text>
                             )}
                         </View>
@@ -304,7 +331,7 @@ export class CorrectivoView extends Component {
                             <Input value={this.state.operador.nombres} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.nombres = text;
-                                this.setState({operador: operador});
+                                this.setState({operador: operador,nuevoOperador:true});
                             }}/>
                         </Item>
                         <Item floatingLabel>
@@ -312,7 +339,7 @@ export class CorrectivoView extends Component {
                             <Input value={this.state.operador.apellidos} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.apellidos = text;
-                                this.setState({operador: operador});
+                                this.setState({operador: operador,nuevoOperador:true});
                             }}/>
                         </Item>
                         <Item floatingLabel>
@@ -320,7 +347,7 @@ export class CorrectivoView extends Component {
                             <Input keyboardType='numeric' value={this.state.operador.telefono} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.telefono = text;
-                                this.setState({operador: operador});
+                                this.setState({operador: operador,nuevoOperador:true});
                             }}/>
                         </Item>
                         <Item floatingLabel>
@@ -328,7 +355,7 @@ export class CorrectivoView extends Component {
                             <Input value={this.state.operador.numEmpleado} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.numEmpleado = text;
-                                this.setState({operador: operador});
+                                this.setState({operador: operador,nuevoOperador:true});
                             }} keyboardType='numeric'/>
                         </Item>
                         <Separator bordered/>
@@ -345,6 +372,7 @@ export class CorrectivoView extends Component {
                             </Right>
                         </Header>
                         <SwipeListView
+                            enableEmptySections={true}
                             dataSource={this.ds.cloneWithRows(this.state.listRefacciones)}
                             renderRow={(data, secId, rowId, rowMap) => (
                                 <SwipeRow
@@ -367,8 +395,9 @@ export class CorrectivoView extends Component {
                                         underlayColor={'#AAA'}
                                     >
                                         <View>
-                                            <Text>{data.cantidad}
-                                                - {data.refaccion.label.replace('#', '-existencia->')}</Text>
+                                            <Text>{data.refaccion.label.replace('#', '-existencia->')}</Text>
+                                            <Text>Paquete: {data.paquete}</Text>
+                                            <Text>Cantidad: {data.cantidad}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </SwipeRow>
@@ -377,7 +406,7 @@ export class CorrectivoView extends Component {
                         <Separator bordered/>
                         <Header>
                             <Body>
-                            <Title>Imagenes</Title>
+                            <Title>Imágenes</Title>
                             </Body>
                             <Right>
                                 <Button transparent onPress={this.pickMultiple.bind(this)}>
@@ -428,9 +457,7 @@ export class CorrectivoView extends Component {
                             }}/>
                         </Item>
                         <Separator bordered/>
-                        <TouchableHighlight onPress={() => {
-                            this.setState({visibleSgnature: true})
-                        }} style={styles.buttonEnd}>
+                        <TouchableHighlight onPress={this.agregarOrden.bind(this)} style={styles.buttonEnd}>
                             <Text style={styles.textoBoton}>Registrar Ordenes</Text>
                         </TouchableHighlight>
                         <Separator bordered/>
@@ -450,7 +477,104 @@ export class CorrectivoView extends Component {
                 );
                 break;
         }
-    }
+    };
+
+    agregarOrden() {
+        var orden = {};
+        var msg = "Verifique la siguiente información:\n_requisitos_"
+        var requisitos = '';
+        var requisitosUnidad = '';
+        var requisitosOperador = '';
+        var requisitosObservaciones = '';
+        if (this.state.unidad === null) {
+            requisitos += "\t+Debe ingresar una unidad.\n"
+        } else {
+            if (!cadenaValida(this.state.unidad.ruta)) {
+                requisitosUnidad += '\t\t*Ruta\n';
+            }
+            if (!cadenaValida(this.state.unidad.kilometraje)) {
+                requisitosUnidad += '\t\t*Kilometraje\n';
+            }
+            if (!cadenaValida(this.state.unidad.fechaEntrada)) {
+                requisitosUnidad += '\t\t*Fecha de entrada\n';
+            }
+            if (!cadenaValida(this.state.unidad.horaEntrada)) {
+                requisitosUnidad += '\t\t*Hora de Entrada\n';
+            }
+            if (cadenaValida(requisitosUnidad)) {
+                requisitos += '\t+Debe ingresar los siguientes datos de unidad.\n' + requisitosUnidad;
+            }
+        }
+        if (this.state.operador === null) {
+            "\t+Debe indicar los datos de operador"
+        } else {
+            if (!cadenaValida(this.state.operador.nombres)) {
+                requisitosOperador += '\t\t*Nombres\n';
+            }
+            if (!cadenaValida(this.state.operador.apellidos)) {
+                requisitosOperador += '\t\t*Apellidos\n';
+            }
+            if (!cadenaValida(this.state.operador.telefono)) {
+                requisitosOperador += '\t\t*Telefono\n';
+            }
+            if (!cadenaValida(this.state.operador.numEmpleado)) {
+                requisitosOperador += '\t\t*Número de empleado\n';
+            }
+            if (cadenaValida(requisitosOperador)) {
+                requisitos += '\t+Debe ingresar los siguientes datos de operador.\n' + requisitosOperador;
+            }
+        }
+        if (this.state.listRefacciones.length < 1) {
+            requisitos += "\t+Debe agregar al menos una refacción.\n"
+        }
+        if (this.state.images.length < 1) {
+            requisitos += "\t+Debe agregar al menos una imagen.\n"
+        }
+        if (this.state.observaciones === null) {
+            "\t+Debe indicar los datos de operador"
+        } else {
+            if (!cadenaValida(this.state.observaciones.problema)) {
+                requisitosObservaciones += '\t\t*Descripción del problema\n';
+            }
+            if (!cadenaValida(this.state.observaciones.reparacion)) {
+                requisitosObservaciones += '\t\t*Detalle de la reparación\n';
+            }
+            if (!cadenaValida(this.state.observaciones.observacion)) {
+                requisitosObservaciones += '\t\t*Observaciones(Orden de Trabajo)\n';
+            }
+            if (!cadenaValida(this.state.observaciones.manoObra)) {
+                requisitosObservaciones += '\t\t*Mano de Obra\n';
+            }
+            if (cadenaValida(requisitosObservaciones)) {
+                requisitos += '\t+Debe ingresar los siguientes datos de observaciones.\n' + requisitosObservaciones;
+            }
+        }
+        if (cadenaValida(requisitos)) {
+            msg = msg.replace('_requisitos_', requisitos);
+            Alert.alert(
+                'Error',
+                msg.toString(),
+                [
+                    {
+                        text: 'Aceptar',
+                    }
+                ]
+            );
+        } else {
+            orden = {
+                idOrdenTrabajo: this.state.idOrdenTrabajo,
+                usuario: this.state.username,
+                unidad: this.state.unidad,
+                operador: this.state.operador,
+                refacciones: this.state.listRefacciones,
+                imagenes:this.state.images,
+                observaciones: this.state.observaciones,
+                estatus: cadenaValida(this.state.estatus)?this.state.estatus:'Registrado'
+            };
+            guarddarMntoCorrectivo(orden);
+            this.props.onSave();
+        }
+    };
 
     render() {
         return (

@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
 
 export default function Menu({onItemSelected,username}) {
     return (
-        <ScrollView scrollsToTop={false} style={styles.menu}>
+        <ScrollView scrollsToTop={false} style={styles.menu} scrollEnabled={false}>
             <View style={styles.avatarContainer}>
                 <Image
                     style={styles.banner}

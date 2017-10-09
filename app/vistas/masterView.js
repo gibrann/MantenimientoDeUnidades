@@ -48,6 +48,7 @@ export class masterView extends Component {
             isOpen: false,
             selectedTab: 'correctivo',
             selectedItem: 'Registro',
+            enableToggle: true
         };
     };
 
@@ -55,7 +56,7 @@ export class masterView extends Component {
         this.setState({
             isOpen: !this.state.isOpen,
         });
-    }
+    };
 
     updateMenuState(isOpen) {
         this.setState({isOpen});
@@ -67,6 +68,9 @@ export class masterView extends Component {
             selectedItem: item,
         });
 
+    toBandeja = () => {
+        this.setState({selectedItem: 'Bandeja'});
+    };
 
     renderSelectedTab() {
         switch (this.state.selectedTab) {
@@ -85,7 +89,7 @@ export class masterView extends Component {
                                 </Right>
                             </Header>
                             <Separator bordered/>
-                            <Preventivo/>
+                            <Preventivo username={this.state.username} onSave={this.toBandeja}/>
                         </View>
                     </StyleProvider>
                 );
@@ -105,7 +109,7 @@ export class masterView extends Component {
                                 </Right>
                             </Header>
                             <Separator bordered/>
-                            <Correctivo/>
+                            <Correctivo username={this.state.username} onSave={this.toBandeja}/>
                         </View>
                     </StyleProvider>
                 );
@@ -125,7 +129,7 @@ export class masterView extends Component {
                                 </Right>
                             </Header>
                             <Separator bordered/>
-                            <Rescate/>
+                            <Rescate username={this.state.username} onSave={this.toBandeja}/>
                         </View>
                     </StyleProvider>
                 );
@@ -192,7 +196,7 @@ export class masterView extends Component {
                 this.props.navigation.dispatch(resetAction);
                 break;
         }
-    }
+    };
 
     render() {
         const menu = <Menu onItemSelected={this.onMenuItemSelected} username={this.state.username}/>;

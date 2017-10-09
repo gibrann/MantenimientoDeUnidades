@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
         borderBottomColor: 'black',
         borderBottomWidth: 1,
         justifyContent: 'center',
-        height: 50,
+        height: 80,
     },
     rowBack: {
         alignItems: 'center',

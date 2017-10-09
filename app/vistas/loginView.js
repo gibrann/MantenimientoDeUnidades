@@ -11,7 +11,7 @@ import {NavigationActions} from 'react-navigation'
 var Spinner = require('react-native-spinkit');
 import styles from '../estilos/estilos';
 import {validarAcceso} from '../repositorios/generalRepository';
-import {cadenaValida} from '../util/stringUtil'
+import {cadenaValida} from '../util/comunUtil'
 
 export class loginView extends Component {
     constructor(props) {
