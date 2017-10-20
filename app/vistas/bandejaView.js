@@ -119,7 +119,7 @@ class bandejaOrdenesView extends Component {
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnRight]}
                                                   onPress={_ =>{
-                                                      this.setState({currentOrden: orden});
+                                                      this.setState({currentOrden: data});
                                                       this.deleteRow.bind(secId, rowId, rowMap)
                                                   }}>
                                     <Text style={styles.backTextWhite}>Eliminar</Text>
