@@ -96,6 +96,6 @@ export class catalogosView extends Component {
     cancelar() {
 
     };
-};
+}
 
 module.exports = catalogosView;

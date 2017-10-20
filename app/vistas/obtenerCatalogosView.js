@@ -14,7 +14,7 @@ import {
     NetInfo
 } from 'react-native'
 
-var Spinner = require('react-native-spinkit');
+import Spinner from 'react-native-spinkit';
 import {NavigationActions} from 'react-navigation';
 import {limpiaCatalogos, cargarCatalogos} from '../repositorios/generalRepository'
 import styles from '../estilos/estilos';
@@ -22,7 +22,7 @@ import styles from '../estilos/estilos';
 export class ObtenerCatalogosView extends Component {
 
     constructor(props) {
-        super(props)
+        super(props);
         console.log("Empresa  " + this.props.navigation.state.params.empresa);
         this.state = {
             empresa: this.props.navigation.state.params.empresa,
@@ -85,8 +85,8 @@ export class ObtenerCatalogosView extends Component {
             })
             .then((response) => response.json())
             .then((responseJson) => {
-                var keys = [];
-                for (var k in responseJson) {
+                let keys = [];
+                for (let k in responseJson) {
                     keys.push(k);
                 }
                 let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
@@ -136,17 +136,17 @@ export class ObtenerCatalogosView extends Component {
     };
 
     renderLoadingView() {
-        if(this.state.dataSource!==null)
-        return (
-            <ListView
-                dataSource={this.state.dataSource}
-                renderRow={this.renderCatalogos}
-                style={styles.listView}
-            />
-        );
+        if (this.state.dataSource !== null)
+            return (
+                <ListView
+                    dataSource={this.state.dataSource}
+                    renderRow={this.renderCatalogos}
+                    style={styles.listView}
+                />
+            );
     };
 
-    renderCatalogos(catalogo) {
+    renderCatalogos() {
         catalogo = catalogo.replace("CAT_", "");
         return (
             <View>
@@ -154,6 +154,6 @@ export class ObtenerCatalogosView extends Component {
             </View>
         );
     };
-};
+}
 
 module.exports = ObtenerCatalogosView;

@@ -15,7 +15,6 @@ import {
     Label,
     Input,
     Left,
-    Body,
     Title,
     Right,
     SwipeRow,

@@ -205,6 +205,14 @@ export function guardarRegistro(tx, table, obj) {
                     console.log('INSERT error: ' + error.message);
                 });
             break;
+        case 'ar_imagenes':
+            tx.executeSql('INSERT INTO main.ar_imagenes(id_orden_trabajo, uri, height, width, tipo_imagen) VALUES(?,?,?,?,?)',
+                [obj.idOrdenTrabajo, obj.uri, obj.height, obj.width,obj.mime], (tx, res) => {
+                },
+                (tx, error) => {
+                    console.log('INSERT error: ' + error.message);
+                });
+            break;
     }
 };
 
@@ -383,6 +391,7 @@ export function guarddarMntoCorrectivo(orden) {
         totalRefacciones: totalRefacciones,
         totalManoObra: totalManoObra
     };
+    var listImagenes = this.imagenes;
     db.transaction((tx) => {
         if (!objetoValido(orden.idOrdenTrabajo)) {
             guardarRegistro(tx, 'ar_orden_trabajo', ar_orden_trabajo);
@@ -401,7 +410,15 @@ export function guarddarMntoCorrectivo(orden) {
         if (len > 0) {
             for (var i = 0; i < len; i++) {
                 listArRefacciones[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
-                guardarRegistro(tx, 'ar_material_orden_trabajo', ar_material_orden_trabajo);
+                guardarRegistro(tx, 'ar_material_orden_trabajo', listArRefacciones[i]);
+                console.log("Guardando refaccion: " + (i + 1));
+            }
+        }
+        var len2 = listImagenes.length;
+        if (len2 > 0) {
+            for (var i = 0; i < len2; i++) {
+                listImagenes[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
+                guardarRegistro(tx, 'ar_imagenes', listImagenes[i]);
                 console.log("Guardando refaccion: " + (i + 1));
             }
         }
@@ -409,11 +426,223 @@ export function guarddarMntoCorrectivo(orden) {
 
 };
 
+export function guarddarMntoPreventivo(orden) {
+    var totalRefacciones = 0;
+    var totalManoObra = 0;
+    var listArRefacciones = [];
+    const {refacciones} = orden;
+    var len = refacciones.length;
+    if (len > 0) {
+        var ar_material_orden_trabajo = null;
+        console.log("Se encontraron " + len + " ordenes.");
+        for (var i = 0; i < len; i++) {
+            ar_material_orden_trabajo = {
+                idOrdenTrabajo: orden.idOrdenTrabajo,
+                idMaterialServicioRefaccion: refacciones[i].refaccion.key,
+                idPaqueteFamilia: refacciones[i].paquete,
+                concepto: refacciones[i].concepto,
+                idMaterialServicio: refacciones[i].servicio,
+                precio: refacciones[i].refaccion.precio,
+                cantidad: refacciones[i].cantidad,
+                subtotal: (Number(refacciones[i].refaccion.precio) * Number(refacciones[i].cantidad)),
+                existencia: refacciones[i].refaccion.existencia
+            };
+            listArRefacciones.push(ar_material_orden_trabajo);
+            var precio = Number(refacciones[i].refaccion.precio);
+            totalRefacciones += (precio * refacciones[i].cantidad);
+            console.log("Total = " + totalRefacciones)
+        }
+    }
+    var ar_orden_trabajo = {
+        idOrdenTrabajo: orden.idOrdenTrabajo,
+        folio: null,
+        ruta: orden.unidad.ruta,
+        kilometraje: orden.unidad.kilometraje,
+        tipoServicio: 'Preventivo',
+        numeroPlaca: orden.unidad.placa,
+        numeroEconomico: orden.unidad.economico,
+        fechaUpdate: fechaString(new Date()),
+        fechaEntrada: orden.unidad.fechaEntrada,
+        fechaInicio: null,
+        fechaFin: null,
+        fechaSalida: null,
+        horaEntrada: orden.unidad.horaEntrada,
+        horaSalida: null,
+        usuarioCreacion: orden.usuario,
+        usuarioAsignado: orden.usuario,
+        problema: orden.observaciones.problema,
+        falla: orden.observaciones.falla,
+        reparacion: null,
+        refaccionesUsadas: null,
+        fechaProxServicio: orden.servicio.proximo, //TODO Validar destino
+        observaciones: orden.servicio.comentarios, //TODO Validar destino
+        totalServicio: (totalManoObra + totalRefacciones),
+        estatusServicio: orden.estatus,
+        idCheckList: null,
+        idUbicacionUnidad: null
+    };
+    var ar_operador_orden_trabajo = {
+        idOrdenTrabajo: orden.idOrdenTrabajo,
+        nombres: orden.operador.nombres,
+        apellidos: orden.operador.apellidos,
+        numeroEmpleado: orden.operador.numEmpleado,
+        telefono: orden.operador.telefono
+
+    };
+    var ar_servicio_refacciones = {
+        idOrdenTrabajo: orden.idOrdenTrabajo,
+        description: null,
+        totalRefacciones: totalRefacciones,
+        totalManoObra: totalManoObra
+    };
+    var listImagenes = this.imagenes;
+    db.transaction((tx) => {
+        if (!objetoValido(orden.idOrdenTrabajo)) {
+            guardarRegistro(tx, 'ar_orden_trabajo', ar_orden_trabajo);
+        } else {
+
+        }
+    }, errorTxFn);
+    db.transaction((tx) => {
+        console.log("Se guardo la orden de trabajo con id " + ar_orden_trabajo.idOrdenTrabajo);
+        ar_operador_orden_trabajo.idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
+        guardarRegistro(tx, 'ar_operador_orden_trabajo', ar_operador_orden_trabajo);
+        console.log("Se guardo el poerador para la orden con id " + ar_orden_trabajo.idOrdenTrabajo);
+        guardarRegistro(tx, 'ar_servicio_refacciones', ar_servicio_refacciones);
+        console.log("Se guardo el principal de las refacciones");
+        var len = listArRefacciones.length;
+        if (len > 0) {
+            for (var i = 0; i < len; i++) {
+                listArRefacciones[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
+                guardarRegistro(tx, 'ar_material_orden_trabajo', listArRefacciones[i]);
+                console.log("Guardando refaccion: " + (i + 1));
+            }
+        }
+        var len2 = listImagenes.length;
+        if (len2 > 0) {
+            for (var i = 0; i < len2; i++) {
+                listImagenes[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
+                guardarRegistro(tx, 'ar_imagenes', listImagenes[i]);
+                console.log("Guardando refaccion: " + (i + 1));
+            }
+        }
+    }, errorTxFn);
+
+};
+
+export function guarddarMntoRescate(orden) {
+    var totalRefacciones = 0;
+    var totalManoObra = 0;
+    var listArRefacciones = [];
+    const {refacciones} = orden;
+    var len = refacciones.length;
+    if (len > 0) {
+        var ar_material_orden_trabajo = null;
+        console.log("Se encontraron " + len + " ordenes.");
+        for (var i = 0; i < len; i++) {
+            ar_material_orden_trabajo = {
+                idOrdenTrabajo: orden.idOrdenTrabajo,
+                idMaterialServicioRefaccion: refacciones[i].refaccion.key,
+                idPaqueteFamilia: refacciones[i].paquete,
+                concepto: refacciones[i].concepto,
+                idMaterialServicio: refacciones[i].servicio,
+                precio: refacciones[i].refaccion.precio,
+                cantidad: refacciones[i].cantidad,
+                subtotal: (Number(refacciones[i].refaccion.precio) * Number(refacciones[i].cantidad)),
+                existencia: refacciones[i].refaccion.existencia
+            };
+            listArRefacciones.push(ar_material_orden_trabajo);
+            var precio = Number(refacciones[i].refaccion.precio);
+            totalRefacciones += (precio * refacciones[i].cantidad);
+            console.log("Total = " + totalRefacciones)
+        }
+    }
+    var ar_orden_trabajo = {
+        idOrdenTrabajo: orden.idOrdenTrabajo,
+        folio: null,
+        ruta: orden.unidad.ruta,
+        kilometraje: orden.unidad.kilometraje,
+        tipoServicio: 'Preventivo',
+        numeroPlaca: orden.unidad.placa,
+        numeroEconomico: orden.unidad.economico,
+        fechaUpdate: fechaString(new Date()),
+        fechaEntrada: orden.unidad.fechaEntrada,
+        fechaInicio: null,
+        fechaFin: null,
+        fechaSalida: null,
+        horaEntrada: orden.unidad.horaEntrada,
+        horaSalida: null,
+        usuarioCreacion: orden.usuario,
+        usuarioAsignado: orden.usuario,
+        problema: orden.observaciones.problema,
+        falla: orden.observaciones.falla,
+        reparacion: null,
+        refaccionesUsadas: null,
+        fechaProxServicio: orden.servicio.proximo, //TODO Validar destino
+        observaciones: orden.servicio.comentarios, //TODO Validar destino
+        totalServicio: (totalManoObra + totalRefacciones),
+        estatusServicio: orden.estatus,
+        idCheckList: null,
+        idUbicacionUnidad: null
+    };
+    var ar_operador_orden_trabajo = {
+        idOrdenTrabajo: orden.idOrdenTrabajo,
+        nombres: orden.operador.nombres,
+        apellidos: orden.operador.apellidos,
+        numeroEmpleado: orden.operador.numEmpleado,
+        telefono: orden.operador.telefono
+
+    };
+    var ar_servicio_refacciones = {
+        idOrdenTrabajo: orden.idOrdenTrabajo,
+        description: null,
+        totalRefacciones: totalRefacciones,
+        totalManoObra: totalManoObra
+    };
+    var listImagenes = this.imagenes;
+    db.transaction((tx) => {
+        if (!objetoValido(orden.idOrdenTrabajo)) {
+            guardarRegistro(tx, 'ar_orden_trabajo', ar_orden_trabajo);
+        } else {
+
+        }
+    }, errorTxFn);
+    db.transaction((tx) => {
+        console.log("Se guardo la orden de trabajo con id " + ar_orden_trabajo.idOrdenTrabajo);
+        ar_operador_orden_trabajo.idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
+        guardarRegistro(tx, 'ar_operador_orden_trabajo', ar_operador_orden_trabajo);
+        console.log("Se guardo el poerador para la orden con id " + ar_orden_trabajo.idOrdenTrabajo);
+        guardarRegistro(tx, 'ar_servicio_refacciones', ar_servicio_refacciones);
+        console.log("Se guardo el principal de las refacciones");
+        var len = listArRefacciones.length;
+        if (len > 0) {
+            for (var i = 0; i < len; i++) {
+                listArRefacciones[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
+                guardarRegistro(tx, 'ar_material_orden_trabajo', listArRefacciones[i]);
+                console.log("Guardando refaccion: " + (i + 1));
+            }
+        }
+        var len2 = listImagenes.length;
+        if (len2 > 0) {
+            for (var i = 0; i < len2; i++) {
+                listImagenes[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
+                guardarRegistro(tx, 'ar_imagenes', listImagenes[i]);
+                console.log("Guardando refaccion: " + (i + 1));
+            }
+        }
+    }, errorTxFn);
+
+};
+
+export function eliminarOrden(orden) {
+
+};
+
 export function obtenerOrdenesByUser(usuario) {
     var ordenes = [];
     db.transaction((tx) => {
         tx.executeSql(
-            'SELECT o.id_orden_trabajo as idOrdenTrabajo, o.num_economico as numeroEcomnomico, o.estatus_servicio as estatus, o.fecha_entrada fechaEntrada, o.usuario_asignado usuarioAsignado FROM ar_orden_trabajo as o WHERE usuario_creacion = ?',
+            'SELECT o.id_orden_trabajo as idOrdenTrabajo, o.num_economico as numeroEconomico, o.estatus_servicio as estatus, o.fecha_entrada fechaEntrada, o.usuario_asignado usuarioAsignado, o.tipo_servicio as tipoServicio FROM ar_orden_trabajo as o WHERE usuario_creacion = ?',
             [usuario], (tx, results) => {
                 var len = results.rows.length;
                 if (len > 0) {
@@ -431,3 +660,4 @@ export function obtenerOrdenesByUser(usuario) {
     }, errorTxFn);
     return ordenes;
 };
+

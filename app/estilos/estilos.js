@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         height: 50,
-        backgroundColor: "green",
+        backgroundColor: "#01DF74",
         margin: 10,
     },
     autocompleteContainer: {
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
         width: 75
     },
     backRightBtnLeft: {
-        backgroundColor: 'blue',
+        backgroundColor: '#2E9AFE',
         right: 75
     },
     leftBtn:{
@@ -318,7 +318,15 @@ const styles = StyleSheet.create({
         width: 75
     },
     backLeftBtn: {
-        backgroundColor: 'blue',
+        backgroundColor: '#2E9AFE',
+        left: 0
+    },
+    procesaLeftBtn: {
+        backgroundColor: '#58D3F7',
+        left: 0
+    },
+    finalizaLeftBtn: {
+        backgroundColor: '#00FF80',
         left: 0
     },
     backRightBtnRight: {

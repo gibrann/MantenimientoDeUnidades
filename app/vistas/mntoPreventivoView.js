@@ -38,7 +38,7 @@ import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 import styles from '../estilos/estilos';
 import Refaccion from './refaccionView';
 import ModalPicker from 'react-native-modal-picker'
-import {obtenerUnidades} from '../repositorios/generalRepository';
+import {obtenerUnidades,guarddarMntoPreventivo} from '../repositorios/generalRepository';
 import getTheme from '../../native-base-theme/components';
 import {cadenaValida} from "../util/comunUtil";
 
@@ -126,7 +126,7 @@ export class PreventivoView extends Component {
 
     deleteImage(image) {
         const {images} = this.state;
-        var i = images.indexOf(image);
+        let i = images.indexOf(image);
         images.splice(i, 1);
         this.setState({images: images});
     }
@@ -134,7 +134,7 @@ export class PreventivoView extends Component {
     componentDidMount() {
         let _unidades = [];
         _unidades = obtenerUnidades('');
-        var _this = this;
+        let _this = this;
         setTimeout(function () {
             _this.setState({unidades: _unidades});
         }, 5000);
@@ -235,7 +235,7 @@ export class PreventivoView extends Component {
     }
 
     agregarItem = (refaccion) => {
-        var {listRefacciones} = this.state;
+        let {listRefacciones} = this.state;
         listRefacciones.push(refaccion);
         this.setState({registroPantalla: 'orden'});
     };
@@ -313,7 +313,7 @@ export class PreventivoView extends Component {
                             )}
                         />
                         <View style={styles.descriptionContainer}>
-                            {this.state.unidad != null ? (
+                            {this.state.unidad !== null ? (
                                 this.renderUnidad()
                             ) : (
                                 <Text style={styles.infoText}>
@@ -501,12 +501,13 @@ export class PreventivoView extends Component {
     };
 
     agregarOrden() {
-        var orden = {};
-        var msg = "Verifique la siguiente información:\n_requisitos_"
-        var requisitos = '';
-        var requisitosUnidad = '';
-        var requisitosOperador = '';
-        var requisitosObservaciones = '';
+        let orden = {};
+        let msg = "Verifique la siguiente información:\n_requisitos_";
+        let requisitos = '';
+        let requisitosUnidad = '';
+        let requisitosOperador = '';
+        let requisitosObservaciones = '';
+        let requisitosServicio  = "";
         if (this.state.unidad === null) {
             requisitos += "\t+Debe ingresar una unidad.\n"
         } else {
@@ -527,7 +528,7 @@ export class PreventivoView extends Component {
             }
         }
         if (this.state.operador === null) {
-            "\t+Debe indicar los datos de operador"
+            requisitos += "\t+Debe indicar los datos de operador\n"
         } else {
             if (!cadenaValida(this.state.operador.nombres)) {
                 requisitosOperador += '\t\t*Nombres\n';
@@ -552,22 +553,29 @@ export class PreventivoView extends Component {
             requisitos += "\t+Debe agregar al menos una imagen.\n"
         }
         if (this.state.observaciones === null) {
-            "\t+Debe indicar los datos de operador"
+            requisitos += "\t+Debe indicar los datos de observaciones"
         } else {
             if (!cadenaValida(this.state.observaciones.problema)) {
                 requisitosObservaciones += '\t\t*Descripción del problema\n';
             }
-            if (!cadenaValida(this.state.observaciones.reparacion)) {
+            if (!cadenaValida(this.state.observaciones.falla)) {
                 requisitosObservaciones += '\t\t*Detalle de la reparación\n';
-            }
-            if (!cadenaValida(this.state.observaciones.observacion)) {
-                requisitosObservaciones += '\t\t*Observaciones(Orden de Trabajo)\n';
-            }
-            if (!cadenaValida(this.state.observaciones.manoObra)) {
-                requisitosObservaciones += '\t\t*Mano de Obra\n';
             }
             if (cadenaValida(requisitosObservaciones)) {
                 requisitos += '\t+Debe ingresar los siguientes datos de observaciones.\n' + requisitosObservaciones;
+            }
+        }
+        if (this.state.servicio === null) {
+            requisitos += "\t+Debe indicar los datos del próximo servicio"
+        } else {
+            if (!cadenaValida(this.state.observaciones.problema)) {
+                requisitosServicio += '\t\t*Descripción del problema\n';
+            }
+            if (!cadenaValida(this.state.observaciones.falla)) {
+                requisitosServicio += '\t\t*Detalle de la reparación\n';
+            }
+            if (cadenaValida(requisitosServicio)) {
+                requisitos += '\t+Debe ingresar los siguientes datos del próximo servicio.\n' + requisitosServicio;
             }
         }
         if (cadenaValida(requisitos)) {
@@ -590,9 +598,10 @@ export class PreventivoView extends Component {
                 refacciones: this.state.listRefacciones,
                 imagenes:this.state.images,
                 observaciones: this.state.observaciones,
-                estatus: cadenaValida(this.state.estatus)?this.state.estatus:'Registrado'
+                estatus: cadenaValida(this.state.estatus)?this.state.estatus:'Registrado',
+                servicio: this.state.servicio
             };
-            guarddarMntoCorrectivo(orden);
+            guarddarMntoPreventivo(orden);
             this.props.onSave();
         }
     };
@@ -606,6 +615,6 @@ export class PreventivoView extends Component {
             </StyleProvider>
         );
     };
-};
+}
 
 module.exports = PreventivoView;

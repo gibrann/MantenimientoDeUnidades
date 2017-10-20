@@ -39,7 +39,7 @@ import {Switch} from 'react-native-switch';
 import styles from '../estilos/estilos';
 import Refaccion from './refaccionView';
 import ModalPicker from 'react-native-modal-picker'
-import {obtenerUnidades} from '../repositorios/generalRepository';
+import {obtenerUnidades,guarddarMntoRescate} from '../repositorios/generalRepository';
 import getTheme from '../../native-base-theme/components';
 import {cadenaValida} from "../util/comunUtil";
 
@@ -49,22 +49,21 @@ export class RescateView extends Component {
         super(props);
         this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            username:props.username,
+            username: props.username,
             visibleModal: false,
             query: '',
             registroPantalla: 'orden',
             unidad: null,
+            registro: {fechaReporte: '', horaReporte: ''},
+            rescate: {horaSalida: '', horaArribo: '', grua: false, remplazo: false},
             operador: {nombres: '', apellidos: '', numEmpleado: '', telefono: ''},
-            observaciones: {ciudad: '', estado: '', poblacion: '', feachaTermino: '', horaTermino: ''},
+            ubicacion: {ciudad: '', estado: '', poblacion: '', feachaTermino: '', horaTermino: ''},
+            observaciones: {problema:'',observacion: ''},
             unidades: [],
             listRefacciones: [],
             images: [],
             textInputValue: '',
             editRefaccion: null,
-            fechaReporte: '',
-            horaReporte: '',
-            horaArribo: '',
-            horaSalida: ''
         };
     };
 
@@ -128,7 +127,7 @@ export class RescateView extends Component {
 
     deleteImage(image) {
         const {images} = this.state;
-        var i = images.indexOf(image);
+        let i = images.indexOf(image);
         images.splice(i, 1);
         this.setState({images: images});
     }
@@ -136,7 +135,7 @@ export class RescateView extends Component {
     componentDidMount() {
         let _unidades = [];
         _unidades = obtenerUnidades('');
-        var _this = this;
+        let _this = this;
         setTimeout(function () {
             _this.setState({unidades: _unidades});
         }, 5000);
@@ -193,7 +192,7 @@ export class RescateView extends Component {
     }
 
     agregarItem = (refaccion) => {
-        var {listRefacciones} = this.state;
+        let {listRefacciones} = this.state;
         listRefacciones.push(refaccion);
         this.setState({registroPantalla: 'orden'});
     };
@@ -239,14 +238,16 @@ export class RescateView extends Component {
                             <Label>Fecha Reporte</Label>
                             <DatePicker
                                 style={styles.datePicker}
-                                date={this.state.fechaReporte}
+                                date={this.state.registro.fechaReporte}
                                 mode="date"
                                 confirmBtnText="Seleccionar"
                                 cancelBtnText="Cancelar"
                                 format="YYYY-MM-DD"
                                 showIcon={false}
                                 onDateChange={(date) => {
-                                    this.setState({fechaReporte: date})
+                                    const {registro} = this.state;
+                                    registro.fechaReporte = date;
+                                    this.setState({registro: registro})
                                 }}
                                 customStyles={{
                                     dateInput: styles.datePickerInput,
@@ -259,14 +260,17 @@ export class RescateView extends Component {
                             <Label>Hora Reporte</Label>
                             <DatePicker
                                 style={styles.datePicker}
-                                date={this.state.horaReporte}
+                                date={this.state.registro.horaReporte}
                                 mode="time"
                                 confirmBtnText="Seleccionar"
                                 cancelBtnText="Cancelar"
                                 format="hh:mm"
                                 showIcon={false}
                                 onDateChange={(date) => {
-                                    this.setState({horaReporte: date})
+                                    const {registro} = this.state;
+                                    registro.horaReporte = date;
+                                    this.setState({registro: registro})
+
                                 }}
                                 customStyles={{
                                     dateInput: styles.datePickerInput,
@@ -285,14 +289,16 @@ export class RescateView extends Component {
                             <Label>Hora Salida</Label>
                             <DatePicker
                                 style={styles.datePicker}
-                                date={this.state.horaSalida}
+                                date={this.state.rescate.horaSalida}
                                 mode="date"
                                 confirmBtnText="Seleccionar"
                                 cancelBtnText="Cancelar"
                                 format="YYYY-MM-DD"
                                 showIcon={false}
                                 onDateChange={(date) => {
-                                    this.setState({horaSalida: date})
+                                    const {rescate} = this.state;
+                                    rescate.fechaReporte = date;
+                                    this.setState({rescate: registro})
                                 }}
                                 customStyles={{
                                     dateInput: styles.datePickerInput,
@@ -305,14 +311,16 @@ export class RescateView extends Component {
                             <Label>Hora Arribo</Label>
                             <DatePicker
                                 style={styles.datePicker}
-                                date={this.state.horaArribo}
+                                date={this.state.rescate.horaArribo}
                                 mode="time"
                                 confirmBtnText="Seleccionar"
                                 cancelBtnText="Cancelar"
                                 format="hh:mm"
                                 showIcon={false}
                                 onDateChange={(date) => {
-                                    this.setState({horaArribo: date})
+                                    const {rescate} = this.state;
+                                    rescate.horaArribo = date;
+                                    this.setState({rescate: registro})
                                 }}
                                 customStyles={{
                                     dateInput: styles.datePickerInput,
@@ -324,29 +332,37 @@ export class RescateView extends Component {
                         <Item>
                             <Label>Uso Grúa</Label>
                             <Switch
-                                value={true}
-                                onValueChange={(val) => console.log(val)}
+                                value={this.state.rescate.grua}
+                                onValueChange={(val) => {
+                                    const {rescate} = this.state;
+                                    rescate.grua = val;
+                                    this.setState({rescate: rescate})
+                                }}
                                 disabled={false}
                                 activeText={'Sí'}
                                 inActiveText={'No'}
-                                backgroundActive={'green'}
-                                backgroundInactive={'red'}
+                                backgroundActive={'#01DF74'}
+                                backgroundInactive={'#FF0040'}
                                 circleActiveColor={'#30a566'}
-                                circleInActiveColor={'#000000'}
+                                circleInActiveColor={'#8A0829'}
                             />
                         </Item>
                         <Item>
                             <Label>Uso Remplazo</Label>
                             <Switch
-                                value={true}
-                                onValueChange={(val) => console.log(val)}
+                                value={this.state.rescate.remplazo}
+                                onValueChange={(val) => {
+                                    const {rescate} = this.state;
+                                    rescate.remplazo = val;
+                                    this.setState({rescate: rescate})
+                                }}
                                 disabled={false}
                                 activeText={'Sí'}
                                 inActiveText={'No'}
-                                backgroundActive={'green'}
-                                backgroundInactive={'red'}
+                                backgroundActive={'#01DF74'}
+                                backgroundInactive={'#FF0040'}
                                 circleActiveColor={'#30a566'}
-                                circleInActiveColor={'#000000'}
+                                circleInActiveColor={'#8A0829'}
                             />
                         </Item>
                         <Separator bordered/>
@@ -389,7 +405,7 @@ export class RescateView extends Component {
                             )}
                         />
                         <View style={styles.descriptionContainer}>
-                            {this.state.unidad != null ? (
+                            {this.state.unidad !== null ? (
                                 this.renderUnidad()
                             ) : (
                                 <Text style={styles.infoText}>
@@ -408,7 +424,7 @@ export class RescateView extends Component {
                             <Input value={this.state.operador.nombres} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.nombres = text;
-                                this.setState({operador: operador,nuevoOperador:true});
+                                this.setState({operador: operador, nuevoOperador: true});
                             }}/>
                         </Item>
                         <Item floatingLabel>
@@ -416,7 +432,7 @@ export class RescateView extends Component {
                             <Input value={this.state.operador.apellidos} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.apellidos = text;
-                                this.setState({operador: operador,nuevoOperador:true});
+                                this.setState({operador: operador, nuevoOperador: true});
                             }}/>
                         </Item>
                         <Item floatingLabel>
@@ -424,7 +440,7 @@ export class RescateView extends Component {
                             <Input keyboardType='numeric' value={this.state.operador.telefono} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.telefono = text;
-                                this.setState({operador: operador,nuevoOperador:true});
+                                this.setState({operador: operador, nuevoOperador: true});
                             }}/>
                         </Item>
                         <Item floatingLabel>
@@ -432,7 +448,7 @@ export class RescateView extends Component {
                             <Input value={this.state.operador.numEmpleado} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.numEmpleado = text;
-                                this.setState({operador: operador,nuevoOperador:true});
+                                this.setState({operador: operador, nuevoOperador: true});
                             }} keyboardType='numeric'/>
                         </Item>
                         <Separator bordered/>
@@ -517,40 +533,42 @@ export class RescateView extends Component {
                         </Header>
                         <Item floatingLabel>
                             <Label>Ciudad</Label>
-                            <Input value={this.state.observaciones.ciudad} onChangeText={(text) => {
-                                const {observaciones} = this.state;
-                                observaciones.ciudad = text;
-                                this.setState({observaciones: observaciones});
+                            <Input value={this.state.ubicacion.ciudad} onChangeText={(text) => {
+                                const {ubicacion} = this.state;
+                                ubicacion.ciudad = text;
+                                this.setState({ubicacion: ubicacion});
                             }}/>
                         </Item>
                         <Item floatingLabel>
                             <Label>Estado</Label>
-                            <Input value={this.state.observaciones.estado} onChangeText={(text) => {
-                                const {observaciones} = this.state;
-                                observaciones.estado = text;
-                                this.setState({observaciones: observaciones});
+                            <Input value={this.state.ubicacion.estado} onChangeText={(text) => {
+                                const {ubicacion} = this.state;
+                                ubicacion.estado = text;
+                                this.setState({ubicacion: ubicacion});
                             }}/>
                         </Item>
                         <Item floatingLabel>
                             <Label>Población</Label>
-                            <Input value={this.state.observaciones.poblacion} onChangeText={(text) => {
-                                const {observaciones} = this.state;
-                                observaciones.poblacion = text;
-                                this.setState({observaciones: observaciones});
+                            <Input value={this.state.ubicacion.poblacion} onChangeText={(text) => {
+                                const {ubicacion} = this.state;
+                                ubicacion.poblacion = text;
+                                this.setState({ubicacion: ubicacion});
                             }}/>
                         </Item>
                         <Item>
                             <Label>Fecha Termino</Label>
                             <DatePicker
                                 style={styles.datePicker}
-                                date={this.state.observaciones.fechaTermino}
+                                date={this.state.ubicacion.fechaTermino}
                                 mode="date"
                                 confirmBtnText="Seleccionar"
                                 cancelBtnText="Cancelar"
                                 format="YYYY-MM-DD"
                                 showIcon={false}
                                 onDateChange={(date) => {
-                                    this.setState({fechaEntrada: date})
+                                    const {ubicacion} = this.state;
+                                    ubicacion.fechaTermino = date;
+                                    this.setState({ubicacion: ubicacion});
                                 }}
                                 customStyles={{
                                     dateInput: styles.datePickerInput,
@@ -563,14 +581,16 @@ export class RescateView extends Component {
                             <Label>Hora Termino</Label>
                             <DatePicker
                                 style={styles.datePicker}
-                                date={this.state.observaciones.horaTermino}
+                                date={this.state.ubicacion.horaTermino}
                                 mode="time"
                                 confirmBtnText="Seleccionar"
                                 cancelBtnText="Cancelar"
                                 format="hh:mm"
                                 showIcon={false}
                                 onDateChange={(date) => {
-                                    this.setState({fechaEntrada: date})
+                                    const {ubicacion} = this.state;
+                                    ubicacion.horaTermino = date;
+                                    this.setState({ubicacion: ubicacion});
                                 }}
                                 customStyles={{
                                     dateInput: styles.datePickerInput,
@@ -603,14 +623,43 @@ export class RescateView extends Component {
     };
 
     agregarOrden() {
-        var orden = {};
-        var msg = "Verifique la siguiente información:\n_requisitos_"
-        var requisitos = '';
-        var requisitosUnidad = '';
-        var requisitosOperador = '';
-        var requisitosObservaciones = '';
+        let orden = {};
+        let msg = "Verifique la siguiente información:\n_requisitos_";
+        let requisitos = '';
+        let requisitosRegistro = "";
+        let requisitosRescate = ""
+        let requisitosUnidad = '';
+        let requisitosOperador = '';
+        let requisitosObservaciones = '';
+        let requisitosUbicacion = "";
+        if (this.state.registro === null) {
+            requisitos += "\t+Debe ingresar datos de Registro.\n";
+        } else {
+            if (!cadenaValida(this.state.registro.fechaReporte)) {
+                requisitosRegistro += '\t\t*Fecha Reporte\n';
+            }
+            if (!cadenaValida(this.state.registro.horaReporte)) {
+                requisitosRegistro += '\t\t*Hora Reporte\n';
+            }
+            if (cadenaValida(requisitosRegistro)) {
+                requisitos += '\t+Debe ingresar los siguientes datos de registro.\n' + requisitosRegistro;
+            }
+        }
+        if (this.state.rescate === null) {
+            requisitos += "\t+Debe ingresar datos de Rescate.\n";
+        } else {
+            if (!cadenaValida(this.state.rescate.horaSalida)) {
+                requisitosRescate += '\t\t*Fecha Reporte\n';
+            }
+            if (!cadenaValida(this.state.rescate.horaArribo)) {
+                requisitosRescate += '\t\t*Hora Reporte\n';
+            }
+            if (cadenaValida(requisitosRescate)) {
+                requisitos += '\t+Debe ingresar los siguientes datos de rescate.\n' + requisitosRescate;
+            }
+        }
         if (this.state.unidad === null) {
-            requisitos += "\t+Debe ingresar una unidad.\n"
+            requisitos += "\t+Debe ingresar una unidad.\n";
         } else {
             if (!cadenaValida(this.state.unidad.ruta)) {
                 requisitosUnidad += '\t\t*Ruta\n';
@@ -623,7 +672,7 @@ export class RescateView extends Component {
             }
         }
         if (this.state.operador === null) {
-            "\t+Debe indicar los datos de operador"
+            requisitos += "\t+Debe indicar los datos de operador";
         } else {
             if (!cadenaValida(this.state.operador.nombres)) {
                 requisitosOperador += '\t\t*Nombres\n';
@@ -642,28 +691,44 @@ export class RescateView extends Component {
             }
         }
         if (this.state.listRefacciones.length < 1) {
-            requisitos += "\t+Debe agregar al menos una refacción.\n"
+            requisitos += "\t+Debe agregar al menos una refacción.\n";
         }
         if (this.state.images.length < 1) {
             requisitos += "\t+Debe agregar al menos una imagen.\n"
         }
         if (this.state.observaciones === null) {
-            "\t+Debe indicar los datos de operador"
+            requisitos +="\t+Debe indicar los datos de operador";
         } else {
-            if (!cadenaValida(this.state.observaciones.problema)) {
-                requisitosObservaciones += '\t\t*Descripción del problema\n';
+            if (!cadenaValida(this.state.observaciones.falla)) {
+                requisitosObservaciones += '\t\t*Diagnostico de falla\n';
             }
             if (!cadenaValida(this.state.observaciones.reparacion)) {
-                requisitosObservaciones += '\t\t*Detalle de la reparación\n';
-            }
-            if (!cadenaValida(this.state.observaciones.observacion)) {
-                requisitosObservaciones += '\t\t*Observaciones(Orden de Trabajo)\n';
-            }
-            if (!cadenaValida(this.state.observaciones.manoObra)) {
-                requisitosObservaciones += '\t\t*Mano de Obra\n';
+                requisitosObservaciones += '\t\t*Descripción del problema\n';
             }
             if (cadenaValida(requisitosObservaciones)) {
                 requisitos += '\t+Debe ingresar los siguientes datos de observaciones.\n' + requisitosObservaciones;
+            }
+        }
+        if (this.state.ubicacion === null) {
+            requisitos += "\t+Debe indicar los datos de ubicación";
+        } else {
+            if (!cadenaValida(this.state.ubicacion.ciudad)) {
+                requisitosUbicacion += '\t\t*Ciudad\n';
+            }
+            if (!cadenaValida(this.state.ubicacion.estado)) {
+                requisitosUbicacion += '\t\t*Estado\n';
+            }
+            if (!cadenaValida(this.state.ubicacion.poblacion)) {
+                requisitosUbicacion += '\t\t*Poclación\n';
+            }
+            if (!cadenaValida(this.state.ubicacion.feachaTermino)) {
+                requisitosUbicacion += '\t\t*Fecha Termino\n';
+            }
+            if (!cadenaValida(this.state.ubicacion.horaTermino)) {
+                requisitosUbicacion += '\t\t*Hora Termino\n';
+            }
+            if (cadenaValida(requisitosUbicacion)) {
+                requisitos += '\t+Debe ingresar los siguientes datos de ubicación.\n' + requisitosUbicacion;
             }
         }
         if (cadenaValida(requisitos)) {
@@ -684,11 +749,11 @@ export class RescateView extends Component {
                 unidad: this.state.unidad,
                 operador: this.state.operador,
                 refacciones: this.state.listRefacciones,
-                imagenes:this.state.images,
+                imagenes: this.state.images,
                 observaciones: this.state.observaciones,
-                estatus: cadenaValida(this.state.estatus)?this.state.estatus:'Registrado'
+                estatus: cadenaValida(this.state.estatus) ? this.state.estatus : 'Registrado'
             };
-            guarddarMntoCorrectivo(orden);
+            guarddarMntoRescate(orden);
             this.props.onSave();
         }
     };
@@ -702,6 +767,6 @@ export class RescateView extends Component {
             </StyleProvider>
         );
     };
-};
+}
 
 module.exports = RescateView;

@@ -145,6 +145,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-text-input-mask')
     compile project(':react-native-spinkit')
     compile project(':react-native-signature-capture')
     compile project(':react-native-image-crop-picker')

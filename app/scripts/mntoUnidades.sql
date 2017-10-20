@@ -182,9 +182,12 @@ CREATE TABLE IF NOT EXISTS ar_material_orden_trabajo
 
 CREATE TABLE IF NOT EXISTS ar_imagenes
 (
-  id_imagen     INTEGER PRIMARY KEY AUTOINCREMENT,
-  folio         char(20),
-  imagen        BLOB,
-  tipo_imagen   char(50) NOT NULL,
-  nombre_imagen char(50)
+  id_imagen   INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_orden_trabajo    char(20)  NOT NULL,
+  uri         char(200) NOT NULL,
+  height      char(50)  NOT NULL,
+  width       char(50)  NOT NULL,
+  tipo_imagen char(50)  NOT NULL,
+  FOREIGN KEY (id_orden_trabajo)
+  REFERENCES ar_orden_trabajo (id_orden_trabajo)
 );

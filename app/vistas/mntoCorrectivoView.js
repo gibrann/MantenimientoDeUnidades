@@ -124,8 +124,8 @@ export class CorrectivoView extends Component {
     };
 
     deleteImage(image) {
-        const {images} = this.state;
-        var i = images.indexOf(image);
+        let {images} = this.state;
+        let i = images.indexOf(image);
         images.splice(i, 1);
         this.setState({images: images});
     }
@@ -133,7 +133,7 @@ export class CorrectivoView extends Component {
     componentDidMount() {
         let _unidades = [];
         _unidades = obtenerUnidades('');
-        var _this = this;
+        let _this = this;
         setTimeout(function () {
             _this.setState({unidades: _unidades});
         }, 5000);
@@ -234,7 +234,7 @@ export class CorrectivoView extends Component {
     }
 
     agregarItem = (refaccion) => {
-        var {listRefacciones} = this.state;
+        let {listRefacciones} = this.state;
         listRefacciones.push(refaccion);
         this.setState({registroPantalla: 'orden'});
     };
@@ -312,7 +312,7 @@ export class CorrectivoView extends Component {
                             )}
                         />
                         <View style={styles.descriptionContainer}>
-                            {this.state.unidad != null ? (
+                            {this.state.unidad !== null ? (
                                 this.renderUnidad()
                             ) : (
                                 <Text style={styles.infoText}>
@@ -480,12 +480,12 @@ export class CorrectivoView extends Component {
     };
 
     agregarOrden() {
-        var orden = {};
-        var msg = "Verifique la siguiente información:\n_requisitos_"
-        var requisitos = '';
-        var requisitosUnidad = '';
-        var requisitosOperador = '';
-        var requisitosObservaciones = '';
+        let orden = {};
+        let msg = "Verifique la siguiente información:\n_requisitos_";
+        let requisitos = '';
+        let requisitosUnidad = '';
+        let requisitosOperador = '';
+        let requisitosObservaciones = '';
         if (this.state.unidad === null) {
             requisitos += "\t+Debe ingresar una unidad.\n"
         } else {
@@ -506,7 +506,7 @@ export class CorrectivoView extends Component {
             }
         }
         if (this.state.operador === null) {
-            "\t+Debe indicar los datos de operador"
+            requisitos += "\t+Debe indicar los datos de operador"
         } else {
             if (!cadenaValida(this.state.operador.nombres)) {
                 requisitosOperador += '\t\t*Nombres\n';
@@ -531,7 +531,7 @@ export class CorrectivoView extends Component {
             requisitos += "\t+Debe agregar al menos una imagen.\n"
         }
         if (this.state.observaciones === null) {
-            "\t+Debe indicar los datos de operador"
+            requisitos += "\t+Debe indicar los datos de operador\n";
         } else {
             if (!cadenaValida(this.state.observaciones.problema)) {
                 requisitosObservaciones += '\t\t*Descripción del problema\n';
@@ -585,6 +585,6 @@ export class CorrectivoView extends Component {
             </StyleProvider>
         );
     };
-};
+}
 
 module.exports = CorrectivoView;

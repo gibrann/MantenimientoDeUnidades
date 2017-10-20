@@ -24,16 +24,15 @@ import {
     Label,
     Input,
     Left,
-    Body,
     Title,
     Right,
     SwipeRow,
     Separator,
 } from 'native-base';
-import ModalFilterPicker from 'react-native-modal-filter-picker';
 import styles from '../estilos/estilos';
 import {obtenerServicios, obtenerRefacciones} from '../repositorios/generalRepository';
-import {cadenaValida, objetoValido} from '../util/comunUtil'
+import {cadenaValida, objetoValido} from '../util/comunUtil';
+import ModalFilterPicker from 'react-native-modal-filter-picker';
 
 export class refaccionesView extends Component {
     constructor(props) {
@@ -91,7 +90,6 @@ export class refaccionesView extends Component {
                 accion: 'actualizar'
             };
         }
-        ;
     };
 
 
@@ -108,24 +106,24 @@ export class refaccionesView extends Component {
         });
         let _refacciones = [];
         _refacciones = obtenerRefacciones(this.state.familias[picked - 1].key);
-        var _this = this;
+        let _this = this;
         setTimeout(function () {
             _this.setState({refacciones: _refacciones});
         }, 300);
-    }
+    };
 
     onCancelFamilia = () => {
         this.setState({
             visibleFamilia: false
         });
-    }
+    };
 
     componentWillMount() {
         if (objetoValido(this.props.refaccion)) {
             let refaccion = this.props.refaccion;
             let _refaccion = null;
             let _refacciones = obtenerRefacciones(refaccion.familia.key);
-            var _this = this;
+            let _this = this;
             setTimeout(function () {
                 for (let i in _refacciones) {
                     if (_refacciones[i].key === refaccion.refaccion.key) {
@@ -150,8 +148,8 @@ export class refaccionesView extends Component {
     }
 
     agregarRefaccion() {
-        var msg = "Verifique sus datos\nLos campos requeridos son:\n_campos_";
-        var campos = "";
+        let msg = "Verifique sus datos\nLos campos requeridos son:\n_campos_";
+        let campos = "";
         if (!objetoValido(this.state.pickedFamilia)) {
             campos += "*Familia\n";
         }
@@ -183,8 +181,8 @@ export class refaccionesView extends Component {
     }
 
     actualizarRefaccion() {
-        var msg = "Verifique sus datos\nLos campos requeridos son:\n_campos_";
-        var campos = "";
+        let msg = "Verifique sus datos\nLos campos requeridos son:\n_campos_";
+        let campos = "";
         if (!objetoValido(this.state.pickedFamilia)) {
             campos += "*Familia\n";
         }
@@ -231,7 +229,7 @@ export class refaccionesView extends Component {
                             style={styles.inputPicker}
                             mode="dropdown"
                             selectedValue={this.state.selectedConcepto}
-                            onValueChange={(itemValue, itemIndex) => {
+                            onValueChange={(itemValue) => {
                                 this.setState({selectedConcepto: itemValue});
                             }}>
                             {Object.keys(this.state.conceptos).map((key) => {
@@ -247,7 +245,7 @@ export class refaccionesView extends Component {
                             style={styles.inputPicker}
                             mode="dropdown"
                             selectedValue={this.state.selectedServicio}
-                            onValueChange={(itemValue, itemIndex) => {
+                            onValueChange={(itemValue) => {
                                 this.setState({selectedServicio: itemValue});
                             }}>
                             {Object.keys(this.state.servicios).map((key) => {
@@ -263,7 +261,7 @@ export class refaccionesView extends Component {
                             style={styles.inputPicker}
                             mode="dropdown"
                             selectedValue={this.state.selectedPaquete}
-                            onValueChange={(itemValue, itemIndex) => {
+                            onValueChange={(itemValue) => {
                                 this.setState({selectedPaquete: itemValue});
                             }}>
                             {Object.keys(this.state.paquetes).map((key) => {
@@ -283,7 +281,8 @@ export class refaccionesView extends Component {
                             onSelect={this.onSelectFamilia}
                             onCancel={this.onCancelFamilia}
                             options={familias}
-                            onRequestClose={true}
+                            onRequestClose={() => {
+                            }}
                         />
                     </Item>
                     <Item stackedLabel>
@@ -329,6 +328,6 @@ export class refaccionesView extends Component {
     }
 
 
-};
+}
 
 module.exports = refaccionesView;

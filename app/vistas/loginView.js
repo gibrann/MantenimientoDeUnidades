@@ -40,9 +40,9 @@ export class loginView extends Component {
             let Respuesta = {data: null, mensaje: '', exito: false};
             Respuesta = validarAcceso(this.state.username, this.state.password);
             this.setState({isVisibleSpinner:true});
-            var _this = this;
+            let _this = this;
             setTimeout(function () {
-                console.log("resultado: " + Respuesta.exito)
+                console.log("resultado: " + Respuesta.exito);
                 if (Respuesta.exito) {
                     const resetAction = NavigationActions.reset({
                         index: 0,
@@ -128,6 +128,6 @@ export class loginView extends Component {
     }
 
 
-};
+}
 
 module.exports = loginView;

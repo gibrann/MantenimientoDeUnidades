@@ -10,8 +10,11 @@ import {
     TouchableHighlight,
     View
 } from 'react-native';
+import styles from '../estilos/estilos';
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
-import {obtenerOrdenesByUser} from '../repositorios/generalRepository'
+import {obtenerOrdenesByUser,eliminarOrden} from '../repositorios/generalRepository';
+import SignatureCapture from 'react-native-signature-capture';
+import Modal from 'react-native-modal';
 
 class bandejaOrdenesView extends Component {
 
@@ -21,46 +24,104 @@ class bandejaOrdenesView extends Component {
         this.state = {
             listOrdenes: [],
             username: props.username,
-            basic: true
+            basic: true,
+            visibleSignature: false,
+            currentOrden: null
         };
     }
 
     deleteRow(secId, rowId, rowMap) {
+        eliminarOrden(this.state.currentOrden);
         rowMap[`${secId}${rowId}`].closeRow();
         const newData = [...this.state.listOrdenes];
         newData.splice(rowId, 1);
         this.setState({listOrdenes: newData});
     }
 
+    editRow(data) {
+
+    }
+
+    finalizaRow() {
+        this.setState({visibleSignature: true});
+    }
+
+    procesaRow() {
+        this.setState({visibleSignature: true});
+    }
+
     componentDidMount() {
-        var _ordenes = [];
+        let _ordenes = [];
         _ordenes = obtenerOrdenesByUser(this.state.username);
-        var _this = this;
+        let _this = this;
         setTimeout(function () {
             _this.setState({listOrdenes: _ordenes});
-        }, 5000);
+        }, 1000);
+    }
+
+    obtenerOperacion(orden) {
+        let operacion = null;
+        switch (orden.estatus) {
+            case 'Registrado':
+                operacion = (
+                    <TouchableOpacity style={[styles.leftBtn, styles.procesaLeftBtn]}
+                                      onPress={_ => {
+                                          this.setState({currentOrden: orden});
+                                          this.procesaRow();
+                                      }}>
+                        <Text style={styles.backTextWhite}>Procesar</Text>
+                    </TouchableOpacity>
+                );
+                break;
+            case 'Procesado':
+                operacion = (
+                    <TouchableOpacity style={[styles.backRightBtn, styles.finalizaLeftBtn]}
+                                      onPress={_ =>{
+                                          this.setState({currentOrden: orden});
+                                          this.finalizaRow.bind();
+                                      }}>
+                        <Text style={styles.backTextWhite}>Finalizar</Text>
+                    </TouchableOpacity>
+                );
+                break;
+            case 'Finalizado':
+                operacion = null;
+                break;
+        }
+        return operacion
+    }
+
+    saveSign() {
+        this.refs["sign"].saveImage();
+    }
+
+    resetSign() {
+        this.refs["sign"].resetImage();
     }
 
     render() {
         return (
             <View style={styles.container}>
-
                 <SwipeListView
                     enableEmptySections={true}
                     dataSource={this.ds.cloneWithRows(this.state.listOrdenes)}
                     renderRow={(data, secId, rowId, rowMap) => (
                         <SwipeRow
-                            disableLeftSwipe={parseInt(rowId) % 2 === 0}
+                            disableLeftSwipe={(data.estatus === "Finalizado")}
                             leftOpenValue={20 + Math.random() * 150}
                             rightOpenValue={-150}
                         >
                             <View style={styles.rowBack}>
-                                <Text>Ver</Text>
-                                <View style={[styles.backRightBtn, styles.backRightBtnLeft]}>
+                                {this.obtenerOperacion(data)}
+                                <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnLeft]}
+                                                  onPress={_ => this.editRow.bind(data)}>
                                     <Text style={styles.backTextWhite}>Editar</Text>
-                                </View>
+                                </TouchableOpacity>
                                 <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnRight]}
-                                                  onPress={_ => this.deleteRow(secId, rowId, rowMap)}>
+                                                  onPress={_ =>{
+                                                      this.setState({currentOrden: orden});
+                                                      this.deleteRow.bind(secId, rowId, rowMap)
+                                                  }}>
                                     <Text style={styles.backTextWhite}>Eliminar</Text>
                                 </TouchableOpacity>
                             </View>
@@ -71,94 +132,58 @@ class bandejaOrdenesView extends Component {
                             >
                                 <View>
                                     <Text>Numero Económico: {data.numeroEconomico}</Text>
-                                    <Text>Tipo Servicio: {data.tipoServicio}    Estatus: {data.estatus}</Text>
-                                    <Text>Fecha Entrada: {data.fechaEntrada}    Asignado: {data.usuarioAsignado}</Text>
+                                    <Text>Tipo Servicio: {data.tipoServicio}</Text>
+                                    <Text>Estatus: {data.estatus} Fecha Entrada: {data.fechaEntrada} </Text>
+                                    <Text>Usuario Asignado: {data.usuarioAsignado}</Text>
                                 </View>
                             </TouchableHighlight>
                         </SwipeRow>
                     )}
                 />
+                <Modal
+                    isVisible={this.state.visibleSignature}
+                    animationIn={'zoomInDown'}
+                    animationOut={'zoomOutUp'}
+                    animationInTiming={1000}
+                    animationOutTiming={1000}
+                    backdropTransitionInTiming={1000}
+                    backdropTransitionOutTiming={1000}
+                    onRequestClose={()=>{}}
+                >
+                    <View style={styles.modalSignature}>
+                        <View style={styles.viewSignature}>
+                            <Text style={{alignItems: "center", justifyContent: "center"}}>Capture su firma</Text>
+                            <SignatureCapture
+                                style={[{flex: 1}, styles.signature]}
+                                ref="sign"
+                                onSaveEvent={this._onSaveEvent}
+                                onDragEvent={this._onDragEvent}
+                                saveImageFileInExtStorage={false}
+                                showNativeButtons={false}
+                                showTitleLabel={false}
+                                viewMode={"landscape"}/>
+                        </View>
+                        <View style={{flex: 1, flexDirection: "row"}}>
+                            <TouchableHighlight style={styles.buttonStyle}
+                                                onPress={() => {
+                                                    this.saveSign();
+                                                    this.setState({visibleSignature: false});
+                                                }}>
+                                <Text>Terminar</Text>
+                            </TouchableHighlight>
 
-
+                            <TouchableHighlight style={styles.buttonStyle}
+                                                onPress={()=> {
+                                                    this.resetSign()
+                                                }}>
+                                <Text>Reset</Text>
+                            </TouchableHighlight>
+                        </View>
+                    </View>
+                </Modal>
             </View>
         );
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: 'white',
-        flex: 1
-    },
-    standalone: {
-        marginTop: 30,
-        marginBottom: 30,
-    },
-    standaloneRowFront: {
-        alignItems: 'center',
-        backgroundColor: '#CCC',
-        justifyContent: 'center',
-        height: 50,
-    },
-    standaloneRowBack: {
-        alignItems: 'center',
-        backgroundColor: '#8BC645',
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 15
-    },
-    backTextWhite: {
-        color: '#FFF'
-    },
-    rowFront: {
-        alignItems: 'center',
-        backgroundColor: '#CCC',
-        borderBottomColor: 'black',
-        borderBottomWidth: 1,
-        justifyContent: 'center',
-        height: 50,
-    },
-    rowBack: {
-        alignItems: 'center',
-        backgroundColor: '#DDD',
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingLeft: 15,
-    },
-    backRightBtn: {
-        alignItems: 'center',
-        bottom: 0,
-        justifyContent: 'center',
-        position: 'absolute',
-        top: 0,
-        width: 75
-    },
-    backRightBtnLeft: {
-        backgroundColor: 'blue',
-        right: 75
-    },
-    backRightBtnRight: {
-        backgroundColor: 'red',
-        right: 0
-    },
-    controls: {
-        alignItems: 'center',
-        marginBottom: 30
-    },
-    switchContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginBottom: 5
-    },
-    switch: {
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'black',
-        paddingVertical: 10,
-        width: 100,
-    }
-});
 
 module.exports = bandejaOrdenesView;

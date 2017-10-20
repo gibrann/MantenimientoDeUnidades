@@ -20,7 +20,7 @@ class App extends Component {
         this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             basic: true,
-            listViewData: Array(20).fill('').map((_, i) => `item #${i}`)
+            listViewData: new Array(20).fill('').map((_, i) => `item #${i}`)
         };
     }
 
