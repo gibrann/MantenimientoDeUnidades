@@ -115,6 +115,7 @@ export class PreventivoView extends Component {
                     onChange={() => {
                         this.deleteImage(image);
                     }}
+                    onRequestClose={()=>{}}
                     optionTextStyle={{color: 'red'}}
                     cancelText={'Cancelar'}
                 >
@@ -125,7 +126,7 @@ export class PreventivoView extends Component {
     };
 
     deleteImage(image) {
-        const {images} = this.state;
+        let {images} = this.state;
         let i = images.indexOf(image);
         images.splice(i, 1);
         this.setState({images: images});
@@ -191,12 +192,12 @@ export class PreventivoView extends Component {
                     <DatePicker
                         style={styles.datePicker}
                         date={this.state.unidad.fechaEntrada}
-                        mode="datetime"
+                        mode="date"
                         confirmBtnText="Seleccionar"
                         cancelBtnText="Cancelar"
                         format="YYYY-MM-DD"
                         showIcon={false}
-                        onChangeText={(date) => {
+                        onDateChange={(date) => {
                             const {unidad} = this.state;
                             unidad.fechaEntrada = date;
                             this.setState({unidad: unidad});
@@ -218,7 +219,7 @@ export class PreventivoView extends Component {
                         cancelBtnText="Cancelar"
                         format="HH:mm"
                         showIcon={false}
-                        onChangeText={(date) => {
+                        onDateChange={(date) => {
                             const {unidad} = this.state;
                             unidad.horaEntrada = date;
                             this.setState({unidad: unidad});
@@ -460,7 +461,7 @@ export class PreventivoView extends Component {
                             <DatePicker
                                 style={styles.datePicker}
                                 date={this.state.servicio.proximo}
-                                mode="datetime"
+                                mode="date"
                                 confirmBtnText="Seleccionar"
                                 cancelBtnText="Cancelar"
                                 format="YYYY-MM-DD"
@@ -601,6 +602,7 @@ export class PreventivoView extends Component {
                 estatus: cadenaValida(this.state.estatus)?this.state.estatus:'Registrado',
                 servicio: this.state.servicio
             };
+            console.log(JSON.stringify(orden));
             guarddarMntoPreventivo(orden);
             this.props.onSave();
         }

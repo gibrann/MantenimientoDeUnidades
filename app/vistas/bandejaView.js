@@ -65,7 +65,7 @@ class bandejaOrdenesView extends Component {
             case 'Registrado':
                 operacion = (
                     <TouchableOpacity style={[styles.leftBtn, styles.procesaLeftBtn]}
-                                      onPress={_ => {
+                                      onPress={() => {
                                           this.setState({currentOrden: orden});
                                           this.procesaRow();
                                       }}>
@@ -76,7 +76,7 @@ class bandejaOrdenesView extends Component {
             case 'Procesado':
                 operacion = (
                     <TouchableOpacity style={[styles.backRightBtn, styles.finalizaLeftBtn]}
-                                      onPress={_ =>{
+                                      onPress={() =>{
                                           this.setState({currentOrden: orden});
                                           this.finalizaRow.bind();
                                       }}>
@@ -118,7 +118,7 @@ class bandejaOrdenesView extends Component {
                                     <Text style={styles.backTextWhite}>Editar</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnRight]}
-                                                  onPress={_ =>{
+                                                  onPress={() =>{
                                                       this.setState({currentOrden: data});
                                                       this.deleteRow.bind(secId, rowId, rowMap)
                                                   }}>

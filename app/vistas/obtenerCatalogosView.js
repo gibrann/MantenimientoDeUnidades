@@ -140,13 +140,13 @@ export class ObtenerCatalogosView extends Component {
             return (
                 <ListView
                     dataSource={this.state.dataSource}
-                    renderRow={this.renderCatalogos}
+                    renderRow={ObtenerCatalogosView.renderCatalogos}
                     style={styles.listView}
                 />
             );
     };
 
-    renderCatalogos() {
+    static renderCatalogos(catalogo) {
         catalogo = catalogo.replace("CAT_", "");
         return (
             <View>

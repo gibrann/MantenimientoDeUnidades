@@ -38,7 +38,7 @@ import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
 import {Switch} from 'react-native-switch';
 import styles from '../estilos/estilos';
 import Refaccion from './refaccionView';
-import ModalPicker from 'react-native-modal-picker'
+import ModalPicker from 'react-native-modal-picker';
 import {obtenerUnidades,guarddarMntoRescate} from '../repositorios/generalRepository';
 import getTheme from '../../native-base-theme/components';
 import {cadenaValida} from "../util/comunUtil";
@@ -116,6 +116,7 @@ export class RescateView extends Component {
                     onChange={() => {
                         this.deleteImage(image);
                     }}
+                    onRequestClose={()=>{}}
                     optionTextStyle={{color: 'red'}}
                     cancelText={'Cancelar'}
                 >
@@ -126,7 +127,7 @@ export class RescateView extends Component {
     };
 
     deleteImage(image) {
-        const {images} = this.state;
+        let {images} = this.state;
         let i = images.indexOf(image);
         images.splice(i, 1);
         this.setState({images: images});
@@ -424,7 +425,7 @@ export class RescateView extends Component {
                             <Input value={this.state.operador.nombres} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.nombres = text;
-                                this.setState({operador: operador, nuevoOperador: true});
+                                this.setState({operador: operador,nuevoOperador:true});
                             }}/>
                         </Item>
                         <Item floatingLabel>
@@ -432,7 +433,7 @@ export class RescateView extends Component {
                             <Input value={this.state.operador.apellidos} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.apellidos = text;
-                                this.setState({operador: operador, nuevoOperador: true});
+                                this.setState({operador: operador,nuevoOperador:true});
                             }}/>
                         </Item>
                         <Item floatingLabel>
@@ -440,7 +441,7 @@ export class RescateView extends Component {
                             <Input keyboardType='numeric' value={this.state.operador.telefono} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.telefono = text;
-                                this.setState({operador: operador, nuevoOperador: true});
+                                this.setState({operador: operador,nuevoOperador:true});
                             }}/>
                         </Item>
                         <Item floatingLabel>
@@ -448,7 +449,7 @@ export class RescateView extends Component {
                             <Input value={this.state.operador.numEmpleado} onChangeText={(text) => {
                                 const {operador} = this.state;
                                 operador.numEmpleado = text;
-                                this.setState({operador: operador, nuevoOperador: true});
+                                this.setState({operador: operador,nuevoOperador:true});
                             }} keyboardType='numeric'/>
                         </Item>
                         <Separator bordered/>
@@ -627,7 +628,7 @@ export class RescateView extends Component {
         let msg = "Verifique la siguiente información:\n_requisitos_";
         let requisitos = '';
         let requisitosRegistro = "";
-        let requisitosRescate = ""
+        let requisitosRescate = "";
         let requisitosUnidad = '';
         let requisitosOperador = '';
         let requisitosObservaciones = '';
@@ -745,14 +746,18 @@ export class RescateView extends Component {
         } else {
             orden = {
                 idOrdenTrabajo: this.state.idOrdenTrabajo,
+                registro: this.state.registro,
+                rescate: this.state.rescate,
                 usuario: this.state.username,
                 unidad: this.state.unidad,
                 operador: this.state.operador,
                 refacciones: this.state.listRefacciones,
                 imagenes: this.state.images,
                 observaciones: this.state.observaciones,
+                ubicacion: this.state.ubicacion,
                 estatus: cadenaValida(this.state.estatus) ? this.state.estatus : 'Registrado'
             };
+            console.log(JSON.stringify(orden));
             guarddarMntoRescate(orden);
             this.props.onSave();
         }

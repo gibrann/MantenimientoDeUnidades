@@ -114,6 +114,7 @@ export class CorrectivoView extends Component {
                     onChange={() => {
                         this.deleteImage(image);
                     }}
+                    onRequestClose={()=>{}}
                     optionTextStyle={{color: 'red'}}
                     cancelText={'Cancelar'}
                 >

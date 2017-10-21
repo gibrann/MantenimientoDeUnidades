@@ -10,27 +10,21 @@ import {
 import bcrypt from 'react-native-bcrypt';
 import {fechaString, objetoValido} from '../util/comunUtil'
 
-var SQLite = require('react-native-sqlite-storage');
-var Respuesta = {data: null, mensaje: '', exito: false};
-var unidades = [];
-var familias = [];
-var servicios = [];
-var refacciones = [];
+let SQLite = require('react-native-sqlite-storage');
+let Respuesta = {data: null, mensaje: '', exito: false};
+let unidades = [];
+let servicios = [];
+let refacciones = [];
 
 const INSERT_USUARIO = 'INSERT INTO am_usuario(username,password,enabled,id_empresa) VALUES (?,?,?,?)';
 const INSERT_PAQUETE = 'INSERT INTO ar_paquete_familia VALUES (?,?,?,?,?,?)';
 
 const successFn = function () {
-    //db.close(function () {
     console.log('Base de datos cerrada correctamente');
-    //});
 };
 
 const errorFn = function (error) {
-    //db.close(function () {
     console.log('Ocurrio un error: ' + error.message);
-    //console.log('Base de datos cerrada.');
-    //});
 };
 
 const errorTxFn = function (error) {
@@ -44,7 +38,6 @@ const db = SQLite.openDatabase({
 }, successFn, errorFn);
 
 export function limpiaCatalogos() {
-
     db.transaction((tx) => {
         tx.executeSql('DELETE FROM ar_operador');
         tx.executeSql('DELETE FROM ar_unidades');
@@ -55,13 +48,12 @@ export function limpiaCatalogos() {
     }, errorTxFn);
     console.log('Limpieza finalizada.');
     return Respuesta.exito = true;
-};
+}
 
 export function cargarCatalogos(catalogos) {
-
     db.transaction((tx) => {
-        for (var catalogo in catalogos) {
-            var entidad = catalogos[catalogo];
+        for (let catalogo in catalogos) {
+            let entidad = catalogos[catalogo];
             switch (catalogo) {
                 case "CAT_USUARIOS":
                     console.log("registro de usuarios");
@@ -79,7 +71,7 @@ export function cargarCatalogos(catalogos) {
                     console.log("registro de unidades");
                     for (let i in entidad) {
                         guardarRegistro(tx, 'ar_unidades', entidad[i]);
-                        var operador = entidad[i].operador;
+                        let operador = entidad[i].operador;
                         if (operador.nombre !== null) {
                             operador.numPlaca = entidad[i].numPlaca;
                             operador.numEconomico = entidad[i].numEconomico;
@@ -91,7 +83,7 @@ export function cargarCatalogos(catalogos) {
                     console.log("registro de material de servicio");
                     for (let i in entidad) {
                         guardarRegistro(tx, 'ar_material_servicio', entidad[i]);
-                        var refacciones = entidad[i].catRefacciones;
+                        let refacciones = entidad[i].catRefacciones;
                         console.log("Numero de Refacciones " + refacciones.length);
                         if (refacciones.length > 0) {
                             for (let j in refacciones) {
@@ -104,13 +96,10 @@ export function cargarCatalogos(catalogos) {
             }
         }
     }, errorTxFn);
-
-
     return Respuesta.exito = true;
-};
+}
 
 export function guardarRegistro(tx, table, obj) {
-
     switch (table) {
         case 'am_usuario':
             tx.executeSql(
@@ -214,14 +203,14 @@ export function guardarRegistro(tx, table, obj) {
                 });
             break;
     }
-};
+}
 
 export function validarAcceso(usuario, password) {
 
     db.transaction((tx) => {
         tx.executeSql('SELECT username,password FROM am_usuario WHERE username = ?', [usuario], (tx, results) => {
-            var len = results.rows.length;
-            if (len == 1) {
+            let len = results.rows.length;
+            if (len === 1) {
                 let user = results.rows.item(0);
                 Respuesta.exito = bcrypt.compareSync(password, user.password);
             } else {
@@ -233,7 +222,7 @@ export function validarAcceso(usuario, password) {
     }, errorTxFn);
 
     return Respuesta;
-};
+}
 
 export function obtenerUnidades(cadena) {
     unidades = [];
@@ -253,11 +242,11 @@ export function obtenerUnidades(cadena) {
             ' AND o.num_economico = u.num_economico ' +
             ' WHERE u.num_placa LIKE ?',
             ['%' + cadena + '%'], (tx, results) => {
-                var len = results.rows.length;
+                let len = results.rows.length;
                 if (len > 0) {
                     console.log("Se encontraron " + len + " unidades.");
-                    for (var i = 0; i < len; i++) {
-                        var unidad = results.rows.item(i);
+                    for (let i = 0; i < len; i++) {
+                        let unidad = results.rows.item(i);
                         unidades.push(unidad);
                     }
                 } else {
@@ -268,7 +257,7 @@ export function obtenerUnidades(cadena) {
             });
     }, errorTxFn);
     return unidades;
-};
+}
 
 export function obtenerServicios(cadena) {
     servicios = [];
@@ -276,11 +265,11 @@ export function obtenerServicios(cadena) {
         tx.executeSql(
             ' SELECT id_material_servicio AS key, subtipo_servicio AS label FROM ar_material_servicio WHERE subtipo_servicio LIKE ?',
             ['%' + cadena + '%'], (tx, results) => {
-                var len = results.rows.length;
+                let len = results.rows.length;
                 if (len > 0) {
                     console.log("Se encontraron " + len + " servicios.");
-                    for (var i = 0; i < len; i++) {
-                        var servicio = results.rows.item(i);
+                    for (let i = 0; i < len; i++) {
+                        let servicio = results.rows.item(i);
                         servicios.push(servicio);
                         //console.log("{" + servicio.key + "," + servicio.label + "}")
                     }
@@ -292,19 +281,19 @@ export function obtenerServicios(cadena) {
             });
     }, errorTxFn);
     return servicios;
-};
+}
 
 export function obtenerRefacciones(idServicio) {
     refacciones = [];
     db.transaction((tx) => {
         tx.executeSql(
-            ' SELECT -1 AS key, "Seleccione..." AS label, 0 AS precio, 0 AS existencia UNION SELECT id_material_serv_refaccion AS key, marca_material||" "||descripcion||" #("||numero_existentes||")"  AS label, precio_unitario AS precio, numero_existentes AS existencia FROM ar_material_serv_refaccion WHERE id_material_servicio = ?',
+            "SELECT -1 AS key, 'Seleccione...' AS label, 0 AS precio, 0 AS existencia UNION SELECT id_material_serv_refaccion AS key, marca_material||' '||descripcion||' #('||numero_existentes||')'  AS label, precio_unitario AS precio, numero_existentes AS existencia FROM ar_material_serv_refaccion WHERE id_material_servicio = ?",
             [idServicio], (tx, results) => {
-                var len = results.rows.length;
+                let len = results.rows.length;
                 if (len > 0) {
                     console.log("Se encontraron " + len + " refacciones.");
-                    for (var i = 0; i < len; i++) {
-                        var refaccion = {
+                    for (let i = 0; i < len; i++) {
+                        let refaccion = {
                             key: results.rows.item(i).key,
                             label: results.rows.item(i).label,
                             precio: results.rows.item(i).precio,
@@ -320,18 +309,18 @@ export function obtenerRefacciones(idServicio) {
             });
     }, errorTxFn);
     return refacciones;
-};
+}
 
 export function guarddarMntoCorrectivo(orden) {
-    var totalRefacciones = 0;
-    var totalManoObra = orden.observaciones.manoObra;
-    var listArRefacciones = [];
+    let totalRefacciones = 0;
+    let totalManoObra = orden.observaciones.manoObra;
+    let listArRefacciones = [];
     const {refacciones} = orden;
-    var len = refacciones.length;
+    let len = refacciones.length;
     if (len > 0) {
-        var ar_material_orden_trabajo = null;
+        let ar_material_orden_trabajo = null;
         console.log("Se encontraron " + len + " ordenes.");
-        for (var i = 0; i < len; i++) {
+        for (let i = 0; i < len; i++) {
             ar_material_orden_trabajo = {
                 idOrdenTrabajo: orden.idOrdenTrabajo,
                 idMaterialServicioRefaccion: refacciones[i].refaccion.key,
@@ -344,12 +333,12 @@ export function guarddarMntoCorrectivo(orden) {
                 existencia: refacciones[i].refaccion.existencia
             };
             listArRefacciones.push(ar_material_orden_trabajo);
-            var precio = Number(refacciones[i].refaccion.precio);
+            let precio = Number(refacciones[i].refaccion.precio);
             totalRefacciones += (precio * refacciones[i].cantidad);
             console.log("Total = " + totalRefacciones)
         }
     }
-    var ar_orden_trabajo = {
+    let ar_orden_trabajo = {
         idOrdenTrabajo: orden.idOrdenTrabajo,
         folio: null,
         ruta: orden.unidad.ruta,
@@ -377,7 +366,7 @@ export function guarddarMntoCorrectivo(orden) {
         idCheckList: null,
         idUbicacionUnidad: null
     };
-    var ar_operador_orden_trabajo = {
+    let ar_operador_orden_trabajo = {
         idOrdenTrabajo: orden.idOrdenTrabajo,
         nombres: orden.operador.nombres,
         apellidos: orden.operador.apellidos,
@@ -385,13 +374,13 @@ export function guarddarMntoCorrectivo(orden) {
         telefono: orden.operador.telefono
 
     };
-    var ar_servicio_refacciones = {
+    let ar_servicio_refacciones = {
         idOrdenTrabajo: orden.idOrdenTrabajo,
         description: null,
         totalRefacciones: totalRefacciones,
         totalManoObra: totalManoObra
     };
-    var listImagenes = this.imagenes;
+    let listImagenes = this.imagenes;
     db.transaction((tx) => {
         if (!objetoValido(orden.idOrdenTrabajo)) {
             guardarRegistro(tx, 'ar_orden_trabajo', ar_orden_trabajo);
@@ -406,17 +395,17 @@ export function guarddarMntoCorrectivo(orden) {
         console.log("Se guardo el poerador para la orden con id " + ar_orden_trabajo.idOrdenTrabajo);
         guardarRegistro(tx, 'ar_servicio_refacciones', ar_servicio_refacciones);
         console.log("Se guardo el principal de las refacciones");
-        var len = listArRefacciones.length;
+        let len = listArRefacciones.length;
         if (len > 0) {
-            for (var i = 0; i < len; i++) {
+            for (let i = 0; i < len; i++) {
                 listArRefacciones[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
                 guardarRegistro(tx, 'ar_material_orden_trabajo', listArRefacciones[i]);
                 console.log("Guardando refaccion: " + (i + 1));
             }
         }
-        var len2 = listImagenes.length;
+        let len2 = listImagenes.length;
         if (len2 > 0) {
-            for (var i = 0; i < len2; i++) {
+            for (let i = 0; i < len2; i++) {
                 listImagenes[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
                 guardarRegistro(tx, 'ar_imagenes', listImagenes[i]);
                 console.log("Guardando refaccion: " + (i + 1));
@@ -424,18 +413,18 @@ export function guarddarMntoCorrectivo(orden) {
         }
     }, errorTxFn);
 
-};
+}
 
 export function guarddarMntoPreventivo(orden) {
-    var totalRefacciones = 0;
-    var totalManoObra = 0;
-    var listArRefacciones = [];
+    let totalRefacciones = 0;
+    let totalManoObra = 0;
+    let listArRefacciones = [];
     const {refacciones} = orden;
-    var len = refacciones.length;
+    let len = refacciones.length;
     if (len > 0) {
-        var ar_material_orden_trabajo = null;
+        let ar_material_orden_trabajo = null;
         console.log("Se encontraron " + len + " ordenes.");
-        for (var i = 0; i < len; i++) {
+        for (let i = 0; i < len; i++) {
             ar_material_orden_trabajo = {
                 idOrdenTrabajo: orden.idOrdenTrabajo,
                 idMaterialServicioRefaccion: refacciones[i].refaccion.key,
@@ -448,12 +437,12 @@ export function guarddarMntoPreventivo(orden) {
                 existencia: refacciones[i].refaccion.existencia
             };
             listArRefacciones.push(ar_material_orden_trabajo);
-            var precio = Number(refacciones[i].refaccion.precio);
+            let precio = Number(refacciones[i].refaccion.precio);
             totalRefacciones += (precio * refacciones[i].cantidad);
             console.log("Total = " + totalRefacciones)
         }
     }
-    var ar_orden_trabajo = {
+    let ar_orden_trabajo = {
         idOrdenTrabajo: orden.idOrdenTrabajo,
         folio: null,
         ruta: orden.unidad.ruta,
@@ -481,7 +470,7 @@ export function guarddarMntoPreventivo(orden) {
         idCheckList: null,
         idUbicacionUnidad: null
     };
-    var ar_operador_orden_trabajo = {
+    let ar_operador_orden_trabajo = {
         idOrdenTrabajo: orden.idOrdenTrabajo,
         nombres: orden.operador.nombres,
         apellidos: orden.operador.apellidos,
@@ -489,13 +478,13 @@ export function guarddarMntoPreventivo(orden) {
         telefono: orden.operador.telefono
 
     };
-    var ar_servicio_refacciones = {
+    let ar_servicio_refacciones = {
         idOrdenTrabajo: orden.idOrdenTrabajo,
         description: null,
         totalRefacciones: totalRefacciones,
         totalManoObra: totalManoObra
     };
-    var listImagenes = this.imagenes;
+    let listImagenes = this.imagenes;
     db.transaction((tx) => {
         if (!objetoValido(orden.idOrdenTrabajo)) {
             guardarRegistro(tx, 'ar_orden_trabajo', ar_orden_trabajo);
@@ -510,17 +499,17 @@ export function guarddarMntoPreventivo(orden) {
         console.log("Se guardo el poerador para la orden con id " + ar_orden_trabajo.idOrdenTrabajo);
         guardarRegistro(tx, 'ar_servicio_refacciones', ar_servicio_refacciones);
         console.log("Se guardo el principal de las refacciones");
-        var len = listArRefacciones.length;
+        let len = listArRefacciones.length;
         if (len > 0) {
-            for (var i = 0; i < len; i++) {
+            for (let i = 0; i < len; i++) {
                 listArRefacciones[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
                 guardarRegistro(tx, 'ar_material_orden_trabajo', listArRefacciones[i]);
                 console.log("Guardando refaccion: " + (i + 1));
             }
         }
-        var len2 = listImagenes.length;
+        let len2 = listImagenes.length;
         if (len2 > 0) {
-            for (var i = 0; i < len2; i++) {
+            for (let i = 0; i < len2; i++) {
                 listImagenes[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
                 guardarRegistro(tx, 'ar_imagenes', listImagenes[i]);
                 console.log("Guardando refaccion: " + (i + 1));
@@ -528,18 +517,18 @@ export function guarddarMntoPreventivo(orden) {
         }
     }, errorTxFn);
 
-};
+}
 
 export function guarddarMntoRescate(orden) {
-    var totalRefacciones = 0;
-    var totalManoObra = 0;
-    var listArRefacciones = [];
+    let totalRefacciones = 0;
+    let totalManoObra = 0;
+    let listArRefacciones = [];
     const {refacciones} = orden;
-    var len = refacciones.length;
+    let len = refacciones.length;
     if (len > 0) {
-        var ar_material_orden_trabajo = null;
+        let ar_material_orden_trabajo = null;
         console.log("Se encontraron " + len + " ordenes.");
-        for (var i = 0; i < len; i++) {
+        for (let i = 0; i < len; i++) {
             ar_material_orden_trabajo = {
                 idOrdenTrabajo: orden.idOrdenTrabajo,
                 idMaterialServicioRefaccion: refacciones[i].refaccion.key,
@@ -552,17 +541,17 @@ export function guarddarMntoRescate(orden) {
                 existencia: refacciones[i].refaccion.existencia
             };
             listArRefacciones.push(ar_material_orden_trabajo);
-            var precio = Number(refacciones[i].refaccion.precio);
+            let precio = Number(refacciones[i].refaccion.precio);
             totalRefacciones += (precio * refacciones[i].cantidad);
             console.log("Total = " + totalRefacciones)
         }
     }
-    var ar_orden_trabajo = {
+    let ar_orden_trabajo = {
         idOrdenTrabajo: orden.idOrdenTrabajo,
         folio: null,
         ruta: orden.unidad.ruta,
         kilometraje: orden.unidad.kilometraje,
-        tipoServicio: 'Preventivo',
+        tipoServicio: 'Rescate',
         numeroPlaca: orden.unidad.placa,
         numeroEconomico: orden.unidad.economico,
         fechaUpdate: fechaString(new Date()),
@@ -585,7 +574,7 @@ export function guarddarMntoRescate(orden) {
         idCheckList: null,
         idUbicacionUnidad: null
     };
-    var ar_operador_orden_trabajo = {
+    let ar_operador_orden_trabajo = {
         idOrdenTrabajo: orden.idOrdenTrabajo,
         nombres: orden.operador.nombres,
         apellidos: orden.operador.apellidos,
@@ -593,13 +582,13 @@ export function guarddarMntoRescate(orden) {
         telefono: orden.operador.telefono
 
     };
-    var ar_servicio_refacciones = {
+    let ar_servicio_refacciones = {
         idOrdenTrabajo: orden.idOrdenTrabajo,
         description: null,
         totalRefacciones: totalRefacciones,
         totalManoObra: totalManoObra
     };
-    var listImagenes = this.imagenes;
+    let listImagenes = this.imagenes;
     db.transaction((tx) => {
         if (!objetoValido(orden.idOrdenTrabajo)) {
             guardarRegistro(tx, 'ar_orden_trabajo', ar_orden_trabajo);
@@ -614,41 +603,41 @@ export function guarddarMntoRescate(orden) {
         console.log("Se guardo el poerador para la orden con id " + ar_orden_trabajo.idOrdenTrabajo);
         guardarRegistro(tx, 'ar_servicio_refacciones', ar_servicio_refacciones);
         console.log("Se guardo el principal de las refacciones");
-        var len = listArRefacciones.length;
+        let len = listArRefacciones.length;
         if (len > 0) {
-            for (var i = 0; i < len; i++) {
+            for (let i = 0; i < len; i++) {
                 listArRefacciones[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
                 guardarRegistro(tx, 'ar_material_orden_trabajo', listArRefacciones[i]);
                 console.log("Guardando refaccion: " + (i + 1));
             }
         }
-        var len2 = listImagenes.length;
+        let len2 = listImagenes.length;
         if (len2 > 0) {
-            for (var i = 0; i < len2; i++) {
+            for (let i = 0; i < len2; i++) {
                 listImagenes[i].idOrdenTrabajo = ar_orden_trabajo.idOrdenTrabajo;
                 guardarRegistro(tx, 'ar_imagenes', listImagenes[i]);
-                console.log("Guardando refaccion: " + (i + 1));
+                console.log("Guardando imagen: " + (i + 1));
             }
         }
     }, errorTxFn);
 
-};
+}
 
 export function eliminarOrden(orden) {
 
-};
+}
 
 export function obtenerOrdenesByUser(usuario) {
-    var ordenes = [];
+    let ordenes = [];
     db.transaction((tx) => {
         tx.executeSql(
             'SELECT o.id_orden_trabajo as idOrdenTrabajo, o.num_economico as numeroEconomico, o.estatus_servicio as estatus, o.fecha_entrada fechaEntrada, o.usuario_asignado usuarioAsignado, o.tipo_servicio as tipoServicio FROM ar_orden_trabajo as o WHERE usuario_creacion = ?',
             [usuario], (tx, results) => {
-                var len = results.rows.length;
+                let len = results.rows.length;
                 if (len > 0) {
                     console.log("Se encontraron " + len + " ordenes.");
-                    for (var i = 0; i < len; i++) {
-                        var orden = results.rows.item(i);
+                    for (let i = 0; i < len; i++) {
+                        let orden = results.rows.item(i);
                         ordenes.push(orden);
                     }
                 } else {
@@ -659,5 +648,5 @@ export function obtenerOrdenesByUser(usuario) {
             });
     }, errorTxFn);
     return ordenes;
-};
+}
 
