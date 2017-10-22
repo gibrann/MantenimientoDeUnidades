@@ -195,7 +195,15 @@ export function guardarRegistro(tx, table, obj) {
                 });
             break;
         case 'ar_imagenes':
-            tx.executeSql('INSERT INTO main.ar_imagenes(id_orden_trabajo, uri, height, width, tipo_imagen) VALUES(?,?,?,?,?)',
+            tx.executeSql('INSERT INTO ar_imagenes(id_orden_trabajo, uri, height, width, tipo_imagen) VALUES(?,?,?,?,?)',
+                [obj.idOrdenTrabajo, obj.uri, obj.height, obj.width,obj.mime], (tx, res) => {
+                },
+                (tx, error) => {
+                    console.log('INSERT error: ' + error.message);
+                });
+            break;
+        case 'ar_ubicacion_unidades':
+            tx.executeSql('INSERT INTO main.ar_ubicacion_unidad(fecha_reporte, hora_reporte, hora_salida, hora_arribo, uso_grua, uso_remplazo, fecha_termino, hora_termino, ciudad, estado, poblacion) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
                 [obj.idOrdenTrabajo, obj.uri, obj.height, obj.width,obj.mime], (tx, res) => {
                 },
                 (tx, error) => {
@@ -555,11 +563,11 @@ export function guarddarMntoRescate(orden) {
         numeroPlaca: orden.unidad.placa,
         numeroEconomico: orden.unidad.economico,
         fechaUpdate: fechaString(new Date()),
-        fechaEntrada: orden.unidad.fechaEntrada,
+        fechaEntrada: fechaString(new Date()),
         fechaInicio: null,
         fechaFin: null,
         fechaSalida: null,
-        horaEntrada: orden.unidad.horaEntrada,
+        horaEntrada: null,
         horaSalida: null,
         usuarioCreacion: orden.usuario,
         usuarioAsignado: orden.usuario,
@@ -567,8 +575,8 @@ export function guarddarMntoRescate(orden) {
         falla: orden.observaciones.falla,
         reparacion: null,
         refaccionesUsadas: null,
-        fechaProxServicio: orden.servicio.proximo, //TODO Validar destino
-        observaciones: orden.servicio.comentarios, //TODO Validar destino
+        fechaProxServicio: null,
+        observaciones: null,
         totalServicio: (totalManoObra + totalRefacciones),
         estatusServicio: orden.estatus,
         idCheckList: null,
@@ -589,6 +597,29 @@ export function guarddarMntoRescate(orden) {
         totalManoObra: totalManoObra
     };
     let listImagenes = this.imagenes;
+    let ar_ubicacion_unidad = {
+        idUbicacionUnidad:null,
+        fechaReporte: orden.registro.fechaReporte,
+        horaReporte:orden.registro.horaReporte,
+        horaSalida:orden.rescate.horaSalida,
+        horaArribo: orden.rescate.horaArribo,
+        usoGrua:orden.rescate.grua,
+        usoRemplazo:orden.rescate.remplazo,
+        fechaTermino:orden.ubicacion.fechaTermino,
+        horaTermino:orden.ubicacion.horaTermino,
+        ciudad:orden.ubicacion.ciudad,
+        estado:orden.ubicacion.estado,
+        poblacion:orden.ubicacion.poblacion
+    };
+
+    db.transaction((tx) => {
+        if (!objetoValido(ar_ubicacion_unidad.idUbicacionUnidad)) {
+            guardarRegistro(tx, 'ar_ubicacion_unidad', ar_ubicacion_unidad);
+        } else {
+
+        }
+    }, errorTxFn);
+    orden.idUbicacionUnidad = ar_ubicacion_unidad.idUbicacionUnidad;
     db.transaction((tx) => {
         if (!objetoValido(orden.idOrdenTrabajo)) {
             guardarRegistro(tx, 'ar_orden_trabajo', ar_orden_trabajo);

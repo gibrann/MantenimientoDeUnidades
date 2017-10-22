@@ -270,7 +270,7 @@ export class RescateView extends Component {
                                 onDateChange={(date) => {
                                     const {registro} = this.state;
                                     registro.horaReporte = date;
-                                    this.setState({registro: registro})
+                                    this.setState({rescate: registro})
 
                                 }}
                                 customStyles={{
@@ -298,8 +298,8 @@ export class RescateView extends Component {
                                 showIcon={false}
                                 onDateChange={(date) => {
                                     const {rescate} = this.state;
-                                    rescate.fechaReporte = date;
-                                    this.setState({rescate: registro})
+                                    rescate.horaSalida = date;
+                                    this.setState({rescate: rescate})
                                 }}
                                 customStyles={{
                                     dateInput: styles.datePickerInput,
@@ -321,7 +321,7 @@ export class RescateView extends Component {
                                 onDateChange={(date) => {
                                     const {rescate} = this.state;
                                     rescate.horaArribo = date;
-                                    this.setState({rescate: registro})
+                                    this.setState({rescate: rescate})
                                 }}
                                 customStyles={{
                                     dateInput: styles.datePickerInput,
@@ -520,11 +520,19 @@ export class RescateView extends Component {
                         </Header>
                         <Item floatingLabel>
                             <Label>Diagnostico Falla</Label>
-                            <Input value={this.state.observaciones.problema}/>
+                            <Input value={this.state.observaciones.falla} onChangeText={(text) => {
+                                const {observaciones} = this.state;
+                                observaciones.falla = text;
+                                this.setState({observaciones: observaciones});
+                            }}/>
                         </Item>
                         <Item floatingLabel>
                             <Label>Descrpción Problema</Label>
-                            <Input value={this.state.observaciones.observacion}/>
+                            <Input value={this.state.observaciones.problema} onChangeText={(text) => {
+                                const {observaciones} = this.state;
+                                observaciones.problema = text;
+                                this.setState({observaciones: observaciones});
+                            }}/>
                         </Item>
                         <Separator bordered/>
                         <Header>
@@ -703,7 +711,7 @@ export class RescateView extends Component {
             if (!cadenaValida(this.state.observaciones.falla)) {
                 requisitosObservaciones += '\t\t*Diagnostico de falla\n';
             }
-            if (!cadenaValida(this.state.observaciones.reparacion)) {
+            if (!cadenaValida(this.state.observaciones.problema)) {
                 requisitosObservaciones += '\t\t*Descripción del problema\n';
             }
             if (cadenaValida(requisitosObservaciones)) {
@@ -722,7 +730,7 @@ export class RescateView extends Component {
             if (!cadenaValida(this.state.ubicacion.poblacion)) {
                 requisitosUbicacion += '\t\t*Poclación\n';
             }
-            if (!cadenaValida(this.state.ubicacion.feachaTermino)) {
+            if (!cadenaValida(this.state.ubicacion.fechaTermino)) {
                 requisitosUbicacion += '\t\t*Fecha Termino\n';
             }
             if (!cadenaValida(this.state.ubicacion.horaTermino)) {
