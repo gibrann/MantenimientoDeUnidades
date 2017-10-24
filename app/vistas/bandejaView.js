@@ -8,11 +8,12 @@ import {
     Text,
     TouchableOpacity,
     TouchableHighlight,
-    View
+    View,
+    Alert
 } from 'react-native';
 import styles from '../estilos/estilos';
 import {SwipeListView, SwipeRow} from 'react-native-swipe-list-view';
-import {obtenerOrdenesByUser,eliminarOrden} from '../repositorios/generalRepository';
+import {obtenerOrdenesByUser, eliminarOrden, actualizarOrdenTrabajo} from '../repositorios/generalRepository';
 import SignatureCapture from 'react-native-signature-capture';
 import Modal from 'react-native-modal';
 
@@ -26,7 +27,9 @@ class bandejaOrdenesView extends Component {
             username: props.username,
             basic: true,
             visibleSignature: false,
-            currentOrden: null
+            currentOrden: null,
+            firmaValida: false,
+            firma: null,
         };
     }
 
@@ -56,7 +59,7 @@ class bandejaOrdenesView extends Component {
         let _this = this;
         setTimeout(function () {
             _this.setState({listOrdenes: _ordenes});
-        }, 1000);
+        }, 800);
     }
 
     obtenerOperacion(orden) {
@@ -66,7 +69,7 @@ class bandejaOrdenesView extends Component {
                 operacion = (
                     <TouchableOpacity style={[styles.leftBtn, styles.procesaLeftBtn]}
                                       onPress={() => {
-                                          this.setState({currentOrden: orden});
+                                          this.setState({currentOrden: orden, firma: null});
                                           this.procesaRow();
                                       }}>
                         <Text style={styles.backTextWhite}>Procesar</Text>
@@ -76,9 +79,9 @@ class bandejaOrdenesView extends Component {
             case 'Procesado':
                 operacion = (
                     <TouchableOpacity style={[styles.backRightBtn, styles.finalizaLeftBtn]}
-                                      onPress={() =>{
-                                          this.setState({currentOrden: orden});
-                                          this.finalizaRow.bind();
+                                      onPress={() => {
+                                          this.setState({currentOrden: orden, firma: null});
+                                          this.finalizaRow();
                                       }}>
                         <Text style={styles.backTextWhite}>Finalizar</Text>
                     </TouchableOpacity>
@@ -92,12 +95,46 @@ class bandejaOrdenesView extends Component {
     }
 
     saveSign() {
-        this.refs["sign"].saveImage();
+        if (this.state.firmaValida) {
+            this.refs["sign"].saveImage();
+            this.setState({visibleSignature: false});
+        } else {
+            Alert.alert(
+                'Error',
+                "Ingrese una firma para continuar",
+                [
+                    {
+                        text: 'Aceptar',
+                    }
+                ]
+            );
+        }
     }
 
     resetSign() {
+        this.setState({firmaValida: false});
         this.refs["sign"].resetImage();
     }
+
+    actualizaOrden(firma) {
+        let _ordenes = [];
+        let {currentOrden} = this.state;
+        switch (currentOrden.estatus) {
+            case 'Registrado':
+                currentOrden.estatus = 'Procesado';
+                break;
+            case 'Procesado':
+                currentOrden.estatus = 'Finalizado';
+                break;
+        }
+        actualizarOrdenTrabajo(currentOrden, firma);
+        _ordenes = obtenerOrdenesByUser(this.state.username);
+        let _this = this;
+        setTimeout(function () {
+            _this.setState({listOrdenes: _ordenes});
+        }, 800);
+    }
+
 
     render() {
         return (
@@ -107,6 +144,7 @@ class bandejaOrdenesView extends Component {
                     dataSource={this.ds.cloneWithRows(this.state.listOrdenes)}
                     renderRow={(data, secId, rowId, rowMap) => (
                         <SwipeRow
+                            disableRightSwipe={(data.estatus === "Finalizado")}
                             disableLeftSwipe={(data.estatus === "Finalizado")}
                             leftOpenValue={20 + Math.random() * 150}
                             rightOpenValue={-150}
@@ -118,7 +156,7 @@ class bandejaOrdenesView extends Component {
                                     <Text style={styles.backTextWhite}>Editar</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.backRightBtn, styles.backRightBtnRight]}
-                                                  onPress={() =>{
+                                                  onPress={(secId, rowId, rowMap) => {
                                                       this.setState({currentOrden: data});
                                                       this.deleteRow.bind(secId, rowId, rowMap)
                                                   }}>
@@ -148,7 +186,8 @@ class bandejaOrdenesView extends Component {
                     animationOutTiming={1000}
                     backdropTransitionInTiming={1000}
                     backdropTransitionOutTiming={1000}
-                    onRequestClose={()=>{}}
+                    onRequestClose={() => {
+                    }}
                 >
                     <View style={styles.modalSignature}>
                         <View style={styles.viewSignature}>
@@ -156,24 +195,26 @@ class bandejaOrdenesView extends Component {
                             <SignatureCapture
                                 style={[{flex: 1}, styles.signature]}
                                 ref="sign"
-                                onSaveEvent={this._onSaveEvent}
-                                onDragEvent={this._onDragEvent}
-                                saveImageFileInExtStorage={false}
+                                onSaveEvent={(result) => {
+                                    this.actualizaOrden(result);
+                                }}
+                                onDragEvent={() => {
+                                    this.setState({firmaValida: true})
+                                }}
+                                saveImageFileInExtStorage={true}
                                 showNativeButtons={false}
-                                showTitleLabel={false}
-                                viewMode={"landscape"}/>
+                                showTitleLabel={false}/>
                         </View>
                         <View style={{flex: 1, flexDirection: "row"}}>
                             <TouchableHighlight style={styles.buttonStyle}
                                                 onPress={() => {
                                                     this.saveSign();
-                                                    this.setState({visibleSignature: false});
                                                 }}>
                                 <Text>Terminar</Text>
                             </TouchableHighlight>
 
                             <TouchableHighlight style={styles.buttonStyle}
-                                                onPress={()=> {
+                                                onPress={() => {
                                                     this.resetSign()
                                                 }}>
                                 <Text>Reset</Text>

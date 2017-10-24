@@ -164,7 +164,7 @@ export function guardarRegistro(tx, table, obj) {
             tx.executeSql('INSERT INTO ar_orden_trabajo(folio, ruta, kilometraje, tipo_servicio, num_placa, num_economico, fecha_update, fecha_entrada, fecha_inicio, fecha_fin, fecha_salida, hora_entrada, hora_salida, estatus_servicio, usuario_creacion, usuario_asignado, descripcion_problema, diagnostico_falla, detalle_reparacion, refacciones_usadas, sugerencia_prox_serv, observaciones, total_servicio, id_check_list, id_ubicacion_unidad) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 [obj.folio, obj.ruta, obj.kilometraje, obj.tipoServicio, obj.numeroPlaca, obj.numeroEconomico, obj.fechaUpdate, obj.fechaEntrada, obj.fechaInicio, obj.fechaFin, obj.fechaSalida, obj.horaEntrada, obj.horaSalida, obj.estatusServicio, obj.usuarioCreacion, obj.usuarioAsignado, obj.problema, obj.falla, obj.reparacion, obj.refaccionesUsadas, obj.fechaProxServicio, obj.observaciones, obj.totalServicio, obj.idCheckList, obj.idUbicacionUnidad], (tx, res) => {
                     obj.idOrdenTrabajo = res.insertId;
-                    console.log("IdOrdden: "+res.insertId);
+                    console.log("IdOrdden: " + res.insertId);
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
@@ -188,7 +188,7 @@ export function guardarRegistro(tx, table, obj) {
             break;
         case 'ar_material_orden_trabajo':
             tx.executeSql('INSERT INTO ar_material_orden_trabajo(id_orden_trabajo, id_material_serv_refaccion, id_paquete_familia, concepto, servicio_material, precio_unitario_nvo, numero_utilizadas, subtotal_refacciones, existencia) VALUES(?,?,?,?,?,?,?,?,?)',
-                [obj.idOrdenTrabajo, obj.idMaterialServicioRefaccion, obj.idPaqueteFamilia, obj.concepto,obj.idMaterialServicio,obj.precio,obj.cantidad,obj.subtotal,obj.existencia], (tx, res) => {
+                [obj.idOrdenTrabajo, obj.idMaterialServicioRefaccion, obj.idPaqueteFamilia, obj.concepto, obj.idMaterialServicio, obj.precio, obj.cantidad, obj.subtotal, obj.existencia], (tx, res) => {
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
@@ -196,15 +196,15 @@ export function guardarRegistro(tx, table, obj) {
             break;
         case 'ar_imagenes':
             tx.executeSql('INSERT INTO ar_imagenes(id_orden_trabajo, uri, height, width, tipo_imagen) VALUES(?,?,?,?,?)',
-                [obj.idOrdenTrabajo, obj.uri, obj.height, obj.width,obj.mime], (tx, res) => {
+                [obj.idOrdenTrabajo, obj.uri, obj.height, obj.width, obj.mime], (tx, res) => {
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
                 });
             break;
         case 'ar_ubicacion_unidades':
-            tx.executeSql('INSERT INTO main.ar_ubicacion_unidad(fecha_reporte, hora_reporte, hora_salida, hora_arribo, uso_grua, uso_remplazo, fecha_termino, hora_termino, ciudad, estado, poblacion) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
-                [obj.idOrdenTrabajo, obj.uri, obj.height, obj.width,obj.mime], (tx, res) => {
+            tx.executeSql('INSERT INTO ar_ubicacion_unidad(fecha_reporte, hora_reporte, hora_salida, hora_arribo, uso_grua, uso_remplazo, fecha_termino, hora_termino, ciudad, estado, poblacion) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                [obj.fechaReporte, obj.horaReporte, obj.horaSalida, obj.horaArribo, obj.grua,obj.remplazo,obj.fechaTermino,obj.horaTermino,obk.ciudad,obj.estado,obj.poblacion], (tx, res) => {
                 },
                 (tx, error) => {
                     console.log('INSERT error: ' + error.message);
@@ -598,18 +598,18 @@ export function guarddarMntoRescate(orden) {
     };
     let listImagenes = this.imagenes;
     let ar_ubicacion_unidad = {
-        idUbicacionUnidad:null,
+        idUbicacionUnidad: null,
         fechaReporte: orden.registro.fechaReporte,
-        horaReporte:orden.registro.horaReporte,
-        horaSalida:orden.rescate.horaSalida,
+        horaReporte: orden.registro.horaReporte,
+        horaSalida: orden.rescate.horaSalida,
         horaArribo: orden.rescate.horaArribo,
-        usoGrua:orden.rescate.grua,
-        usoRemplazo:orden.rescate.remplazo,
-        fechaTermino:orden.ubicacion.fechaTermino,
-        horaTermino:orden.ubicacion.horaTermino,
-        ciudad:orden.ubicacion.ciudad,
-        estado:orden.ubicacion.estado,
-        poblacion:orden.ubicacion.poblacion
+        usoGrua: orden.rescate.grua,
+        usoRemplazo: orden.rescate.remplazo,
+        fechaTermino: orden.ubicacion.fechaTermino,
+        horaTermino: orden.ubicacion.horaTermino,
+        ciudad: orden.ubicacion.ciudad,
+        estado: orden.ubicacion.estado,
+        poblacion: orden.ubicacion.poblacion
     };
 
     db.transaction((tx) => {
@@ -654,6 +654,33 @@ export function guarddarMntoRescate(orden) {
 
 }
 
+export function actualizarOrdenTrabajo(orden, firma) {
+    let ar_imagen = {
+        idOrdenTrabajo: orden.idOrdenTrabajo,
+        uri: firma.pathName,
+        width: 100,
+        height: 100,
+        mime: ''
+    };
+    db.transaction((tx) => {
+        console.log(JSON.stringify(ar_imagen));
+        guardarRegistro(tx, 'ar_imagenes', ar_imagen);
+    }, errorTxFn);
+    actualizarEstatusOrden(orden);
+}
+
+export function actualizarEstatusOrden(orden) {
+    db.transaction((tx) => {
+        tx.executeSql('UPDATE ar_orden_trabajo SET estatus_servicio = ? WHERE id_orden_trabajo = ?',
+            [orden.estatus,orden.idOrdenTrabajo], (tx, res) => {
+                obj.idOrdenTrabajo = res.insertId;
+                console.log("IdOrdden: " + res.insertId);
+            },
+            (tx, error) => {
+                console.log('INSERT error: ' + error.message);
+            });
+    }, errorTxFn);
+}
 export function eliminarOrden(orden) {
 
 }
@@ -662,7 +689,7 @@ export function obtenerOrdenesByUser(usuario) {
     let ordenes = [];
     db.transaction((tx) => {
         tx.executeSql(
-            'SELECT o.id_orden_trabajo as idOrdenTrabajo, o.num_economico as numeroEconomico, o.estatus_servicio as estatus, o.fecha_entrada fechaEntrada, o.usuario_asignado usuarioAsignado, o.tipo_servicio as tipoServicio FROM ar_orden_trabajo as o WHERE usuario_creacion = ?',
+            'SELECT o.id_orden_trabajo AS idOrdenTrabajo, o.num_economico AS numeroEconomico, o.estatus_servicio AS estatus, o.fecha_entrada fechaEntrada, o.usuario_asignado usuarioAsignado, o.tipo_servicio AS tipoServicio FROM ar_orden_trabajo AS o WHERE usuario_creacion = ?',
             [usuario], (tx, results) => {
                 let len = results.rows.length;
                 if (len > 0) {

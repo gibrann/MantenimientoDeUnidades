@@ -182,7 +182,7 @@ export class masterView extends Component {
                                 </Button>
                             </Right>
                         </Header>
-                        <Bandeja username={this.state.username}/>
+                        <Bandeja username={this.state.username} onSave={this.toBandeja}/>
                     </Container>
                 );
                 break;
